@@ -178,6 +178,11 @@ body.edit-mode .app-acts{opacity:1}
 .viewer-back:hover{background:rgba(255,255,255,.18)}
 .viewer-title{font-size:14px;font-weight:700;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viewer-frame{flex:1;border:none;width:100%;background:#fff}
+.zoom-btn{padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.zoom-btn.active{background:var(--gold);border-color:var(--gold3);color:var(--ink)}
+.zoom-btn:hover:not(.active){background:rgba(255,255,255,.18);color:#fff}
+.zoom-group{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.zoom-label{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.05em;margin-right:2px}
 </style>
 </head>
 <body>
@@ -455,21 +460,47 @@ function launch(ci,si,ai,e){
     openViewer(app.file, app.emoji+' '+app.name);
   }
 }
+var curZoom=1.5;
 function openViewer(file,title){
   var viewer=document.getElementById('app-viewer');
   var frame=document.getElementById('viewer-frame');
   var titleEl=document.getElementById('viewer-title');
   if(titleEl) titleEl.textContent=title||'';
-  if(frame) frame.src=file;
+  if(frame){
+    frame.src=file;
+    frame.onload=function(){ applyZoom(curZoom); };
+  }
   if(viewer) viewer.classList.add('active');
   document.body.style.overflow='hidden';
+  updateZoomBtns();
 }
 function closeViewer(){
   var viewer=document.getElementById('app-viewer');
   var frame=document.getElementById('viewer-frame');
-  if(frame) frame.src='';
+  if(frame){ frame.onload=null; frame.src=''; }
   if(viewer) viewer.classList.remove('active');
   document.body.style.overflow='';
+}
+function applyZoom(z){
+  var frame=document.getElementById('viewer-frame');
+  if(!frame) return;
+  try{
+    var doc=frame.contentDocument||frame.contentWindow.document;
+    if(!doc) return;
+    var el=doc.documentElement;
+    if(el){ el.style.zoom=z; }
+  }catch(e){}
+}
+function setZoom(z){
+  curZoom=z;
+  applyZoom(z);
+  updateZoomBtns();
+}
+function updateZoomBtns(){
+  document.querySelectorAll('.zoom-btn').forEach(function(b){
+    var bz=parseFloat(b.textContent);
+    b.classList.toggle('active', bz===curZoom);
+  });
 }
 
 // ── MODAL ──
@@ -593,10 +624,14 @@ load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
 <!-- APP VIEWER -->
 <div class="app-viewer" id="app-viewer">
   <div class="viewer-bar">
-    <button class="viewer-back" onclick="closeViewer()">
-      ← Justin's Hub
-    </button>
+    <button class="viewer-back" onclick="closeViewer()">← Justin's Hub</button>
     <span class="viewer-title" id="viewer-title"></span>
+    <div class="zoom-group">
+      <span class="zoom-label">화면 크기</span>
+      <button class="zoom-btn" onclick="setZoom(1)">1x</button>
+      <button class="zoom-btn active" onclick="setZoom(1.5)">1.5x</button>
+      <button class="zoom-btn" onclick="setZoom(2)">2x</button>
+    </div>
   </div>
   <iframe class="viewer-frame" id="viewer-frame" src="" allowfullscreen></iframe>
 </div>

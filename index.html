@@ -236,8 +236,39 @@ body.edit-mode .app-acts{opacity:1}
   </div>
 
   <div id="board"></div>
-  <button class="add-main-b
-var SK='jhub-v2';
+  <button class="add-main-btn" id="add-main-btn" onclick="openAddMain()">＋ 메인 카테고리 추가</button>
+</div>
+
+</div>
+
+<!-- MODALS & VIEWER -->
+<div class="overlay hidden" id="overlay" onclick="bgClose(event)">
+  <div class="modal" id="modal">
+    <div class="m-title" id="m-title"></div>
+    <div id="m-body"></div>
+    <div class="mfoot" id="m-foot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- APP VIEWER -->
+<div class="app-viewer" id="app-viewer">
+  <div class="viewer-bar">
+    <button class="viewer-back" onclick="closeViewer()">← Justin's Hub</button>
+    <span class="viewer-title" id="viewer-title"></span>
+    <div class="zoom-group">
+      <span class="zoom-label">화면 크기</span>
+      <button class="zoom-btn" onclick="setZoom(1)">1x</button>
+      <button class="zoom-btn active" onclick="setZoom(1.5)">1.5x</button>
+      <button class="zoom-btn" onclick="setZoom(2)">2x</button>
+    </div>
+  </div>
+  <iframe class="viewer-frame" id="viewer-frame" src="" allowfullscreen></iframe>
+</div>
+
+<script>
+var SK='jhub-v2';'jhub-v2';
 var editMode=false;
 var openState={};
 var curTab='all';
@@ -626,13 +657,13 @@ function setHubZoom(z){
   localStorage.setItem('hub-zoom', z);
   applyHubZoom(z);
 }
-_study.apps.find(function(a){return a.file==='english_learner.html';})){
-      _study.apps.push({id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'});
-      localStorage.setItem('jhub-v2',JSON.stringify(_p));
-    }
-  }
-}catch(e){}
-load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
+
+
+
+
+
+
+
 </script>
 
 <!-- APP VIEWER -->

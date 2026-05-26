@@ -195,6 +195,11 @@ body.edit-mode .app-acts{opacity:1}
     <a onclick="openBackup()">💾 백업 & 복원</a>
     <span>|</span>
     <a id="edit-link" onclick="toggleEdit()">편집 모드</a>
+    <span>|</span>
+    <span style="color:rgba(255,255,255,.4);font-size:10px;font-weight:600;letter-spacing:.05em">화면</span>
+    <a onclick="setHubZoom(1)" id="hz1" style="font-weight:700">1x</a>
+    <a onclick="setHubZoom(1.5)" id="hz15" style="font-weight:700;color:var(--gold)">1.5x</a>
+    <a onclick="setHubZoom(2)" id="hz2" style="font-weight:700">2x</a>
   </div>
   <div class="hdr-main">
     <div class="logo">
@@ -231,22 +236,7 @@ body.edit-mode .app-acts{opacity:1}
   </div>
 
   <div id="board"></div>
-  <button class="add-main-btn" id="add-main-btn" onclick="openAddMain()">＋ 메인 카테고리 추가</button>
-</div>
-
-</div>
-
-<div class="overlay hidden" id="overlay" onclick="bgClose(event)">
-  <div class="modal" id="modal">
-    <div class="m-title" id="m-title"></div>
-    <div id="m-body"></div>
-    <div class="mfoot" id="m-foot"></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
+  <button class="add-main-b
 var SK='jhub-v2';
 var editMode=false;
 var openState={};
@@ -613,6 +603,30 @@ try{
     var _study=null;
     _p.cats.forEach(function(c){c.subs.forEach(function(s){if(s.id==='per-study')_study=s;});});
     if(_study&&!_study.apps.find(function(a){return a.file==='english_learner.html';})){
+      _study.apps.push({id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'});
+      localStorage.setItem('jhub-v2',JSON.stringify(_p));
+    }
+  }
+}catch(e){}
+load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
+var hubZoom = parseFloat(localStorage.getItem('hub-zoom')||'1.5');
+applyHubZoom(hubZoom);
+function applyHubZoom(z){
+  document.getElementById('app').style.zoom = z;
+  ['hz1','hz15','hz2'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.color = 'rgba(255,255,255,.45)';
+  });
+  var map = {1:'hz1',1.5:'hz15',2:'hz2'};
+  var active = document.getElementById(map[z]);
+  if(active) active.style.color = 'var(--gold)';
+}
+function setHubZoom(z){
+  hubZoom=z;
+  localStorage.setItem('hub-zoom', z);
+  applyHubZoom(z);
+}
+_study.apps.find(function(a){return a.file==='english_learner.html';})){
       _study.apps.push({id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'});
       localStorage.setItem('jhub-v2',JSON.stringify(_p));
     }

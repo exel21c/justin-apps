@@ -1,0 +1,3629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammar in Focus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#18181B;--ink2:#52525B;--ink3:#A1A1AA;
+  --paper:#FAFAF9;--card:#FFFFFF;--card2:#F4F4F5;
+  --border:rgba(0,0,0,0.08);--radius:14px;
+  --shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'DM Serif Display',Georgia,serif;font-weight:400}
+#app{max-width:640px;margin:0 auto;background:var(--paper);min-height:100vh}
+
+/* ── NAV ── */
+.nav{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.05)}
+.nav-brand{padding:13px 16px;font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);border-right:1px solid var(--border);white-space:nowrap;letter-spacing:-0.01em}
+.nav-tab{flex:1;padding:13px 4px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;font-family:'DM Sans',inherit;transition:all .15s}
+.nav-tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.nav-badge{position:absolute;top:7px;right:calc(50% - 20px);background:#EF4444;color:#fff;border-radius:8px;padding:1px 5px;font-size:9px;font-weight:700}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+.pad{padding:1.2rem 1rem}
+
+/* ── HOME ── */
+.hero{padding:1.5rem 1rem 1rem;border-bottom:1px solid var(--border);background:var(--card)}
+.hero-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;font-weight:600}
+.hero-title{font-size:26px;color:var(--ink);line-height:1.15;margin-bottom:4px}
+.hero-sub{font-size:13px;color:var(--ink2);line-height:1.6}
+
+/* ── PROGRESS RING ── */
+.ring-wrap{position:relative;width:60px;height:60px;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--card2);stroke-width:4}
+.ring-fill{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .5s ease}
+.ring-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+
+/* ── STAT STRIP ── */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:.8rem 1rem;border-bottom:1px solid var(--border)}
+.stat{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:.55rem .4rem;text-align:center}
+.stat-v{font-size:19px;font-weight:600;font-family:'DM Serif Display',serif}
+.stat-l{font-size:9px;color:var(--ink3);margin-top:1px;font-weight:500}
+
+/* ── TODAY'S MISSION ── */
+.mission{border-radius:var(--radius);padding:1rem 1.1rem;margin:.8rem 1rem;color:#fff;position:relative;overflow:hidden}
+.mission::after{content:"";position:absolute;right:-20px;bottom:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08)}
+.mission-eyebrow{font-size:10px;opacity:.75;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.mission-name{font-size:16px;font-weight:600;margin-bottom:4px;line-height:1.2}
+.mission-sub{font-size:12px;opacity:.8;margin-bottom:12px;line-height:1.5}
+.mission-btn{display:inline-block;padding:7px 16px;border-radius:8px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;text-decoration:none;margin-right:6px}
+.mission-btn:hover{background:rgba(255,255,255,.35)}
+
+/* ── ACTION BTNS ── */
+.action-row{display:flex;flex-direction:column;gap:8px;padding:0 1rem .8rem}
+.action-btn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;color:var(--ink);font-size:14px;text-align:left;transition:all .15s;box-shadow:var(--shadow)}
+.action-btn:hover{background:var(--card2);border-color:rgba(0,0,0,.14)}
+.action-btn .ab-icon{font-size:20px;flex-shrink:0;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.action-btn .ab-txt strong{display:block;font-size:14px;font-weight:600}
+.action-btn .ab-txt small{font-size:11px;color:var(--ink2)}
+.action-btn .ab-arrow{margin-left:auto;color:var(--ink3);font-size:15px}
+
+/* ── UNITS LIST ── */
+.sec-header{padding:.5rem 1rem;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);background:var(--paper);border-bottom:1px solid var(--border)}
+.unit-row{display:flex;align-items:center;gap:12px;padding:13px 1rem;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;width:100%;border-left:none;border-right:none;border-top:none;font-family:inherit;text-align:left}
+.unit-row:hover{background:#FAFAF8}
+.unit-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.unit-info{flex:1;min-width:0}
+.unit-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unit-sub{font-size:11px;color:var(--ink2)}
+.unit-right{text-align:right;flex-shrink:0}
+.unit-pct{font-size:15px;font-weight:700}
+.unit-done-badge{font-size:9px;color:#16A34A;font-weight:700;margin-top:1px}
+
+/* ── UNIT DETAIL ── */
+.unit-hdr{padding:1rem;background:var(--card);border-bottom:1px solid var(--border)}
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--ink2);margin-bottom:12px;transition:background .1s}
+.back-btn:hover{background:var(--card2)}
+.unit-eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px;font-weight:600}
+.unit-h1{font-size:22px;color:var(--ink);margin-bottom:2px}
+.unit-h2{font-size:13px;color:var(--ink2);margin-bottom:10px}
+.unit-pbar{height:5px;background:var(--card2);border-radius:3px;overflow:hidden}
+.unit-pbar-fill{height:100%;border-radius:3px;transition:width .5s}
+
+/* ── RULE CARDS ── */
+.rules-wrap{padding:.8rem 1rem}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:10px;border-left:3px solid}
+.rule-title{font-size:13px;font-weight:700;margin-bottom:3px;color:var(--ink)}
+.rule-ko{font-size:11px;color:var(--ink2);margin-bottom:8px}
+.formula-box{background:var(--card2);border-radius:8px;padding:8px 12px;font-family:monospace;font-size:13px;color:var(--ink);margin-bottom:10px;letter-spacing:.01em}
+.example-row{display:flex;flex-direction:column;gap:1px;padding:5px 0;border-bottom:1px solid var(--border)}
+.example-row:last-child{border-bottom:none}
+.ex-en{font-size:13px;color:var(--ink)}
+.ex-ko{font-size:11px;color:var(--ink3)}
+
+/* ── QUIZ ── */
+.quiz-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 1rem;border-bottom:1px solid var(--border);background:var(--card)}
+.quiz-prog-bar{height:3px;background:var(--card2)}
+.quiz-prog-fill{height:100%;transition:width .3s}
+.quiz-prompt-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);text-align:center;margin-bottom:8px;padding:.8rem 1rem 0}
+.quiz-q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:.5rem 1rem 1rem;padding:1.5rem 1.2rem;text-align:center;transition:background .25s,border-color .25s;box-shadow:var(--shadow)}
+.quiz-q-card.correct{background:#F0FDF4;border-color:#86EFAC}
+.quiz-q-card.wrong{background:#FEF2F2;border-color:#FCA5A5}
+.quiz-q-text{font-size:17px;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:10px}
+.fill-blank{display:inline-block;border-bottom:2px solid;padding:0 6px;min-width:80px;font-size:17px;font-weight:600;font-family:'DM Serif Display',serif}
+.quiz-reveal{margin-top:12px;font-size:13px;color:var(--ink2);line-height:1.6}
+.quiz-reveal .answer{font-weight:700;font-size:15px;margin-bottom:4px}
+.quiz-reveal .ko{color:var(--ink3)}
+.reveal-icon{font-size:24px;margin-bottom:4px}
+
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem 1rem}
+.opt{padding:13px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;font-weight:500;font-family:inherit;color:var(--ink);text-align:center;transition:all .15s;line-height:1.3}
+.opt:hover:not([disabled]){background:var(--card2);border-color:rgba(0,0,0,.15)}
+.opt.correct-opt{background:#F0FDF4!important;border-color:#86EFAC!important;color:#16A34A!important;font-weight:700!important}
+.opt.wrong-opt{background:#FEF2F2!important;border-color:#FCA5A5!important;color:#DC2626!important}
+.opt[disabled]{cursor:default}
+
+/* ── FILL EXERCISE ── */
+.fill-input{width:100%;border:1.5px solid;border-radius:8px;padding:10px 14px;font-size:15px;font-family:inherit;background:var(--card);color:var(--ink);outline:none;transition:border-color .15s;margin-bottom:8px}
+.fill-input:focus{border-color:var(--ink)}
+.fill-input.correct-input{border-color:#16A34A;background:#F0FDF4}
+.fill-input.wrong-input{border-color:#DC2626;background:#FEF2F2}
+.check-btn{width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.check-btn.primary{background:var(--ink);color:#fff}
+.check-btn.primary:hover{opacity:.9}
+.check-btn.next{background:var(--card2);color:var(--ink);border:1px solid var(--border)}
+.check-btn.next:hover{background:var(--card);border-color:rgba(0,0,0,.15)}
+
+/* ── DONE SCREEN ── */
+.done-wrap{padding:2rem 1rem;text-align:center}
+.done-score-ring{width:100px;height:100px;margin:0 auto 16px}
+.done-score-ring svg{transform:rotate(-90deg)}
+.done-score-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:22px;font-weight:700;font-family:'DM Serif Display',serif}
+.done-score-txt small{font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--ink2)}
+.done-title{font-size:24px;margin-bottom:6px}
+.done-xp{font-size:15px;font-weight:600;color:#D97706;margin-bottom:24px}
+.result-list{text-align:left;margin-bottom:24px}
+.result-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+
+/* ── PROGRESS VIEW ── */
+.sec-prog-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.sec-prog-hdr{padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.sec-prog-body{padding:.75rem 1rem}
+.mbar{margin-bottom:8px}
+.mbar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;font-size:11px}
+.bar-track{height:5px;background:var(--card2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.xp-card-full{background:linear-gradient(135deg,#18181B,#3F3F46);color:#fff;border-radius:var(--radius);padding:1.2rem;margin:.8rem 1rem}
+.xp-lv{font-size:10px;letter-spacing:.1em;opacity:.6;font-weight:600}
+.xp-num{font-size:28px;font-family:'DM Serif Display',serif;margin:2px 0}
+.xp-bar-track{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.xp-bar-fill{height:100%;background:rgba(255,255,255,.8);border-radius:3px;transition:width .6s}
+.xp-sub{font-size:10px;opacity:.55}
+
+/* ── CHART BARS ── */
+.chart-wrap{display:flex;align-items:flex-end;gap:4px;height:90px;margin-bottom:4px}
+.c-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.c-bar{width:100%;border-radius:3px 3px 0 0;min-height:2px}
+.c-lbl{font-size:8px;color:var(--ink3);text-align:center}
+.c-val{font-size:9px;font-weight:600;color:var(--ink2)}
+
+.empty{text-align:center;padding:2rem;color:var(--ink3);font-size:13px}
+.example-row:hover{background:#EFF6FF !important}
+.info-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+<nav class="nav">
+  <div class="nav-brand">Grammar in Focus</div>
+  <button class="nav-tab active" data-v="home" onclick="go('home')">홈</button>
+  <button class="nav-tab" data-v="units" onclick="go('units')">단원</button>
+  <button class="nav-tab" data-v="review" onclick="go('review')">복습</button>
+  <button class="nav-tab" data-v="progress" onclick="go('progress')">현황</button>
+</nav>
+<div id="v-home" class="view active"></div>
+<div id="v-units" class="view"></div>
+<div id="v-unit" class="view"></div>
+<div id="v-quiz" class="view" style="padding:0"></div>
+<div id="v-progress" class="view"></div>
+</div>
+
+<script>
+const GRAMMAR = 
+[
+{
+"id": 1,
+"section": "Present Tenses",
+"sectionKo": "현재 시제",
+"title": "Present Simple",
+"ko": "현재 단순 시제",
+"color": "#2563EB",
+"rules": [
+{
+"title": "Facts & habits",
+"ko": "사실과 습관",
+"formula": "Subject + verb(s/es)",
+"ex": [
+[
+"The earth orbits the sun.",
+"지구는 태양 주위를 돌아요."
+],
+[
+"She drinks coffee every morning.",
+"그녀는 매일 아침 커피를 마셔요."
+],
+[
+"Water boils at 100°C.",
+"물은 100도에서 끓어요."
+]
+]
+},
+{
+"title": "He/She/It → add -s or -es",
+"ko": "3인칭 단수 → 동사에 s/es 추가",
+"formula": "he/she/it + verb+s  |  go→goes, watch→watches",
+"ex": [
+[
+"He plays football on Saturdays.",
+"그는 토요일에 축구를 해요."
+],
+[
+"She watches TV every night.",
+"그녀는 매일 밤 TV를 봐요."
+],
+[
+"The bus leaves at 8 a.m.",
+"버스는 오전 8시에 출발해요."
+]
+]
+},
+{
+"title": "Negatives & Questions",
+"ko": "부정문과 의문문",
+"formula": "don't/doesn't + base verb | Do/Does + subject + verb?",
+"ex": [
+[
+"I don't eat meat.",
+"나는 고기를 먹지 않아요."
+],
+[
+"She doesn't like spicy food.",
+"그녀는 매운 음식을 좋아하지 않아요."
+],
+[
+"Do you speak Korean?",
+"한국어를 할 줄 알아요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "She _____ to the gym three times a week.",
+"a": "goes",
+"opts": [
+"go",
+"goes",
+"is going",
+"went"
+],
+"exp": "'She'는 3인칭 단수 → go에 es를 붙여 'goes'. 규칙적인 습관이므로 현재 단순 시제!"
+},
+{
+"type": "mc",
+"q": "Water _____ at 100 degrees Celsius.",
+"a": "boils",
+"opts": [
+"boil",
+"is boiling",
+"boils",
+"boiled"
+],
+"exp": "변하지 않는 과학적 사실 → 현재 단순 시제 'boils'. 3인칭 단수라서 s를 붙여요."
+},
+{
+"type": "mc",
+"q": "They _____ meat. They're vegetarian.",
+"a": "don't eat",
+"opts": [
+"aren't eating",
+"doesn't eat",
+"don't eat",
+"not eat"
+],
+"exp": "복수 주어 'They' → don't + base verb. doesn't는 he/she/it에만 사용해요."
+},
+{
+"type": "mc",
+"q": "_____ your brother work in London?",
+"a": "Does",
+"opts": [
+"Do",
+"Is",
+"Does",
+"Has"
+],
+"exp": "3인칭 단수 의문문 → Does + subject + base verb. 동사에는 s를 붙이지 않아요."
+},
+{
+"type": "mc",
+"q": "The last train _____ at midnight.",
+"a": "leaves",
+"opts": [
+"leave",
+"is leaving",
+"has left",
+"leaves"
+],
+"exp": "시간표나 일정에는 현재 단순 시제를 사용해요. 3인칭 단수라서 leaves."
+},
+{
+"type": "mc",
+"q": "I _____ understand the question.",
+"a": "don't",
+"opts": [
+"doesn't",
+"not",
+"don't",
+"am not"
+],
+"exp": "1인칭(I) 부정문 → don't + base verb. doesn't는 he/she/it에만 사용해요."
+},
+{
+"type": "fill",
+"q": "My sister _____ (speak) three languages.",
+"a": "speaks",
+"exp": "my sister = 3인칭 단수 → speak + s = speaks"
+},
+{
+"type": "fill",
+"q": "The museum _____ (close) on Mondays.",
+"a": "closes",
+"exp": "museum = 3인칭 단수, close + s = closes. 규칙적인 일정!"
+}
+]
+},
+{
+"id": 2,
+"section": "Present Tenses",
+"sectionKo": "현재 시제",
+"title": "Present Continuous",
+"ko": "현재 진행 시제",
+"color": "#7C3AED",
+"rules": [
+{
+"title": "Actions happening NOW",
+"ko": "지금 이 순간 일어나는 일",
+"formula": "am/is/are + verb-ing",
+"ex": [
+[
+"I'm studying English right now.",
+"나는 지금 영어를 공부하고 있어요."
+],
+[
+"It's raining outside.",
+"밖에 비가 오고 있어요."
+],
+[
+"Look! The cat is sleeping on the sofa.",
+"봐요! 고양이가 소파에서 자고 있어요."
+]
+]
+},
+{
+"title": "Temporary situations",
+"ko": "일시적인 상황 (요즘, 이번 주 등)",
+"formula": "Subject + is/are + verb-ing",
+"ex": [
+[
+"She's staying with her parents this month.",
+"그녀는 이번 달에 부모님과 함께 지내고 있어요."
+],
+[
+"I'm reading a really interesting book.",
+"나는 정말 흥미로운 책을 읽고 있어요."
+],
+[
+"He's working from home this week.",
+"그는 이번 주에 재택근무를 하고 있어요."
+]
+]
+},
+{
+"title": "Changing / developing situations",
+"ko": "변화하고 있는 상황",
+"formula": "It/Things + is/are + getting/becoming/growing…",
+"ex": [
+[
+"Your English is getting better!",
+"당신의 영어 실력이 좋아지고 있어요!"
+],
+[
+"The weather is changing quickly.",
+"날씨가 빠르게 변하고 있어요."
+],
+[
+"Prices are rising every year.",
+"물가가 매년 오르고 있어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "Please be quiet. The baby _____.",
+"a": "is sleeping",
+"opts": [
+"sleeps",
+"is sleeping",
+"sleep",
+"was sleeping"
+],
+"exp": "지금 이 순간 일어나는 일 → 현재 진행형 is + sleeping. 'please be quiet'이 지금 상황임을 알려줘요."
+},
+{
+"type": "mc",
+"q": "I can't talk now. I _____ dinner.",
+"a": "'m cooking",
+"opts": [
+"cook",
+"cooked",
+"'m cooking",
+"have cooked"
+],
+"exp": "지금 바로 하고 있는 일 → am + cooking. I'm = I am의 축약형이에요."
+},
+{
+"type": "mc",
+"q": "Look at that man! He _____ to cross the road.",
+"a": "is trying",
+"opts": [
+"tries",
+"tried",
+"is trying",
+"try"
+],
+"exp": "'Look!'은 지금 일어나는 일을 가리켜요 → is trying (현재 진행형)."
+},
+{
+"type": "mc",
+"q": "The company _____ a lot of new staff this year.",
+"a": "is hiring",
+"opts": [
+"hires",
+"hire",
+"is hiring",
+"hired"
+],
+"exp": "'this year'는 현재 일어나고 있는 일시적 상황 → is hiring."
+},
+{
+"type": "mc",
+"q": "Why _____ you wearing a coat? It's hot!",
+"a": "are",
+"opts": [
+"do",
+"are",
+"is",
+"did"
+],
+"exp": "현재 진행형 의문문 → Are + subject + verb-ing? 'are you wearing'이에요."
+},
+{
+"type": "fill",
+"q": "It _____ (get) dark. Let's go inside.",
+"a": "is getting",
+"exp": "점점 변화하는 상황 → is + getting. 어두워지고 있는 것은 지금 일어나는 변화예요."
+},
+{
+"type": "fill",
+"q": "She _____ (not/work) today. She has the day off.",
+"a": "isn't working",
+"exp": "현재 진행형 부정 → is not + working = isn't working"
+}
+]
+},
+{
+"id": 3,
+"section": "Present Tenses",
+"sectionKo": "현재 시제",
+"title": "Simple vs Continuous",
+"ko": "단순 시제 vs 진행 시제",
+"color": "#059669",
+"rules": [
+{
+"title": "Present Simple = always / usually",
+"ko": "항상, 보통 하는 일 → 현재 단순",
+"formula": "I work / She eats / He plays",
+"ex": [
+[
+"I work in a bank.",
+"나는 은행에서 일해요. (직업)"
+],
+[
+"She usually gets up at 7.",
+"그녀는 보통 7시에 일어나요."
+],
+[
+"He doesn't like coffee.",
+"그는 커피를 좋아하지 않아요."
+]
+]
+},
+{
+"title": "Present Continuous = right now / temporarily",
+"ko": "지금 또는 일시적으로 하는 일 → 현재 진행",
+"formula": "I'm working / She's eating / He's playing",
+"ex": [
+[
+"I'm working from home today.",
+"나는 오늘 재택근무를 하고 있어요. (일시적)"
+],
+[
+"She's eating lunch at her desk.",
+"그녀는 책상에서 점심을 먹고 있어요. (지금)"
+],
+[
+"He's learning Spanish this semester.",
+"그는 이번 학기에 스페인어를 배우고 있어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I usually _____ to work, but today I _____ the bus.",
+"a": "drive / am taking",
+"opts": [
+"drive / am taking",
+"am driving / take",
+"drive / take",
+"am driving / am taking"
+],
+"exp": "'usually' → 현재 단순(drive). 'today' → 현재 진행(am taking). 두 가지 시제를 구별하는 핵심 예문이에요!"
+},
+{
+"type": "mc",
+"q": "Tom _____ football every Sunday. Right now, he _____ tennis.",
+"a": "plays / is playing",
+"opts": [
+"plays / is playing",
+"is playing / plays",
+"is playing / is playing",
+"plays / plays"
+],
+"exp": "'every Sunday' → 규칙적인 습관(plays). 'right now' → 현재 진행(is playing)."
+},
+{
+"type": "mc",
+"q": "Where _____ Sarah? She _____ in the garden.",
+"a": "is Sarah / is working",
+"opts": [
+"is Sarah / works",
+"does Sarah work / is working",
+"is Sarah / is working",
+"does Sarah / working"
+],
+"exp": "지금 어디 있냐는 질문 → 현재 진행으로 답해요. is Sarah + is working."
+},
+{
+"type": "mc",
+"q": "He _____ three languages, but right now he _____ English.",
+"a": "speaks / is practising",
+"opts": [
+"speaks / is practising",
+"is speaking / practises",
+"speaks / practises",
+"is speaking / is practising"
+],
+"exp": "능력/사실(speaks) vs 지금 하는 행동(is practising)."
+},
+{
+"type": "fill",
+"q": "I _____ (read) a great book at the moment. I usually _____ (prefer) films, but this is fantastic.",
+"a": "am reading / prefer",
+"exp": "'at the moment' → am reading (현재 진행). 'usually prefer' → prefer (현재 단순, 일반적 선호)."
+}
+]
+},
+{
+"id": 4,
+"section": "Present Tenses",
+"sectionKo": "현재 시제",
+"title": "State Verbs",
+"ko": "상태 동사 (진행형 불가)",
+"color": "#DC2626",
+"rules": [
+{
+"title": "State verbs CANNOT use -ing",
+"ko": "상태 동사는 진행형으로 쓸 수 없어요!",
+"formula": "NOT: I am knowing / She is wanting",
+"ex": [
+[
+"I know the answer. ✓  (NOT: I am knowing)",
+"나는 답을 알아요. (진행형 ✗)"
+],
+[
+"She wants a coffee. ✓  (NOT: She is wanting)",
+"그녀는 커피를 원해요. (진행형 ✗)"
+],
+[
+"He believes you. ✓  (NOT: He is believing)",
+"그는 당신을 믿어요. (진행형 ✗)"
+]
+]
+},
+{
+"title": "Common state verbs",
+"ko": "자주 쓰는 상태 동사 목록",
+"formula": "know / think / believe / want / need / like / love / hate / see / hear / smell / taste / have / own / seem",
+"ex": [
+[
+"I love Korean food.",
+"나는 한국 음식을 사랑해요."
+],
+[
+"This soup smells wonderful.",
+"이 스프 냄새가 정말 좋아요."
+],
+[
+"They own a house in the countryside.",
+"그들은 시골에 집이 있어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I _____ what you mean. (understand)",
+"a": "understand",
+"opts": [
+"understand",
+"am understanding",
+"am understand",
+"understands"
+],
+"exp": "'understand'는 상태 동사 → 진행형 ✗. 현재 단순형 'understand'를 사용해요."
+},
+{
+"type": "mc",
+"q": "This cake _____ amazing! What's in it?",
+"a": "tastes",
+"opts": [
+"is tasting",
+"taste",
+"tastes",
+"tasting"
+],
+"exp": "음식의 맛은 상태 동사 'taste' → 진행형 ✗. 3인칭 단수 → tastes."
+},
+{
+"type": "mc",
+"q": "She _____ three different languages.",
+"a": "speaks",
+"opts": [
+"is speaking",
+"speaks",
+"speaking",
+"speak"
+],
+"exp": "여기서 'speak'는 능력(상태) → 현재 단순형. 지금 말하고 있다면 is speaking도 가능하지만 '할 줄 안다'는 의미에는 speaks."
+},
+{
+"type": "mc",
+"q": "I _____ you're right, but I _____ disagree.",
+"a": "think / have to",
+"opts": [
+"think / have to",
+"am thinking / have to",
+"think / am having to",
+"am thinking / am having to"
+],
+"exp": "의견을 말하는 'think' → 현재 단순형. have to = 의무를 나타내는 표현."
+},
+{
+"type": "fill",
+"q": "This coffee _____ (smell) really good! Can I have some?",
+"a": "smells",
+"exp": "냄새는 상태 동사 → 현재 단순형 smells. is smelling ✗"
+},
+{
+"type": "fill",
+"q": "He _____ (not/believe) in ghosts.",
+"a": "doesn't believe",
+"exp": "believe = 상태 동사 → 현재 단순 부정 doesn't believe."
+}
+]
+},
+{
+"id": 5,
+"section": "Past Tenses",
+"sectionKo": "과거 시제",
+"title": "Past Simple",
+"ko": "과거 단순 시제",
+"color": "#B45309",
+"rules": [
+{
+"title": "Completed actions in the past",
+"ko": "과거에 완료된 동작이나 사건",
+"formula": "Subject + verb-ed (regular) / irregular past form",
+"ex": [
+[
+"I visited Paris last year.",
+"나는 작년에 파리를 방문했어요."
+],
+[
+"She went to the cinema yesterday.",
+"그녀는 어제 영화관에 갔어요."
+],
+[
+"He worked here for ten years.",
+"그는 10년 동안 여기서 일했어요. (지금은 아님)"
+]
+]
+},
+{
+"title": "Regular vs Irregular verbs",
+"ko": "규칙 동사 vs 불규칙 동사",
+"formula": "work→worked | go→went | eat→ate | see→saw | buy→bought",
+"ex": [
+[
+"I cooked dinner last night.",
+"나는 어젯밤에 저녁을 요리했어요."
+],
+[
+"We saw a great film on Friday.",
+"우리는 금요일에 좋은 영화를 봤어요."
+],
+[
+"She bought a new laptop.",
+"그녀는 새 노트북을 샀어요."
+]
+]
+},
+{
+"title": "Negatives & Questions",
+"ko": "부정문과 의문문 → did/didn't 사용",
+"formula": "didn't + base verb | Did + subject + base verb?",
+"ex": [
+[
+"I didn't enjoy the party.",
+"나는 파티가 즐겁지 않았어요."
+],
+[
+"Did you sleep well?",
+"잘 잤어요?"
+],
+[
+"Where did you go on holiday?",
+"휴가에 어디 갔어요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I _____ tennis when I was a child, but now I don't play anymore.",
+"a": "played",
+"opts": [
+"play",
+"played",
+"was playing",
+"have played"
+],
+"exp": "어릴 때 한 일 (지금은 아님) → 과거 단순형 played. 'when I was a child'가 명확한 과거 시점이에요."
+},
+{
+"type": "mc",
+"q": "She _____ up late and _____ her bus.",
+"a": "got / missed",
+"opts": [
+"got / missed",
+"get / miss",
+"was getting / missed",
+"got / has missed"
+],
+"exp": "연속된 과거 사건 두 개 → 둘 다 과거 단순형 (got, missed)."
+},
+{
+"type": "mc",
+"q": "_____ you enjoy the concert last night?",
+"a": "Did",
+"opts": [
+"Were",
+"Have",
+"Did",
+"Do"
+],
+"exp": "과거의 일반 동사 의문문 → Did + subject + base verb? 'last night'이 과거 시점이에요."
+},
+{
+"type": "mc",
+"q": "He _____ his keys, so he couldn't get in.",
+"a": "lost",
+"opts": [
+"has lost",
+"lose",
+"was losing",
+"lost"
+],
+"exp": "'couldn't get in' → 이미 과거에 일어난 일 → lost (lose의 과거형)."
+},
+{
+"type": "mc",
+"q": "I _____ finish the report yesterday because I was too tired.",
+"a": "couldn't",
+"opts": [
+"can't",
+"didn't",
+"couldn't",
+"wasn't"
+],
+"exp": "과거에 할 수 없었던 일 → couldn't (could not). 'yesterday'가 과거임을 나타내요."
+},
+{
+"type": "fill",
+"q": "We _____ (drive) to the airport and _____ (arrive) just in time.",
+"a": "drove / arrived",
+"exp": "두 개의 연속된 과거 동작 → drove (drive의 불규칙 과거), arrived (arrive + d 규칙형)."
+},
+{
+"type": "fill",
+"q": "She _____ (not/know) anyone at the party.",
+"a": "didn't know",
+"exp": "과거 부정문 → didn't + base verb. know의 원형을 그대로 써요."
+}
+]
+},
+{
+"id": 6,
+"section": "Past Tenses",
+"sectionKo": "과거 시제",
+"title": "Past Continuous",
+"ko": "과거 진행 시제",
+"color": "#0891B2",
+"rules": [
+{
+"title": "Background action in progress",
+"ko": "과거에 진행 중이던 배경 동작",
+"formula": "was/were + verb-ing",
+"ex": [
+[
+"It was raining when I left.",
+"내가 떠날 때 비가 오고 있었어요."
+],
+[
+"She was reading when he called.",
+"그가 전화했을 때 그녀는 책을 읽고 있었어요."
+],
+[
+"We were having dinner at 7 p.m.",
+"오후 7시에 우리는 저녁을 먹고 있었어요."
+]
+]
+},
+{
+"title": "Interrupted by a shorter action",
+"ko": "긴 동작 + 짧은 동작에 의해 방해받음",
+"formula": "was/were + -ing  WHEN  past simple",
+"ex": [
+[
+"I was walking to work when it started to snow.",
+"출근 중이었는데 눈이 내리기 시작했어요."
+],
+[
+"She was cooking when the power went out.",
+"요리하고 있는데 정전이 됐어요."
+],
+[
+"They were sleeping when the alarm went off.",
+"자고 있는데 알람이 울렸어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I _____ a bath when the phone rang.",
+"a": "was having",
+"opts": [
+"had",
+"have had",
+"was having",
+"were having"
+],
+"exp": "전화가 왔을 때(짧은 사건) 목욕 중(긴 배경 동작) → was having (과거 진행형)."
+},
+{
+"type": "mc",
+"q": "What _____ you _____ at 10 o'clock last night?",
+"a": "were / doing",
+"opts": [
+"were / doing",
+"did / do",
+"was / doing",
+"had / done"
+],
+"exp": "어젯밤 10시라는 특정 시점에 진행 중이던 일 → were + verb-ing."
+},
+{
+"type": "mc",
+"q": "The sun _____ and the birds _____ when I woke up.",
+"a": "was shining / were singing",
+"opts": [
+"shone / sang",
+"was shining / were singing",
+"shined / were singing",
+"shone / were singing"
+],
+"exp": "아침에 일어났을 때의 배경 상황 → 과거 진행형 (was shining, were singing)."
+},
+{
+"type": "mc",
+"q": "While I _____ to the shop, I _____ an old friend.",
+"a": "was walking / bumped into",
+"opts": [
+"walked / was bumping",
+"was walking / bumped into",
+"was walking / was bumping",
+"walked / bumped into"
+],
+"exp": "길을 걷는 중(진행형) + 우연히 마주침(순간적 사건, 단순 과거)."
+},
+{
+"type": "fill",
+"q": "He _____ (not/pay) attention in class, so he missed the explanation.",
+"a": "wasn't paying",
+"exp": "수업 중에 집중하지 않고 있었다는 진행 상태 → was not + paying = wasn't paying."
+},
+{
+"type": "fill",
+"q": "The children _____ (play) in the garden when it _____ (start) to rain.",
+"a": "were playing / started",
+"exp": "배경 동작(were playing) + 짧은 사건(started). 비가 내리기 시작한 건 순간적 사건!"
+}
+]
+},
+{
+"id": 7,
+"section": "Past Tenses",
+"sectionKo": "과거 시제",
+"title": "Present Perfect 1",
+"ko": "현재완료 1 — 경험과 결과",
+"color": "#7C3AED",
+"rules": [
+{
+"title": "Life experiences (ever / never)",
+"ko": "살면서 경험한 것 (언제인지 중요하지 않음)",
+"formula": "have/has + past participle",
+"ex": [
+[
+"I have visited Japan twice.",
+"나는 일본을 두 번 방문했어요. (경험)"
+],
+[
+"Have you ever tried sushi?",
+"스시를 먹어본 적 있어요?"
+],
+[
+"She has never seen snow.",
+"그녀는 눈을 한 번도 본 적이 없어요."
+]
+]
+},
+{
+"title": "Recent events with present result",
+"ko": "최근에 일어난 일 + 현재에 영향을 미침 (just/already/yet)",
+"formula": "have/has + just/already + pp | not … yet",
+"ex": [
+[
+"I've just finished work.",
+"방금 일을 끝냈어요."
+],
+[
+"He has already eaten.",
+"그는 이미 먹었어요."
+],
+[
+"Have you done your homework yet?",
+"숙제 벌써 다 했어요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "Oh no! I _____ my wallet!",
+"a": "'ve lost",
+"opts": [
+"lost",
+"'ve lost",
+"lose",
+"had lost"
+],
+"exp": "지갑을 잃어버린 결과가 현재에 영향 → 현재완료 have + pp. 지금 지갑이 없는 상태!"
+},
+{
+"type": "mc",
+"q": "_____ you ever been to New York?",
+"a": "Have",
+"opts": [
+"Did",
+"Have",
+"Do",
+"Were"
+],
+"exp": "인생 경험을 묻는 질문 → Have + subject + ever + pp? 'ever'는 현재완료의 단서!"
+},
+{
+"type": "mc",
+"q": "She _____ never _____ a horror film.",
+"a": "has / watched",
+"opts": [
+"has / watched",
+"did / watch",
+"was / watching",
+"have / watched"
+],
+"exp": "never + 경험 → 현재완료 has + pp. she → has (3인칭 단수)."
+},
+{
+"type": "mc",
+"q": "Don't buy any milk. I _____ just _____ some.",
+"a": "have / bought",
+"opts": [
+"have / bought",
+"did / buy",
+"had / bought",
+"have / buy"
+],
+"exp": "'just' + 최근 완료된 행동 → 현재완료 have + just + pp."
+},
+{
+"type": "mc",
+"q": "Is Sarah here yet? No, she _____ arrived.",
+"a": "hasn't",
+"opts": [
+"didn't",
+"hasn't",
+"wasn't",
+"not"
+],
+"exp": "'yet'는 현재완료 부정문에서 사용 → hasn't (has not) + pp."
+},
+{
+"type": "fill",
+"q": "I _____ (never/eat) kangaroo meat. Have you?",
+"a": "have never eaten",
+"exp": "경험의 현재완료 부정 → have + never + pp. eat의 과거분사는 eaten."
+},
+{
+"type": "fill",
+"q": "They _____ (already/decide) to move to a new city.",
+"a": "have already decided",
+"exp": "already = 이미 → have + already + pp. decide + d = decided."
+}
+]
+},
+{
+"id": 8,
+"section": "Past Tenses",
+"sectionKo": "과거 시제",
+"title": "Present Perfect 2",
+"ko": "현재완료 2 — for와 since",
+"color": "#BE185D",
+"rules": [
+{
+"title": "FOR = a period of time",
+"ko": "FOR = 기간 (얼마 동안)",
+"formula": "have + pp + for + period",
+"ex": [
+[
+"I have lived here for five years.",
+"나는 5년 동안 여기서 살았어요."
+],
+[
+"She has known him for a long time.",
+"그녀는 오랫동안 그를 알고 있어요."
+],
+[
+"They have been married for 20 years.",
+"그들은 20년 동안 결혼 생활을 하고 있어요."
+]
+]
+},
+{
+"title": "SINCE = a starting point",
+"ko": "SINCE = 시작 시점 (언제부터)",
+"formula": "have + pp + since + point in time",
+"ex": [
+[
+"I have lived here since 2019.",
+"나는 2019년부터 여기서 살았어요."
+],
+[
+"She has been sick since Monday.",
+"그녀는 월요일부터 아팠어요."
+],
+[
+"He hasn't called since last week.",
+"그는 지난주부터 전화하지 않았어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "She has worked at the company _____ ten years.",
+"a": "for",
+"opts": [
+"for",
+"since",
+"during",
+"from"
+],
+"exp": "10년 = 기간 → 'for + period'. since는 시작 시점에 사용해요."
+},
+{
+"type": "mc",
+"q": "I haven't seen him _____ his wedding.",
+"a": "since",
+"opts": [
+"for",
+"since",
+"during",
+"while"
+],
+"exp": "결혼식 = 시작 시점 → 'since + starting point'."
+},
+{
+"type": "mc",
+"q": "How long _____ you known each other?",
+"a": "have",
+"opts": [
+"do",
+"have",
+"did",
+"had"
+],
+"exp": "기간을 묻는 'how long' → 현재완료 Have/Has + subject + pp."
+},
+{
+"type": "mc",
+"q": "We haven't had a holiday _____ two years.",
+"a": "for",
+"opts": [
+"since",
+"for",
+"during",
+"from"
+],
+"exp": "2년 = 기간 → for. 'since two years' ✗ — since 뒤에는 시작 시점이 와요."
+},
+{
+"type": "fill",
+"q": "I've been waiting here _____ an hour.",
+"a": "for",
+"exp": "한 시간 = 기간 → for. since 2 o'clock처럼 시작 시점이면 since를 써요."
+},
+{
+"type": "fill",
+"q": "He has been a teacher _____ 2010.",
+"a": "since",
+"exp": "2010년 = 시작 시점 → since."
+},
+{
+"type": "fill",
+"q": "They _____ (live) in Seoul _____ three years.",
+"a": "have lived / for",
+"exp": "현재완료 + for: have + pp + for + 기간"
+}
+]
+},
+{
+"id": 9,
+"section": "Past Tenses",
+"sectionKo": "과거 시제",
+"title": "Past Perfect",
+"ko": "과거완료 시제",
+"color": "#374151",
+"rules": [
+{
+"title": "Action BEFORE another past action",
+"ko": "과거의 또 다른 과거 — 더 먼저 일어난 일",
+"formula": "had + past participle",
+"ex": [
+[
+"When I arrived, the film had already started.",
+"내가 도착했을 때, 영화는 이미 시작했어요."
+],
+[
+"She had eaten before we got there.",
+"우리가 도착하기 전에 그녀는 이미 먹었어요."
+],
+[
+"He was tired because he hadn't slept well.",
+"잠을 잘 못 잤기 때문에 그는 피곤했어요."
+]
+]
+},
+{
+"title": "Past Perfect vs Past Simple",
+"ko": "과거완료 vs 단순 과거 비교",
+"formula": "Event 1 (earlier) → had done | Event 2 (later) → did",
+"ex": [
+[
+"He ate all the cake before she arrived. = She arrived. He had already eaten all the cake.",
+"그가 케이크를 다 먹은 후 그녀가 도착했어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "When I got to the station, the train _____.",
+"a": "had already left",
+"opts": [
+"already left",
+"had already left",
+"was leaving",
+"has already left"
+],
+"exp": "기차가 떠난 것(먼저) → 내가 도착한 것(나중). 더 먼저 일어난 일 → had + pp."
+},
+{
+"type": "mc",
+"q": "She was nervous because she _____ in public before.",
+"a": "had never spoken",
+"opts": [
+"never spoke",
+"has never spoken",
+"had never spoken",
+"didn't speak"
+],
+"exp": "과거의 이전 경험(한 번도 없었음) → 과거완료 had + never + pp."
+},
+{
+"type": "mc",
+"q": "I _____ the book before I saw the film, so I knew the ending.",
+"a": "had read",
+"opts": [
+"read",
+"have read",
+"had read",
+"was reading"
+],
+"exp": "영화보다 먼저 책을 읽었음 → 과거완료 had + pp."
+},
+{
+"type": "fill",
+"q": "By the time she called, I _____ (already/go) to bed.",
+"a": "had already gone",
+"exp": "전화가 왔을 때 이미 잠자리에 든 상태 → had + already + pp. go의 과거분사는 gone."
+},
+{
+"type": "fill",
+"q": "He looked familiar. I _____ (see) him somewhere before.",
+"a": "had seen",
+"exp": "전에 본 적 있는 것 같은 느낌 → 과거의 과거 경험 → had + seen."
+}
+]
+},
+{
+"id": 10,
+"section": "Future",
+"sectionKo": "미래 표현",
+"title": "will",
+"ko": "will — 예측과 즉흥적 결정",
+"color": "#2563EB",
+"rules": [
+{
+"title": "Predictions & beliefs about the future",
+"ko": "미래에 대한 예측 또는 믿음",
+"formula": "will + base verb",
+"ex": [
+[
+"I think it will rain tomorrow.",
+"내일 비가 올 것 같아요."
+],
+[
+"She'll probably get the job.",
+"그녀는 아마 그 직업을 얻을 거예요."
+],
+[
+"Life will be very different in 50 years.",
+"50년 후에는 삶이 많이 달라질 거예요."
+]
+]
+},
+{
+"title": "Spontaneous decisions (at the moment of speaking)",
+"ko": "말하는 순간 결정한 것 (즉흥적 결정)",
+"formula": "I'll + verb (sudden decision!)",
+"ex": [
+[
+"The phone is ringing. I'll get it!",
+"전화가 오네요. 내가 받을게요!"
+],
+[
+"I'll have the pasta, please.",
+"파스타로 할게요."
+],
+[
+"Don't worry — I'll help you.",
+"걱정 마세요. 내가 도와줄게요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "A: I'm cold. B: I _____ close the window.",
+"a": "'ll",
+"opts": [
+"'m going to",
+"'ll",
+"would",
+"am"
+],
+"exp": "순간적으로 결정한 행동 → will. 미리 계획한 게 아니라 상대방 말을 듣고 즉흥적으로 결정했어요!"
+},
+{
+"type": "mc",
+"q": "Scientists believe that robots _____ do most jobs in the future.",
+"a": "will",
+"opts": [
+"are going to",
+"will",
+"are",
+"would"
+],
+"exp": "미래에 대한 예측(믿음) → will. 과학자들의 예측이에요."
+},
+{
+"type": "mc",
+"q": "Don't worry about the test. I'm sure you _____ pass.",
+"a": "'ll",
+"opts": [
+"going to",
+"'re going to",
+"'ll",
+"would"
+],
+"exp": "미래에 대한 확신/예측 → will. sure you will pass."
+},
+{
+"type": "mc",
+"q": "_____ you be at home this evening?",
+"a": "Will",
+"opts": [
+"Are",
+"Do",
+"Will",
+"Would"
+],
+"exp": "단순 미래 의문문 → Will + subject + base verb?"
+},
+{
+"type": "fill",
+"q": "I promise I _____ (be) on time. I _____ (not/be) late.",
+"a": "will be / won't be",
+"exp": "약속 → will. 부정 → won't (will not)."
+},
+{
+"type": "fill",
+"q": "A: The bags are really heavy. B: Don't worry, I _____ (carry) them for you.",
+"a": "'ll carry",
+"exp": "도움을 제안하는 즉흥적 결정 → I'll + verb."
+}
+]
+},
+{
+"id": 11,
+"section": "Future",
+"sectionKo": "미래 표현",
+"title": "going to",
+"ko": "going to — 계획과 증거 기반 예측",
+"color": "#16A34A",
+"rules": [
+{
+"title": "Plans & intentions (decided before)",
+"ko": "미리 결정한 계획이나 의도",
+"formula": "am/is/are going to + base verb",
+"ex": [
+[
+"I'm going to visit my grandparents this weekend.",
+"이번 주말에 조부모님을 방문할 예정이에요. (이미 계획됨)"
+],
+[
+"She's going to start a new job next month.",
+"그녀는 다음 달에 새 직장을 시작할 거예요."
+],
+[
+"We're going to buy a new car.",
+"우리는 새 차를 살 예정이에요."
+]
+]
+},
+{
+"title": "Predictions based on current evidence",
+"ko": "현재의 증거를 보고 하는 예측",
+"formula": "am/is/are going to + verb (something visible NOW)",
+"ex": [
+[
+"Look at those clouds. It's going to rain.",
+"저 구름 봐요. 비가 올 것 같아요. (지금 구름이 보임)"
+],
+[
+"Be careful! You're going to fall!",
+"조심해요! 넘어지겠어요! (지금 상황 보임)"
+],
+[
+"She looks pale. She's going to faint.",
+"그녀가 창백해 보여요. 기절할 것 같아요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "A: What are you doing tonight? B: I _____ see a film. I've already bought the tickets.",
+"a": "'m going to",
+"opts": [
+"'ll",
+"'m going to",
+"would",
+"'m seeing"
+],
+"exp": "이미 티켓을 샀다 = 미리 계획된 것 → going to. will은 즉흥적 결정에 사용해요!"
+},
+{
+"type": "mc",
+"q": "Look at that car! It _____ crash!",
+"a": "'s going to",
+"opts": [
+"will",
+"'s going to",
+"would",
+"is about"
+],
+"exp": "지금 차가 달리는 것을 보고 예측 → going to (현재 증거 기반)."
+},
+{
+"type": "mc",
+"q": "She _____ have a baby in March.",
+"a": "'s going to",
+"opts": [
+"will",
+"'s going to",
+"would",
+"'ll be having"
+],
+"exp": "이미 알고 있는 사실/계획 → going to."
+},
+{
+"type": "mc",
+"q": "A: The phone is ringing. B: I know. I _____ answer it.",
+"a": "'m going to",
+"opts": [
+"'m going to",
+"'ll",
+"would",
+"am answering"
+],
+"exp": "이미 전화를 받겠다고 마음 먹었다면 → going to. 즉흥적으로 결정했다면 will."
+},
+{
+"type": "fill",
+"q": "I _____ (study) harder this semester. I've already made a study plan.",
+"a": "'m going to study",
+"exp": "이미 공부 계획을 세웠음 = 미리 결정 → going to."
+},
+{
+"type": "fill",
+"q": "Be careful with that glass. You _____ (drop) it!",
+"a": "'re going to drop",
+"exp": "지금 잡고 있는 모습이 보임 = 현재 증거 기반 예측 → going to."
+}
+]
+},
+{
+"id": 12,
+"section": "Future",
+"sectionKo": "미래 표현",
+"title": "will vs going to",
+"ko": "will과 going to 차이점",
+"color": "#D97706",
+"rules": [
+{
+"title": "Will = spontaneous | Going to = planned",
+"ko": "will = 즉흥적 결정 | going to = 미리 계획된",
+"formula": "I'll help (NOW decided) | I'm going to help (already planned)",
+"ex": [
+[
+"A: I need help! B: OK, I'll help. (decided now)",
+"A: 도움이 필요해요! B: 알겠어요, 도와줄게요. (지금 결정)"
+],
+[
+"I'm going to help Tom move house on Saturday. (planned)",
+"토요일에 Tom이 이사하는 것을 도와줄 거예요. (이미 계획)"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "A: We have no bread left. B: I know. I _____ buy some when I go out.",
+"a": "'m going to",
+"opts": [
+"'ll",
+"'m going to",
+"would",
+"am"
+],
+"exp": "빵이 없다는 걸 이미 알고 있고 미리 결정한 일 → going to."
+},
+{
+"type": "mc",
+"q": "A: I can't open this jar. B: Let me try. I _____ do it!",
+"a": "'ll",
+"opts": [
+"'m going to",
+"'ll",
+"would",
+"am going"
+],
+"exp": "상대방 말을 듣고 즉흥적으로 제안 → will."
+},
+{
+"type": "mc",
+"q": "It's very hot in here. I _____ open the window.",
+"a": "'ll",
+"opts": [
+"'m going to",
+"'ll",
+"would",
+"am going to"
+],
+"exp": "더운 걸 느끼고 즉흥적으로 결정 → will. (미리 계획한 게 아님)"
+},
+{
+"type": "fill",
+"q": "A: Have you decided what to wear tonight? B: Yes, I _____ (wear) my blue dress. I already ironed it.",
+"a": "'m going to wear",
+"exp": "이미 다림질까지 했음 = 미리 계획 → going to."
+},
+{
+"type": "fill",
+"q": "A: The bag looks heavy. B: It's OK. I _____ (carry) it.",
+"a": "'ll carry",
+"exp": "상대방이 무거워 보인다고 하자 즉흥적으로 제안 → will."
+}
+]
+},
+{
+"id": 13,
+"section": "Modals",
+"sectionKo": "조동사",
+"title": "can and could",
+"ko": "can/could — 능력과 가능성",
+"color": "#7C3AED",
+"rules": [
+{
+"title": "Ability — CAN (present) / COULD (past)",
+"ko": "능력: 현재 → can, 과거 → could",
+"formula": "can/could + base verb",
+"ex": [
+[
+"I can swim but I can't ride a bike.",
+"나는 수영할 수 있지만 자전거를 탈 수 없어요."
+],
+[
+"When I was five, I could already read.",
+"나는 다섯 살 때 이미 글을 읽을 수 있었어요."
+],
+[
+"She couldn't speak English before she moved abroad.",
+"해외로 이사하기 전에 그녀는 영어를 할 수 없었어요."
+]
+]
+},
+{
+"title": "Permission & Requests",
+"ko": "허락: Can/Could I…? | 부탁: Could you…?",
+"formula": "Can I / Could I (more polite) + base verb?",
+"ex": [
+[
+"Can I sit here?",
+"여기 앉아도 될까요? (허락)"
+],
+[
+"Could you please speak more slowly?",
+"좀 더 천천히 말씀해 주실 수 있을까요? (정중한 부탁)"
+],
+[
+"Could I borrow your pen?",
+"펜 좀 빌려도 될까요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I _____ drive when I was 15. The minimum age here is 18.",
+"a": "couldn't",
+"opts": [
+"can't",
+"couldn't",
+"wasn't able",
+"didn't could"
+],
+"exp": "과거의 불능 → couldn't (could not). 과거 이야기이므로 can't ✗."
+},
+{
+"type": "mc",
+"q": "_____ you please turn down the music?",
+"a": "Could",
+"opts": [
+"Can",
+"Could",
+"Would you can",
+"Are you able"
+],
+"exp": "정중한 부탁 → Could you…? Can보다 더 격식 있는 표현이에요."
+},
+{
+"type": "mc",
+"q": "She _____ play three musical instruments. She's very talented.",
+"a": "can",
+"opts": [
+"can",
+"could",
+"is able",
+"was able"
+],
+"exp": "현재의 능력 → can. 현재 사실이에요."
+},
+{
+"type": "mc",
+"q": "When I was a child, I _____ stay up past 9 o'clock.",
+"a": "couldn't",
+"opts": [
+"can't",
+"couldn't",
+"wasn't be able",
+"didn't can"
+],
+"exp": "어렸을 때 할 수 없었던 일 → 과거 불능 couldn't."
+},
+{
+"type": "fill",
+"q": "_____ I use your phone? Mine is dead.",
+"a": "Can / Could",
+"exp": "허락을 구하는 표현 → Can I…? 또는 더 정중하게 Could I…?"
+},
+{
+"type": "fill",
+"q": "I _____ (not/sleep) last night. I was too stressed.",
+"a": "couldn't sleep",
+"exp": "어젯밤 = 과거 → could not sleep = couldn't sleep."
+}
+]
+},
+{
+"id": 14,
+"section": "Modals",
+"sectionKo": "조동사",
+"title": "must and have to",
+"ko": "must/have to — 의무",
+"color": "#DC2626",
+"rules": [
+{
+"title": "MUST — speaker's personal obligation/strong advice",
+"ko": "must = 말하는 사람이 필요하다고 느끼는 의무/강한 조언",
+"formula": "must + base verb",
+"ex": [
+[
+"I must remember to call my mother.",
+"엄마에게 전화해야겠어요. (스스로 느끼는 의무)"
+],
+[
+"You must see this film — it's brilliant!",
+"이 영화 꼭 보세요. 정말 훌륭해요! (강한 추천)"
+],
+[
+"You must not park here.",
+"여기 주차하면 안 돼요. (금지!)"
+]
+]
+},
+{
+"title": "HAVE TO — external obligation (rules/laws/others)",
+"ko": "have to = 외부에서 요구하는 의무 (규칙/법/타인)",
+"formula": "have to / has to + base verb",
+"ex": [
+[
+"I have to wear a uniform at work. (company rule)",
+"직장에서 유니폼을 입어야 해요. (회사 규칙)"
+],
+[
+"She has to submit the report by Friday. (boss says so)",
+"그녀는 금요일까지 보고서를 제출해야 해요. (상사가 요구)"
+],
+[
+"Do you have to work on Saturdays?",
+"토요일에 일해야 해요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "In the UK, you _____ drive on the left side of the road.",
+"a": "have to",
+"opts": [
+"must",
+"have to",
+"should",
+"need"
+],
+"exp": "교통법규 = 외부 규칙 → have to. must는 개인적 의무나 강한 확신에 사용해요."
+},
+{
+"type": "mc",
+"q": "I _____ buy my mum a present. Her birthday is tomorrow!",
+"a": "must",
+"opts": [
+"have to",
+"must",
+"should",
+"ought"
+],
+"exp": "스스로 느끼는 의무 (내 마음에서 나온 것) → must."
+},
+{
+"type": "mc",
+"q": "You _____ not touch that! It's very dangerous!",
+"a": "must",
+"opts": [
+"have to",
+"must",
+"should",
+"need"
+],
+"exp": "강한 금지 → must not (mustn't). 절대 하면 안 되는 것이에요."
+},
+{
+"type": "mc",
+"q": "_____ you work overtime last weekend?",
+"a": "Did you have to",
+"opts": [
+"Must you",
+"Did you have to",
+"Have you to",
+"Should you"
+],
+"exp": "과거의 의무 의문문 → Did + subject + have to? Must의 과거형은 had to를 써요!"
+},
+{
+"type": "fill",
+"q": "Children _____ (go) to school until they're 16. It's the law.",
+"a": "have to go",
+"exp": "법 = 외부 규칙 → have to. 3인칭이 아니므로 have to."
+},
+{
+"type": "fill",
+"q": "I'm lost. I _____ (ask) someone for directions.",
+"a": "must ask / have to ask",
+"exp": "스스로 필요성을 느낌 → must ask. 또는 have to ask도 가능해요."
+}
+]
+},
+{
+"id": 15,
+"section": "Modals",
+"sectionKo": "조동사",
+"title": "should",
+"ko": "should — 조언과 권고",
+"color": "#059669",
+"rules": [
+{
+"title": "Advice & Recommendations",
+"ko": "조언, 권고, 의견",
+"formula": "should + base verb | shouldn't + base verb",
+"ex": [
+[
+"You should see a doctor. You look terrible.",
+"병원에 가봐야겠어요. 안 좋아 보여요."
+],
+[
+"You shouldn't eat so much junk food.",
+"패스트푸드를 너무 많이 먹으면 안 돼요."
+],
+[
+"Should I call him or send a message?",
+"전화할까요, 아니면 메시지를 보낼까요?"
+]
+]
+},
+{
+"title": "Should have — criticism of past actions",
+"ko": "과거에 했어야 했는데 안 한 것 → 후회/비판",
+"formula": "should have + past participle",
+"ex": [
+[
+"I should have studied harder. Now I've failed.",
+"더 열심히 공부했어야 했는데. 지금 실패했어요."
+],
+[
+"You shouldn't have said that. It was rude.",
+"그런 말은 하지 말았어야 했어요. 무례했어요."
+],
+[
+"She should have called first.",
+"먼저 전화했어야 했는데."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "You look tired. You _____ go to bed earlier.",
+"a": "should",
+"opts": [
+"must",
+"should",
+"have to",
+"shall"
+],
+"exp": "조언 → should. must는 더 강한 의무이고, should는 부드러운 제안이에요."
+},
+{
+"type": "mc",
+"q": "I _____ have listened to your advice. You were right.",
+"a": "should",
+"opts": [
+"must",
+"should",
+"would",
+"could"
+],
+"exp": "과거에 했어야 했는데 안 한 것 후회 → should have + pp."
+},
+{
+"type": "mc",
+"q": "The restaurant is very popular. You _____ book a table in advance.",
+"a": "should",
+"opts": [
+"must",
+"should",
+"have to",
+"shall"
+],
+"exp": "강력 추천 → should. 법적 의무는 아니에요."
+},
+{
+"type": "fill",
+"q": "You _____ (not/leave) your car unlocked. It's not safe.",
+"a": "shouldn't leave",
+"exp": "조언/경고 → shouldn't + base verb."
+},
+{
+"type": "fill",
+"q": "I _____ (study) for the test yesterday. I forgot about it.",
+"a": "should have studied",
+"exp": "어제 공부했어야 했는데 안 함 → should have + pp."
+}
+]
+},
+{
+"id": 16,
+"section": "Modals",
+"sectionKo": "조동사",
+"title": "may and might",
+"ko": "may/might — 가능성",
+"color": "#B45309",
+"rules": [
+{
+"title": "Possibility in the future",
+"ko": "미래에 일어날 가능성 (50% 이하)",
+"formula": "may/might + base verb",
+"ex": [
+[
+"I might go to the gym later. I haven't decided yet.",
+"나중에 헬스장에 갈 수도 있어요. 아직 결정 안 했어요."
+],
+[
+"Take an umbrella. It may rain.",
+"우산을 챙겨요. 비가 올 수도 있어요."
+],
+[
+"She might not come to the party.",
+"그녀가 파티에 안 올 수도 있어요."
+]
+]
+},
+{
+"title": "May vs Might",
+"ko": "may와 might의 차이",
+"formula": "may = ~50% chance | might = ~30% chance (slightly less sure)",
+"ex": [
+[
+"It may rain. (I think it's quite possible)",
+"비가 올 수 있어요. (꽤 가능성 있음)"
+],
+[
+"It might rain. (I'm less sure)",
+"비가 올 수도 있어요. (조금 덜 확실)"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "Take a jacket. It _____ get cold later.",
+"a": "might",
+"opts": [
+"will",
+"might",
+"should",
+"must"
+],
+"exp": "나중에 추울 수도 있다는 가능성 (확실하지 않음) → might."
+},
+{
+"type": "mc",
+"q": "I'm not sure if I can come. I _____ have to work late.",
+"a": "might",
+"opts": [
+"will",
+"might",
+"should",
+"would"
+],
+"exp": "야근할 가능성이 있음 (불확실) → might."
+},
+{
+"type": "mc",
+"q": "She _____ not know the answer. Let's check.",
+"a": "may",
+"opts": [
+"might",
+"may",
+"could",
+"should"
+],
+"exp": "모를 수도 있다는 가능성 → may not. might not도 정답!"
+},
+{
+"type": "fill",
+"q": "He _____ (be) late. There's a lot of traffic.",
+"a": "might be / may be",
+"exp": "교통 체증으로 늦을 가능성 → might/may + base verb."
+},
+{
+"type": "fill",
+"q": "I _____ (not/go) out tonight. I'm feeling a bit tired.",
+"a": "might not go / may not go",
+"exp": "오늘 밤 안 나갈 수도 있음 → might not / may not + verb."
+}
+]
+},
+{
+"id": 17,
+"section": "Conditionals",
+"sectionKo": "조건문",
+"title": "Zero Conditional",
+"ko": "0형 조건문 — 항상 사실인 것",
+"color": "#2563EB",
+"rules": [
+{
+"title": "Facts, laws, habits — always true",
+"ko": "항상 사실인 것 (과학적 사실, 규칙)",
+"formula": "If + present simple, present simple",
+"ex": [
+[
+"If you heat water to 100°C, it boils.",
+"물을 100도까지 가열하면, 끓어요."
+],
+[
+"If I don't sleep enough, I feel tired.",
+"충분히 자지 못하면, 피곤해요. (항상 그래요)"
+],
+[
+"If you mix red and blue, you get purple.",
+"빨간색과 파란색을 섞으면, 보라색이 돼요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "If you _____ food in the fridge, it _____ fresh longer.",
+"a": "keep / stays",
+"opts": [
+"keep / stays",
+"will keep / stays",
+"kept / stayed",
+"keep / will stay"
+],
+"exp": "일반적 사실 → 0형 조건문: If + 현재형, 현재형."
+},
+{
+"type": "mc",
+"q": "Plants die if they _____ enough water.",
+"a": "don't get",
+"opts": [
+"don't get",
+"won't get",
+"didn't get",
+"haven't got"
+],
+"exp": "0형 조건문 — 사실: if + 현재형. 물이 없으면 식물은 항상 죽어요."
+},
+{
+"type": "fill",
+"q": "If it _____ (rain), the ground _____ (get) wet.",
+"a": "rains / gets",
+"exp": "0형: If + 현재형, 현재형. 항상 사실인 것이에요."
+}
+]
+},
+{
+"id": 18,
+"section": "Conditionals",
+"sectionKo": "조건문",
+"title": "First Conditional",
+"ko": "1형 조건문 — 가능한 미래",
+"color": "#16A34A",
+"rules": [
+{
+"title": "Real / likely future conditions",
+"ko": "실제로 일어날 가능성이 있는 미래 조건",
+"formula": "If + present simple, will + base verb",
+"ex": [
+[
+"If it rains tomorrow, I'll stay at home.",
+"내일 비가 오면, 집에 있을 거예요."
+],
+[
+"If you study hard, you'll pass the exam.",
+"열심히 공부하면, 시험에 합격할 거예요."
+],
+[
+"If she calls, I'll let you know.",
+"그녀가 전화하면, 알려줄게요."
+]
+]
+},
+{
+"title": "Unless = if not",
+"ko": "unless = ~하지 않으면 (if not)",
+"formula": "Unless + present simple, will + base verb",
+"ex": [
+[
+"Unless it rains, we'll have a picnic.",
+"비가 오지 않으면, 소풍을 갈 거예요. (= if it doesn't rain)"
+],
+[
+"I'll be late unless I leave now.",
+"지금 나가지 않으면 늦을 거예요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "If I _____ the exam, my parents will be happy.",
+"a": "pass",
+"opts": [
+"pass",
+"passed",
+"will pass",
+"would pass"
+],
+"exp": "1형 조건문: if절 → 현재형(pass), 주절 → will + 동사."
+},
+{
+"type": "mc",
+"q": "I _____ you if I see him.",
+"a": "'ll tell",
+"opts": [
+"tell",
+"would tell",
+"'ll tell",
+"told"
+],
+"exp": "1형 조건문 — 가능한 미래 상황: will + base verb."
+},
+{
+"type": "mc",
+"q": "_____ you finish early, will you wait for me?",
+"a": "If",
+"opts": [
+"If",
+"Unless",
+"When",
+"Whether"
+],
+"exp": "가능한 조건 → If. Unless = if not이에요."
+},
+{
+"type": "fill",
+"q": "If you _____ (not/hurry), we _____ (miss) the bus.",
+"a": "don't hurry / will miss",
+"exp": "1형 조건문: if + 현재형 부정, will + 동사."
+},
+{
+"type": "fill",
+"q": "_____ it _____ (snow) tomorrow, school will be cancelled.",
+"a": "If / snows",
+"exp": "1형 조건문: if + 현재형(snows). 미래지만 if절에는 will을 안 써요!"
+}
+]
+},
+{
+"id": 19,
+"section": "Conditionals",
+"sectionKo": "조건문",
+"title": "Second Conditional",
+"ko": "2형 조건문 — 비현실적/가상 상황",
+"color": "#DC2626",
+"rules": [
+{
+"title": "Imaginary present/future situations",
+"ko": "현재나 미래의 가상 상황 (실현 가능성 낮음)",
+"formula": "If + past simple, would + base verb",
+"ex": [
+[
+"If I had a car, I would drive to work.",
+"차가 있다면, 차로 출근할 텐데요. (지금 차가 없음)"
+],
+[
+"If she were taller, she could be a model.",
+"그녀가 더 키가 크다면, 모델이 될 수 있을 텐데요."
+],
+[
+"What would you do if you won the lottery?",
+"복권에 당첨된다면 어떻게 할 거예요?"
+]
+]
+},
+{
+"title": "I were (not I was!)",
+"ko": "if I were — were를 사용해요! (가정법)",
+"formula": "If I were you, I would…",
+"ex": [
+[
+"If I were you, I'd apologise.",
+"내가 당신이라면, 사과하겠어요."
+],
+[
+"If he were more careful, he wouldn't make mistakes.",
+"그가 더 조심스럽다면, 실수하지 않을 텐데요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "If I _____ more time, I would learn to play the piano.",
+"a": "had",
+"opts": [
+"have",
+"had",
+"would have",
+"will have"
+],
+"exp": "2형 조건문: if + 과거형(had). 지금 시간이 없는 상황을 가정하는 것이에요."
+},
+{
+"type": "mc",
+"q": "I _____ a bigger flat if I could afford it.",
+"a": "would rent",
+"opts": [
+"will rent",
+"would rent",
+"rent",
+"had rented"
+],
+"exp": "2형 조건문 주절: would + base verb. 지금은 감당할 수 없는 상황이에요."
+},
+{
+"type": "mc",
+"q": "If I _____ you, I would take the job.",
+"a": "were",
+"opts": [
+"am",
+"was",
+"were",
+"had been"
+],
+"exp": "If I were you = 2형 조건문의 관용 표현. were를 써요! (was ✗)"
+},
+{
+"type": "fill",
+"q": "If she _____ (speak) French, she could work in Paris.",
+"a": "spoke",
+"exp": "2형: if + 과거형. speak → spoke. 지금은 프랑스어를 못하는 상황이에요."
+},
+{
+"type": "fill",
+"q": "What _____ you _____ (do) if you _____ (be) the president?",
+"a": "would / do / were",
+"exp": "2형 조건문: What would you do if you were…? 가상의 상황이에요."
+}
+]
+},
+{
+"id": 20,
+"section": "Conditionals",
+"sectionKo": "조건문",
+"title": "Third Conditional",
+"ko": "3형 조건문 — 과거에 대한 후회",
+"color": "#7C3AED",
+"rules": [
+{
+"title": "Imaginary past — how things could have been different",
+"ko": "실제로는 달라진 게 없지만, 과거가 달랐다면?",
+"formula": "If + past perfect, would have + past participle",
+"ex": [
+[
+"If I had studied harder, I would have passed.",
+"더 열심히 공부했다면, 합격했을 텐데요. (실제: 실패)"
+],
+[
+"If she hadn't been late, she wouldn't have missed the train.",
+"늦지 않았다면, 기차를 놓치지 않았을 텐데요."
+],
+[
+"If you had told me, I would have helped you.",
+"말해줬다면, 내가 도와줬을 텐데요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "If I _____ my umbrella, I wouldn't have got wet.",
+"a": "had taken",
+"opts": [
+"took",
+"had taken",
+"would take",
+"would have taken"
+],
+"exp": "3형 조건문: if + 과거완료(had + pp). 우산을 안 가져간 실제 상황이에요."
+},
+{
+"type": "mc",
+"q": "We _____ the match if we had played better.",
+"a": "would have won",
+"opts": [
+"would win",
+"will have won",
+"would have won",
+"had won"
+],
+"exp": "3형 조건문 주절: would have + pp. 실제로는 졌어요."
+},
+{
+"type": "fill",
+"q": "If you _____ (invite) me, I _____ (come) to the party.",
+"a": "had invited / would have come",
+"exp": "3형: If + past perfect, would have + pp. 초대받지 못한 실제 상황이에요."
+},
+{
+"type": "fill",
+"q": "She _____ (not/have) the accident if she _____ (be) more careful.",
+"a": "wouldn't have had / had been",
+"exp": "3형 조건문 부정: wouldn't have + pp. if + had been."
+}
+]
+},
+{
+"id": 21,
+"section": "Passive Voice",
+"sectionKo": "수동태",
+"title": "Passive Voice 1",
+"ko": "수동태 기초 — 현재와 과거",
+"color": "#0891B2",
+"rules": [
+{
+"title": "Active vs Passive",
+"ko": "능동태 vs 수동태",
+"formula": "Active: Subject + verb + object | Passive: Object + be + pp (+ by…)",
+"ex": [
+[
+"Active: The chef cooks the food.",
+"능동: 요리사가 음식을 요리해요."
+],
+[
+"Passive: The food is cooked by the chef.",
+"수동: 음식은 요리사에 의해 요리돼요."
+],
+[
+"Active: Police arrested the man.",
+"능동: 경찰이 그 남자를 체포했어요."
+],
+[
+"Passive: The man was arrested.",
+"수동: 그 남자가 체포됐어요."
+]
+]
+},
+{
+"title": "Tense forms of passive",
+"ko": "수동태의 시제 변화",
+"formula": "Present: am/is/are + pp | Past: was/were + pp | Future: will be + pp",
+"ex": [
+[
+"English is spoken all over the world.",
+"영어는 전 세계에서 사용돼요."
+],
+[
+"The bridge was built in 1850.",
+"다리는 1850년에 건설됐어요."
+],
+[
+"The meeting will be held on Friday.",
+"회의는 금요일에 열릴 거예요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "The Eiffel Tower _____ in 1889.",
+"a": "was built",
+"opts": [
+"built",
+"was built",
+"is built",
+"has built"
+],
+"exp": "역사적 사실(과거) + 수동태 → was + pp(built). 누가 지었는지보다 언제 지어졌는지가 중요해요."
+},
+{
+"type": "mc",
+"q": "English _____ as an official language in many countries.",
+"a": "is spoken",
+"opts": [
+"speaks",
+"is spoken",
+"was spoken",
+"has spoken"
+],
+"exp": "현재의 일반적 사실 수동태 → is + pp(spoken)."
+},
+{
+"type": "mc",
+"q": "The new bridge _____ next year.",
+"a": "will be opened",
+"opts": [
+"opens",
+"will open",
+"will be opened",
+"is opening"
+],
+"exp": "미래 수동태 → will be + pp(opened)."
+},
+{
+"type": "fill",
+"q": "The windows _____ (clean) every week by the cleaner.",
+"a": "are cleaned",
+"exp": "현재 수동태 (반복적 행동) → are + pp."
+},
+{
+"type": "fill",
+"q": "My car _____ (steal) last night. I'm so upset!",
+"a": "was stolen",
+"exp": "과거 수동태 → was + pp. steal의 과거분사 = stolen."
+},
+{
+"type": "fill",
+"q": "All packages _____ (deliver) within 3 days.",
+"a": "will be delivered",
+"exp": "미래 수동태 → will be + pp."
+}
+]
+},
+{
+"id": 22,
+"section": "Passive Voice",
+"sectionKo": "수동태",
+"title": "Passive Voice 2",
+"ko": "수동태 심화 — 현재완료·진행형",
+"color": "#374151",
+"rules": [
+{
+"title": "More passive tenses",
+"ko": "다양한 시제의 수동태",
+"formula": "Present perfect: has/have been + pp | Continuous: is/was being + pp",
+"ex": [
+[
+"The report has been written.",
+"보고서가 작성됐어요. (현재완료 수동)"
+],
+[
+"The road is being repaired.",
+"도로가 수리 중이에요. (현재 진행 수동)"
+],
+[
+"The suspect was being questioned.",
+"용의자가 심문받고 있었어요. (과거 진행 수동)"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "The documents _____ already _____ by the manager.",
+"a": "have / been signed",
+"opts": [
+"have / been signed",
+"are / signed",
+"were / signed",
+"have / signed"
+],
+"exp": "현재완료 수동태 → have/has + been + pp."
+},
+{
+"type": "mc",
+"q": "The street _____ when I tried to drive through.",
+"a": "was being repaired",
+"opts": [
+"repaired",
+"was repaired",
+"was being repaired",
+"has been repaired"
+],
+"exp": "내가 지나가려 할 때 수리 진행 중 → 과거 진행 수동태: was being + pp."
+},
+{
+"type": "fill",
+"q": "The package _____ (still/not/deliver). It should have arrived by now.",
+"a": "hasn't been delivered / still hasn't been delivered",
+"exp": "현재완료 수동태 부정 → hasn't been + pp."
+}
+]
+},
+{
+"id": 23,
+"section": "Articles",
+"sectionKo": "관사",
+"title": "a and an",
+"ko": "a/an — 부정관사",
+"color": "#2563EB",
+"rules": [
+{
+"title": "a/an = one, any, a type of (first mention or job)",
+"ko": "처음 언급하거나, 직업/종류를 말할 때",
+"formula": "a + consonant sound | an + vowel sound",
+"ex": [
+[
+"I saw a dog in the park. The dog was barking.",
+"공원에서 강아지를 봤어요. 그 강아지가 짖고 있었어요. (처음 언급 → a, 두 번째 → the)"
+],
+[
+"She's a doctor. / He's an engineer.",
+"그녀는 의사예요. / 그는 엔지니어예요. (직업)"
+],
+[
+"I'd like an apple and a banana.",
+"사과 한 개와 바나나 한 개를 먹고 싶어요."
+]
+]
+},
+{
+"title": "a vs an — it's about SOUND, not just the letter!",
+"ko": "a vs an: 철자가 아니라 발음이 기준이에요!",
+"formula": "an hour (h is silent) | a university (sounds like 'you')",
+"ex": [
+[
+"an hour (hour → sounds like 'our')",
+"an hour — h가 묵음이라 모음 소리로 시작해요"
+],
+[
+"a university (sounds like 'you-ni-versity')",
+"a university — '유'로 시작하는 자음 소리예요"
+],
+[
+"an honest answer | a European country",
+"an honest (묵음 h) | a European (자음 발음으로 시작)"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I had _____ interesting conversation with _____ old friend yesterday.",
+"a": "an / an",
+"opts": [
+"a / a",
+"a / an",
+"an / a",
+"an / an"
+],
+"exp": "interesting → 모음(i)으로 시작 → an. old → 모음(o)으로 시작 → an. 둘 다 an!"
+},
+{
+"type": "mc",
+"q": "She's _____ nurse. Her husband is _____ engineer.",
+"a": "a / an",
+"opts": [
+"a / a",
+"a / an",
+"an / a",
+"an / an"
+],
+"exp": "nurse → n (자음 소리) → a. engineer → e (모음 소리) → an."
+},
+{
+"type": "mc",
+"q": "It took _____ hour to get here. There was _____ lot of traffic.",
+"a": "an / a",
+"opts": [
+"a / an",
+"an / a",
+"an / an",
+"a / a"
+],
+"exp": "hour → h가 묵음, 모음 소리 → an. lot → l (자음 소리) → a."
+},
+{
+"type": "fill",
+"q": "He works as _____ accountant at _____ big company.",
+"a": "an / a",
+"exp": "accountant → 모음(a) → an. big → 자음(b) → a."
+},
+{
+"type": "fill",
+"q": "I need _____ umbrella. It looks like it's going to rain.",
+"a": "an",
+"exp": "umbrella → 모음(u) → an."
+}
+]
+},
+{
+"id": 24,
+"section": "Articles",
+"sectionKo": "관사",
+"title": "the",
+"ko": "the — 정관사",
+"color": "#16A34A",
+"rules": [
+{
+"title": "THE = both speaker and listener know which one",
+"ko": "말하는 사람과 듣는 사람 모두 어떤 것인지 알 때 → the",
+"formula": "the + noun (specific, already known)",
+"ex": [
+[
+"Can you close the window?",
+"창문 닫아줄 수 있어요? (어떤 창문인지 서로 알아요)"
+],
+[
+"The sun rises in the east.",
+"태양은 동쪽에서 떠요. (세상에 하나뿐)"
+],
+[
+"I loved the film last night.",
+"어젯밤 그 영화가 좋았어요. (전에 얘기한 영화)"
+]
+]
+},
+{
+"title": "NO the — for general / plural / uncountable",
+"ko": "일반적인 개념, 복수, 불가산 명사 → 관사 없음",
+"formula": "(no article) + plural/uncountable for general meaning",
+"ex": [
+[
+"I love music. (general)",
+"나는 음악을 좋아해요. (일반적인 음악)"
+],
+[
+"Dogs are loyal animals. (all dogs)",
+"개는 충성스러운 동물이에요. (모든 개)"
+],
+[
+"Life is short. (concept in general)",
+"인생은 짧아요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I bought _____ book yesterday. _____ book is about history.",
+"a": "a / The",
+"opts": [
+"a / The",
+"the / The",
+"a / A",
+"the / A"
+],
+"exp": "처음 언급 → a book. 두 번째 언급 (이미 어떤 책인지 앎) → The book."
+},
+{
+"type": "mc",
+"q": "_____ Nile is the longest river in _____ world.",
+"a": "The / the",
+"opts": [
+"A / a",
+"The / the",
+"The / a",
+"— / the"
+],
+"exp": "강 이름에는 the (The Nile). 세상에 하나 (the world) → the."
+},
+{
+"type": "mc",
+"q": "I prefer _____ tea to _____ coffee.",
+"a": "— / —",
+"opts": [
+"the / the",
+"a / a",
+"— / —",
+"the / —"
+],
+"exp": "일반적인 음료에 대한 선호 → 관사 없음. '일반적인 차'와 '일반적인 커피'를 말해요."
+},
+{
+"type": "fill",
+"q": "Can you pass me _____ salt, please?",
+"a": "the",
+"exp": "식탁 위의 소금 = 서로 어떤 것인지 아는 특정한 것 → the."
+},
+{
+"type": "fill",
+"q": "_____ Mount Fuji is in _____ Japan.",
+"a": "— / —",
+"opts": [],
+"exp": "산 이름(Mount Fuji)과 나라 이름(Japan)에는 관사를 쓰지 않아요."
+}
+]
+},
+{
+"id": 25,
+"section": "Comparatives",
+"sectionKo": "비교급과 최상급",
+"title": "Comparative",
+"ko": "비교급 — 더 ~한",
+"color": "#DC2626",
+"rules": [
+{
+"title": "Short adjectives → add -er",
+"ko": "짧은 형용사 → -er을 붙여요",
+"formula": "fast → faster | big → bigger | easy → easier",
+"ex": [
+[
+"He is taller than his brother.",
+"그는 형보다 키가 커요."
+],
+[
+"This book is easier than that one.",
+"이 책은 저 책보다 더 쉬워요."
+],
+[
+"It's getting hotter every year.",
+"매년 더 더워지고 있어요."
+]
+]
+},
+{
+"title": "Long adjectives → more + adjective",
+"ko": "긴 형용사 → more를 앞에 붙여요",
+"formula": "more + beautiful/expensive/interesting",
+"ex": [
+[
+"This hotel is more expensive than that one.",
+"이 호텔은 저 호텔보다 더 비싸요."
+],
+[
+"The new version is more interesting.",
+"새 버전이 더 흥미로워요."
+],
+[
+"She is more confident than before.",
+"그녀는 전보다 더 자신감 있어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "The new phone is _____ the old one.",
+"a": "better than",
+"opts": [
+"more good than",
+"gooder than",
+"better than",
+"more better than"
+],
+"exp": "good의 비교급은 better (불규칙). 'more good' ✗"
+},
+{
+"type": "mc",
+"q": "Seoul is _____ than Busan.",
+"a": "larger",
+"opts": [
+"more large",
+"larger",
+"more larger",
+"most large"
+],
+"exp": "large → 짧은 형용사 → er을 붙여요 (larger). 'more large' ✗"
+},
+{
+"type": "mc",
+"q": "The test was _____ I expected.",
+"a": "more difficult than",
+"opts": [
+"more difficult as",
+"more difficult than",
+"most difficult than",
+"difficult more than"
+],
+"exp": "긴 형용사(difficult) → more + adj + than. 비교 대상 앞에 'than'을 써요."
+},
+{
+"type": "fill",
+"q": "Could you speak _____ (slowly)? I can't understand you.",
+"a": "more slowly",
+"exp": "slowly → 2음절 이상 부사 → more slowly."
+},
+{
+"type": "fill",
+"q": "The weather today is _____ (bad) than yesterday.",
+"a": "worse",
+"exp": "bad의 비교급은 worse (불규칙). 'more bad' ✗"
+}
+]
+},
+{
+"id": 26,
+"section": "Comparatives",
+"sectionKo": "비교급과 최상급",
+"title": "Superlative",
+"ko": "최상급 — 가장 ~한",
+"color": "#B45309",
+"rules": [
+{
+"title": "Short: the + -est | Long: the most + adjective",
+"ko": "짧은 형용사: the + -est | 긴 형용사: the most + 형용사",
+"formula": "the tallest | the most beautiful | the best | the worst",
+"ex": [
+[
+"She is the tallest person in her class.",
+"그녀는 반에서 가장 키가 커요."
+],
+[
+"That was the most boring film I've ever seen.",
+"그건 내가 본 영화 중 가장 지루한 영화예요."
+],
+[
+"It was the best day of my life.",
+"인생에서 가장 좋은 날이었어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "The Amazon is _____ river in the world.",
+"a": "the longest",
+"opts": [
+"longest",
+"the most long",
+"the longest",
+"more long"
+],
+"exp": "최상급 → the + -est. long → longest. 최상급에는 항상 'the'를 붙여요!"
+},
+{
+"type": "mc",
+"q": "That's _____ news I've heard all day!",
+"a": "the best",
+"opts": [
+"the best",
+"the most good",
+"the goodest",
+"better"
+],
+"exp": "good의 최상급은 the best (불규칙). 'the most good' ✗"
+},
+{
+"type": "fill",
+"q": "This is _____ (expensive) restaurant in the city.",
+"a": "the most expensive",
+"exp": "긴 형용사(expensive) → the most + adj."
+},
+{
+"type": "fill",
+"q": "He is _____ (fast) runner on the team.",
+"a": "the fastest",
+"exp": "fast → 짧은 형용사 → the fastest."
+}
+]
+},
+{
+"id": 27,
+"section": "Verb Patterns",
+"sectionKo": "동사 패턴",
+"title": "Verb + -ing",
+"ko": "동사 + -ing 형태",
+"color": "#7C3AED",
+"rules": [
+{
+"title": "Verbs followed by -ing",
+"ko": "뒤에 -ing가 오는 동사들",
+"formula": "enjoy / finish / mind / avoid / suggest / keep + verb-ing",
+"ex": [
+[
+"I enjoy cooking Italian food.",
+"나는 이탈리안 음식 요리를 즐겨요."
+],
+[
+"She avoided making eye contact.",
+"그녀는 눈을 마주치지 않으려 했어요."
+],
+[
+"Would you mind opening the window?",
+"창문 좀 열어도 될까요?"
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "I enjoy _____ to classical music.",
+"a": "listening",
+"opts": [
+"listen",
+"to listen",
+"listening",
+"listened"
+],
+"exp": "enjoy 뒤에는 반드시 -ing → enjoy listening."
+},
+{
+"type": "mc",
+"q": "Please stop _____ so much noise!",
+"a": "making",
+"opts": [
+"make",
+"to make",
+"making",
+"made"
+],
+"exp": "stop 뒤에 -ing → stop making. (stop to make = 멈추고 ~하다는 다른 의미!)"
+},
+{
+"type": "fill",
+"q": "She suggested _____ (have) dinner at the new Italian restaurant.",
+"a": "having",
+"exp": "suggest + ing → having."
+},
+{
+"type": "fill",
+"q": "I don't mind _____ (wait). Take your time.",
+"a": "waiting",
+"exp": "mind + ing → waiting."
+}
+]
+},
+{
+"id": 28,
+"section": "Verb Patterns",
+"sectionKo": "동사 패턴",
+"title": "Verb + to infinitive",
+"ko": "동사 + to 부정사",
+"color": "#059669",
+"rules": [
+{
+"title": "Verbs followed by to + infinitive",
+"ko": "뒤에 to + 동사원형이 오는 동사들",
+"formula": "want / decide / hope / plan / promise / refuse / agree + to + verb",
+"ex": [
+[
+"I want to learn Japanese.",
+"나는 일본어를 배우고 싶어요."
+],
+[
+"She decided to change her job.",
+"그녀는 직업을 바꾸기로 결심했어요."
+],
+[
+"He refused to answer the question.",
+"그는 질문에 답하기를 거부했어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "She decided _____ a new language.",
+"a": "to learn",
+"opts": [
+"learning",
+"learn",
+"to learn",
+"learned"
+],
+"exp": "decide 뒤에는 to + 동사원형 → to learn."
+},
+{
+"type": "mc",
+"q": "I hope _____ you again soon.",
+"a": "to see",
+"opts": [
+"seeing",
+"see",
+"to see",
+"having seen"
+],
+"exp": "hope + to + verb → to see."
+},
+{
+"type": "fill",
+"q": "They agreed _____ (meet) at 7 o'clock.",
+"a": "to meet",
+"exp": "agree + to + verb → to meet."
+},
+{
+"type": "fill",
+"q": "He promised _____ (not/be) late again.",
+"a": "not to be",
+"exp": "부정 부정사 → promise + not to + verb."
+}
+]
+},
+{
+"id": 29,
+"section": "Verb Patterns",
+"sectionKo": "동사 패턴",
+"title": "-ing or to?",
+"ko": "ing냐 to냐 — 뜻이 달라지는 동사들",
+"color": "#B45309",
+"rules": [
+{
+"title": "remember / forget / try / stop — meaning changes!",
+"ko": "기억, 시도, 멈춤 → -ing와 to에 따라 의미가 달라요!",
+"formula": "remember doing (past event) | remember to do (future task)",
+"ex": [
+[
+"I remember meeting her. (I met her — I recall it now)",
+"그녀를 만난 것이 기억나요. (과거 사실을 기억함)"
+],
+[
+"Remember to buy milk. (don't forget the future task)",
+"우유 사는 것 잊지 마요. (미래 할 일을 기억해야 함)"
+],
+[
+"She stopped talking. (she was talking, now stopped)",
+"그녀는 말하기를 멈췄어요."
+],
+[
+"She stopped to talk to me. (stopped in order to talk)",
+"그녀는 나와 이야기하기 위해 멈췄어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "Did you remember _____ the door? I think it's unlocked.",
+"a": "to lock",
+"opts": [
+"locking",
+"to lock",
+"having locked",
+"lock"
+],
+"exp": "미래 할 일을 기억 → remember + to + verb. (잠궈야 할 것을 기억했는가?)"
+},
+{
+"type": "mc",
+"q": "I'll never forget _____ the Northern Lights.",
+"a": "seeing",
+"opts": [
+"to see",
+"having seen",
+"see",
+"seeing"
+],
+"exp": "과거 경험을 기억 → forget/remember + ing. (오로라를 본 과거 경험)"
+},
+{
+"type": "fill",
+"q": "He stopped _____ (smoke) last year. Good for him!",
+"a": "smoking",
+"exp": "담배를 끊었다 = 완전히 멈춤 → stop + ing."
+},
+{
+"type": "fill",
+"q": "On my way home, I stopped _____ (buy) some bread.",
+"a": "to buy",
+"exp": "빵을 사기 위해 멈춤 → stop + to + verb (목적)."
+}
+]
+},
+{
+"id": 30,
+"section": "Verb Patterns",
+"sectionKo": "동사 패턴",
+"title": "Reported Speech",
+"ko": "간접 화법 — 남의 말 전달하기",
+"color": "#0891B2",
+"rules": [
+{
+"title": "Reported speech — tense shifts back",
+"ko": "간접 화법 — 동사 시제를 한 단계 과거로 바꿔요",
+"formula": "'I am hungry.' → He said he was hungry.",
+"ex": [
+[
+"'I love you.' → She said she loved me.",
+"'사랑해요.' → 그녀는 나를 사랑한다고 했어요."
+],
+[
+"'I am working.' → He said he was working.",
+"'나 일하고 있어요.' → 그는 일하고 있다고 했어요."
+],
+[
+"'I have finished.' → She said she had finished.",
+"'끝냈어요.' → 그녀는 끝냈다고 했어요."
+]
+]
+}
+],
+"exercises": [
+{
+"type": "mc",
+"q": "'I will help you.' → He said he _____ help me.",
+"a": "would",
+"opts": [
+"will",
+"would",
+"shall",
+"had"
+],
+"exp": "will → would (간접 화법에서 한 단계 과거로 변함)."
+},
+{
+"type": "mc",
+"q": "'I am tired.' → She told me she _____ tired.",
+"a": "was",
+"opts": [
+"is",
+"was",
+"has been",
+"were"
+],
+"exp": "am → was (현재 → 과거로 변환)."
+},
+{
+"type": "fill",
+"q": "'I can swim.' → He said he _____ (can) swim.",
+"a": "could",
+"exp": "can → could (간접 화법에서 변환)."
+},
+{
+"type": "fill",
+"q": "'We have arrived.' → They told us they _____ (arrive).",
+"a": "had arrived",
+"exp": "have arrived (현재완료) → had arrived (과거완료)로 변환돼요."
+}
+]
+}
+]
+;
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+const STORE = "gif-v2";
+let P = {xp:0,streak:0,lastDay:null,totalQ:0,totalRight:0,
+         mastery:{},  // unitId → {done, attempts, score, srsLevel, nextReview}
+         xpHistory:{}};
+let CV = "home";
+let SEL = null;
+let QUIZ = null;
+let QUIZ_IDX = 0;
+let QUIZ_XP = 0;
+let QUIZ_RESULTS = [];
+let QUIZ_PHASE = "q"; // q | reveal | done
+
+// SRS intervals (days)
+const SRS_DAYS = [0,1,3,7,14,30];
+const LVL_LABELS = ["미학습","입문","초급","중급","고급","마스터"];
+const LVL_COLORS = ["#D4D4D8","#60A5FA","#34D399","#FBBF24","#A78BFA","#F87171"];
+
+function loadP(){try{const r=localStorage.getItem(STORE);if(r)P=JSON.parse(r);}catch(e){}}
+function saveP(){try{localStorage.setItem(STORE,JSON.stringify(P));}catch(e){}}
+const today = ()=>new Date().toISOString().slice(0,10);
+const isDue = (m)=>!m||m.srsLevel===0||Date.now()>=m.nextReview;
+function getDue(){return GRAMMAR.filter(u=>{const m=P.mastery[u.id];return m&&m.srsLevel>0&&isDue(m);}).length;}
+function updateStreak(){const t=today();if(P.lastDay===t)return;const y=new Date(Date.now()-86400000).toISOString().slice(0,10);P.streak=P.lastDay===y?(P.streak||0)+1:1;P.lastDay=t;}
+function unitScore(id){return P.mastery[id]?.score||0;}
+function unitDone(id){return P.mastery[id]?.done||false;}
+
+// ═══════════════════════════════
+// ROUTING
+// ═══════════════════════════════
+function go(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.v===name));
+  CV=name;
+  document.getElementById('v-'+name).classList.add('active');
+  render();
+}
+function openUnit(id){
+  SEL=GRAMMAR.find(u=>u.id===id);
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  CV='unit'; document.getElementById('v-unit').classList.add('active');
+  renderUnit();
+}
+function render(){
+  if(CV==='home')renderHome();
+  if(CV==='units')renderUnits();
+  if(CV==='unit')renderUnit();
+  if(CV==='quiz')renderQuiz();
+  if(CV==='progress')renderProgress();
+  if(CV==='review')renderReview();
+  refreshBadge();
+}
+function refreshBadge(){
+  document.querySelectorAll('.nav-badge').forEach(b=>b.remove());
+  const n=getDue();
+  if(n>0){const tab=document.querySelector('[data-v="review"]');const b=document.createElement('span');b.className='nav-badge';b.style.position='absolute';b.textContent=n>9?'9+':n;tab.appendChild(b);}
+}
+
+// ═══════════════════════════════
+// HOME
+// ═══════════════════════════════
+function renderHome(){
+  const el=document.getElementById('v-home');
+  const xpLv=Math.floor(P.xp/150)+1;
+  const xpCur=P.xp%150;
+  const acc=P.totalQ?Math.round(P.totalRight/P.totalQ*100):0;
+  const learned=Object.keys(P.mastery).length;
+  const due=getDue();
+
+  // Find next unit to study
+  const nextUnit=GRAMMAR.find(u=>!unitDone(u.id))||GRAMMAR[GRAMMAR.length-1];
+  const m=P.mastery[nextUnit.id]||{};
+
+  el.innerHTML=`
+<div class="hero">
+  <div class="hero-label">Grammar in Focus</div>
+  <h1 class="hero-title">오늘도 문법 공부<br>시작해봐요 ✦</h1>
+  <p class="hero-sub">영어 문법을 체계적으로 익히는 30개 단원 · 158개 연습문제</p>
+</div>
+
+<div class="stat-strip">
+  <div class="stat"><div class="stat-v">${P.streak||0}</div><div class="stat-l">🔥 연속</div></div>
+  <div class="stat"><div class="stat-v">${learned}</div><div class="stat-l">완료 단원</div></div>
+  <div class="stat"><div class="stat-v">${acc}%</div><div class="stat-l">정확도</div></div>
+  <div class="stat"><div class="stat-v" style="color:${due>0?'#EF4444':'inherit'}">${due}</div><div class="stat-l">복습 예정</div></div>
+</div>
+
+<div class="mission" style="background:linear-gradient(135deg,${nextUnit.color},${nextUnit.color}BB)">
+  <div class="mission-eyebrow">오늘의 추천 단원</div>
+  <div class="mission-name">Unit ${nextUnit.id}: ${nextUnit.title}</div>
+  <div class="mission-sub">${nextUnit.ko} · ${nextUnit.exercises.length}개 문제</div>
+  <button class="mission-btn" onclick="startQuiz(${nextUnit.id})">연습 시작 →</button>
+  <button class="mission-btn" style="background:rgba(255,255,255,.1)" onclick="openUnit(${nextUnit.id})">단원 보기</button>
+</div>
+
+<div class="action-row">
+  ${due>0?`<button class="action-btn" onclick="startReview()">
+    <div class="ab-icon" style="background:#FEF2F2">🔄</div>
+    <div class="ab-txt"><strong>${due}개 단원 복습하기</strong><small>SRS 간격 반복 학습</small></div>
+    <span class="ab-arrow">›</span>
+  </button>`:''}
+  <button class="action-btn" onclick="go('units')">
+    <div class="ab-icon" style="background:#EFF6FF">📖</div>
+    <div class="ab-txt"><strong>전체 단원 목록</strong><small>30개 단원 · 9개 섹션</small></div>
+    <span class="ab-arrow">›</span>
+  </button>
+  <button class="action-btn" onclick="go('progress')">
+    <div class="ab-icon" style="background:#F0FDF4">📊</div>
+    <div class="ab-txt"><strong>학습 현황</strong><small>점수, XP, 진행률 확인</small></div>
+    <span class="ab-arrow">›</span>
+  </button>
+</div>
+
+<div style="margin:0 1rem 1rem;padding:.9rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--ink2);line-height:1.7">
+  <strong style="color:var(--ink)">📌 이 프로그램에 대해</strong><br>
+  초·중급 학습자를 위한 핵심 영문법 30개 단원. 현재·과거 시제부터 조동사, 조건문, 수동태, 관사, 비교급까지. 모든 설명에 한국어 번역 포함. SRS로 장기기억 강화!
+</div>`;
+}
+
+// ═══════════════════════════════
+// UNITS LIST
+// ═══════════════════════════════
+function renderUnits(){
+  const el=document.getElementById('v-units');
+  const sections=[...new Set(GRAMMAR.map(u=>u.section))];
+  let html='';
+  sections.forEach(sec=>{
+    html+=`<div class="sec-header">${GRAMMAR.find(u=>u.section===sec).sectionKo} · ${sec}</div>`;
+    GRAMMAR.filter(u=>u.section===sec).forEach(u=>{
+      const sc=unitScore(u.id);
+      const done=unitDone(u.id);
+      const m=P.mastery[u.id]||{};
+      const lv=m.srsLevel||0;
+      html+=`<button class="unit-row" onclick="openUnit(${u.id})">
+        <div class="unit-icon" style="background:${u.color}22;color:${u.color};font-weight:700;font-size:13px">U${u.id}</div>
+        <div class="unit-info">
+          <div class="unit-title">${u.title}</div>
+          <div class="unit-sub">${u.ko} · ${u.exercises.length}개 문제</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <div style="flex:1;height:3px;background:var(--card2);border-radius:2px;overflow:hidden">
+              <div style="height:100%;width:${sc}%;background:${u.color};border-radius:2px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="unit-right">
+          <div class="unit-pct" style="color:${u.color}">${sc}%</div>
+          <div class="unit-done-badge">${done?'완료 ✓':lv>0?LVL_LABELS[lv]:''}</div>
+        </div>
+      </button>`;
+    });
+  });
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════
+// UNIT DETAIL
+// ═══════════════════════════════
+function renderUnit(){
+  if(!SEL)return;
+  const el=document.getElementById('v-unit');
+  const u=SEL;
+  const sc=unitScore(u.id);
+
+  const rulesHtml=u.rules.map(r=>`
+    <div class="rule-card" style="border-left-color:${u.color}">
+      <div class="rule-title">${r.title}</div>
+      <div class="rule-ko">${r.ko}</div>
+      <div class="formula-box">${r.formula}</div>
+      ${r.ex.map(([en,ko])=>{
+        const esc = en.replace(/`/g,"\\`").replace(/'/g,"\\'");
+        return `<div class="example-row" onclick="speakEN('${esc}', this)" title="클릭해서 듣기" style="cursor:pointer;border-radius:6px;padding:5px 4px;transition:background .2s">
+          <div class="ex-en" style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;opacity:.4;flex-shrink:0">🔊</span>
+            <span>${en}</span>
+          </div>
+          <div class="ex-ko" style="padding-left:18px">${ko}</div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  el.innerHTML=`
+<div class="unit-hdr">
+  <button class="back-btn" onclick="go('units')">← 단원 목록</button>
+  <div class="unit-eyebrow">${u.sectionKo} · ${u.section}</div>
+  <h1 class="unit-h1">Unit ${u.id}: ${u.title}</h1>
+  <div class="unit-h2">${u.ko} · ${u.exercises.length}개 문제${sc>0?' · 최고 점수: '+sc+'%':''}</div>
+  <div class="unit-pbar"><div class="unit-pbar-fill" style="width:${sc}%;background:${u.color}"></div></div>
+</div>
+
+<div class="rules-wrap">${rulesHtml}</div>
+
+<div style="padding:0 1rem 1.5rem">
+  <button onclick="startQuiz(${u.id})" style="width:100%;padding:14px;border-radius:12px;border:none;background:${u.color};color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px ${u.color}44">
+    연습 문제 시작 →
+  </button>
+</div>`;
+}
+
+// ═══════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════
+function startQuiz(unitId){
+  SEL=GRAMMAR.find(u=>u.id===unitId);
+  QUIZ_IDX=0; QUIZ_XP=0; QUIZ_RESULTS=[];
+  QUIZ_PHASE='q'; QUIZ=null;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  CV='quiz'; document.getElementById('v-quiz').classList.add('active');
+  renderQuiz();
+}
+
+function startReview(){
+  // Find due units and pick exercises
+  const dueUnits=GRAMMAR.filter(u=>{const m=P.mastery[u.id];return m&&m.srsLevel>0&&isDue(m);});
+  if(!dueUnits.length){alert('복습할 단원이 없어요!');return;}
+  SEL=dueUnits[0];
+  startQuiz(SEL.id);
+}
+
+function renderQuiz(){
+  const el=document.getElementById('v-quiz');
+  if(!SEL)return;
+  const u=SEL;
+  const exs=u.exercises;
+
+  if(QUIZ_IDX>=exs.length||QUIZ_PHASE==='done'){
+    renderDone();return;
+  }
+
+  const ex=exs[QUIZ_IDX];
+  const pct=Math.round(QUIZ_IDX/exs.length*100);
+  const backFn=`openUnit(${u.id})`;
+  let cardClass='quiz-q-card';
+  if(QUIZ_PHASE==='reveal')cardClass+=(QUIZ?.correct?' correct':' wrong');
+
+  // Build question text with blank
+  let qText=ex.q;
+  if(ex.type==='mc'){
+    qText=qText.replace('_____',`<span class="fill-blank" style="border-color:${u.color}">${QUIZ_PHASE==='reveal'?ex.a:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`);
+  }
+
+  let revealHtml='';
+  if(QUIZ_PHASE==='reveal'){
+    revealHtml=`<div class="quiz-reveal">
+      <div class="reveal-icon">${QUIZ.correct?'✅':'❌'}</div>
+      <div class="answer" style="color:${u.color}">${QUIZ.correct?'정답!':'정답: '+ex.a}</div>
+      <div class="ko">${ex.exp}</div>
+    </div>`;
+  }
+
+  let interactionHtml='';
+  if(ex.type==='mc'){
+    // FIX: use index to avoid apostrophe escaping bugs
+    const opts=ex.opts.map((o,oi)=>{
+      let cls='opt';
+      if(QUIZ_PHASE==='reveal'){
+        if(o===ex.a)cls+=' correct-opt';
+        else if(o===QUIZ?.chosen)cls+=' wrong-opt';
+      }
+      return`<button class="${cls}" ${QUIZ_PHASE==='reveal'?'disabled':''} onclick="answerMC(${oi})">${o}</button>`;
+    }).join('');
+    const nextBtn = QUIZ_PHASE==='reveal'
+      ? `<div style="padding:0 1rem .8rem"><button class="check-btn next" onclick="nextQ()">다음 문제 →</button></div>`
+      : '';
+    interactionHtml=`<div class="opts-grid">${opts}</div>${nextBtn}`;
+  } else {
+    if(QUIZ_PHASE==='q'){
+      interactionHtml=`<div style="padding:0 1rem 1rem">
+        <input type="text" id="fill-inp" class="fill-input" style="border-color:${u.color}" placeholder="정답을 입력하세요..." onkeydown="if(event.key==='Enter')checkFill()">
+        <button class="check-btn primary" onclick="checkFill()">확인하기</button>
+      </div>`;
+    } else {
+      interactionHtml=`<div style="padding:0 1rem 1rem">
+        <button class="check-btn next" onclick="nextQ()">다음 문제 →</button>
+      </div>`;
+    }
+  }
+
+  el.innerHTML=`
+<div class="quiz-hdr">
+  <button class="back-btn" style="margin:0" onclick="${backFn}">✕</button>
+  <span style="font-size:12px;color:var(--ink2);font-weight:500">${u.title} · ${QUIZ_IDX+1}/${exs.length}</span>
+  <span style="font-size:13px;font-weight:700;color:#D97706">+${QUIZ_XP} XP</span>
+</div>
+<div class="quiz-prog-bar"><div class="quiz-prog-fill" style="width:${pct}%;background:${u.color}"></div></div>
+<div class="quiz-prompt-lbl">${ex.type==='mc'?'올바른 것을 고르세요':'빈칸을 채우세요'}</div>
+<div class="${cardClass}">
+  <div class="quiz-q-text">${qText}</div>
+  ${revealHtml}
+</div>
+${interactionHtml}`;
+
+  if(ex.type==='fill'&&QUIZ_PHASE==='q'){
+    setTimeout(()=>{const i=document.getElementById('fill-inp');if(i)i.focus();},50);
+  }
+
+
+}
+
+function answerMC(optIdx){
+  if(QUIZ_PHASE!=='q')return;
+  const ex=SEL.exercises[QUIZ_IDX];
+  const choice=ex.opts[optIdx]; // index-based — avoids apostrophe bugs
+  const correct=choice===ex.a;
+  QUIZ={correct,chosen:choice};
+  QUIZ_PHASE='reveal';
+  if(correct)QUIZ_XP+=10;
+  P.totalQ++;if(correct)P.totalRight++;
+  updateStreak();saveP();
+  QUIZ_RESULTS.push({q:ex.q,a:ex.a,correct,type:'mc'});
+  renderQuiz();
+  setTimeout(()=>speakEN(ex.a), 200);
+}
+
+function checkFill(){
+  if(QUIZ_PHASE!=='q')return;
+  const inp=document.getElementById('fill-inp');
+  if(!inp)return;
+  const ex=SEL.exercises[QUIZ_IDX];
+  const val=inp.value.trim().toLowerCase();
+  // Accept multiple possible answers (split by /)
+  const answers=ex.a.split(' / ').map(a=>a.trim().toLowerCase());
+  const correct=answers.some(a=>val===a||val===a.replace(/'/g,''));
+  inp.className='fill-input '+(correct?'correct-input':'wrong-input');
+  QUIZ={correct,chosen:val};
+  QUIZ_PHASE='reveal';
+  if(correct)QUIZ_XP+=10;
+  P.totalQ++;if(correct)P.totalRight++;
+  updateStreak();saveP();
+  QUIZ_RESULTS.push({q:ex.q,a:ex.a,correct,type:'fill'});
+  renderQuiz();
+  // Speak the correct answer
+  setTimeout(()=>speakEN(ex.a), 200);
+}
+
+function nextQ(){
+  QUIZ_IDX++;
+  QUIZ_PHASE='q';QUIZ=null;
+  if(QUIZ_IDX>=SEL.exercises.length){QUIZ_PHASE='done';}
+  renderQuiz();
+}
+
+function renderDone(){
+  const el=document.getElementById('v-quiz');
+  const u=SEL;
+  const total=QUIZ_RESULTS.length;
+  const right=QUIZ_RESULTS.filter(r=>r.correct).length;
+  const score=Math.round(right/total*100);
+  const emoji=score>=80?'🎉':score>=60?'👍':'💪';
+
+  // Update mastery
+  const old=P.mastery[u.id]||{srsLevel:0,score:0,done:false,attempts:0};
+  const newLv=Math.min(old.srsLevel+(score>=60?1:0),5);
+  const nextRev=Date.now()+[0,1,3,7,14,30][newLv]*86400000;
+  P.mastery[u.id]={srsLevel:newLv,score:Math.max(old.score,score),done:score>=60,attempts:old.attempts+1,nextReview:nextRev};
+  P.xp+=QUIZ_XP;
+  const t=today();
+  P.xpHistory[t]=(P.xpHistory[t]||0)+QUIZ_XP;
+  saveP();
+
+  const rows=QUIZ_RESULTS.map(r=>`<div class="result-item"><span style="flex:1;padding-right:8px">${r.q.replace(/_____/,'(___)')}</span><span>${r.correct?'✅':'❌'}</span></div>`).join('');
+  const backFn=`openUnit(${u.id})`;
+
+  el.innerHTML=`<div class="done-wrap">
+    <div style="position:relative" class="done-score-ring">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle class="ring-bg" cx="50" cy="50" r="42"/>
+        <circle class="ring-fill" cx="50" cy="50" r="42"
+          stroke="${u.color}"
+          stroke-dasharray="${2*Math.PI*42}"
+          stroke-dashoffset="${2*Math.PI*42*(1-score/100)}"/>
+      </svg>
+      <div class="done-score-txt">${score}<small>%</small></div>
+    </div>
+    <h2 class="done-title">${emoji} 완료!</h2>
+    <p style="color:var(--ink2);margin-bottom:6px">${total}개 중 ${right}개 정답</p>
+    <p class="done-xp">+${QUIZ_XP} XP 획득!</p>
+    <div class="result-list">${rows}</div>
+    <button onclick="${backFn}" style="width:100%;padding:13px;border-radius:12px;border:none;background:${u.color};color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">단원으로 돌아가기</button>
+  </div>`;
+}
+
+// ═══════════════════════════════
+// REVIEW
+// ═══════════════════════════════
+function renderReview(){
+  const el=document.getElementById('v-review');
+  const due=GRAMMAR.filter(u=>{const m=P.mastery[u.id];return m&&m.srsLevel>0&&isDue(m);});
+  if(!due.length){
+    el.innerHTML=`<div class="pad"><h2 style="font-size:20px;margin-bottom:8px">복습 목록</h2><div class="empty">🎉 복습할 단원이 없어요!<br>새 단원을 공부해보세요.</div></div>`;return;
+  }
+  const rows=due.map(u=>{
+    const m=P.mastery[u.id]||{};
+    return`<button class="unit-row" onclick="startQuiz(${u.id})">
+      <div class="unit-icon" style="background:${u.color}22;color:${u.color};font-weight:700;font-size:12px">U${u.id}</div>
+      <div class="unit-info">
+        <div class="unit-title">${u.title}</div>
+        <div class="unit-sub">${u.ko} · 최고 점수: ${m.score||0}%</div>
+      </div>
+      <div style="font-size:12px;background:${u.color}22;color:${u.color};padding:4px 10px;border-radius:8px;font-weight:600;white-space:nowrap">복습 →</div>
+    </button>`;
+  }).join('');
+  el.innerHTML=`<div class="pad"><h2 style="font-size:20px;margin-bottom:4px">SRS 복습</h2><p style="font-size:13px;color:var(--ink2);margin-bottom:1rem">${due.length}개 단원이 복습 예정이에요</p></div>${rows}`;
+}
+
+// ═══════════════════════════════
+// PROGRESS
+// ═══════════════════════════════
+function renderProgress(){
+  const el=document.getElementById('v-progress');
+  const acc=P.totalQ?Math.round(P.totalRight/P.totalQ*100):0;
+  const xpLv=Math.floor(P.xp/150)+1;
+  const xpCur=P.xp%150;
+  const done=Object.values(P.mastery).filter(m=>m.done).length;
+  const mastered=Object.values(P.mastery).filter(m=>m.srsLevel>=5).length;
+
+  // XP 14-day chart
+  const xpDays=Array.from({length:14},(_,i)=>{
+    const d=new Date(Date.now()-(13-i)*86400000);
+    const k=d.toISOString().slice(0,10);
+    return{n:`${d.getMonth()+1}/${d.getDate()}`,xp:P.xpHistory[k]||0};
+  });
+  const maxXP=Math.max(...xpDays.map(d=>d.xp),1);
+  const xpBars=xpDays.map((d,i)=>`<div class="c-col">
+    ${d.xp>0?`<div class="c-val">${d.xp}</div>`:''}
+    <div class="c-bar" style="height:${Math.max(d.xp/maxXP*80,d.xp>0?4:2)}px;background:${d.xp>0?'var(--ink)':'var(--card2)'}"></div>
+    ${i%2===0?`<div class="c-lbl">${d.n}</div>`:'<div class="c-lbl"></div>'}
+  </div>`).join('');
+
+  // Section progress
+  const sections=[...new Set(GRAMMAR.map(u=>u.section))];
+  const secRows=sections.map(sec=>{
+    const units=GRAMMAR.filter(u=>u.section===sec);
+    const doneCount=units.filter(u=>unitDone(u.id)).length;
+    const pct=Math.round(doneCount/units.length*100);
+    const color=units[0].color;
+    return`<div class="mbar">
+      <div class="mbar-top">
+        <span style="color:var(--ink2)">${units[0].sectionKo}</span>
+        <span style="font-weight:600">${doneCount}/${units.length} 완료</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`<div class="pad">
+<h2 style="font-size:20px;margin-bottom:1rem">학습 현황</h2>
+
+<div class="xp-card-full">
+  <div class="xp-lv">LEVEL ${xpLv}</div>
+  <div class="xp-num">${P.xp} XP</div>
+  <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpCur/1.5}%"></div></div>
+  <div class="xp-sub">${xpCur}/150 XP · 다음 레벨까지 ${150-xpCur}XP</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem">
+  ${[{l:"정확도",v:acc+'%'},{l:"🔥 연속",v:(P.streak||0)+'일'},{l:"완료 단원",v:done},{l:"마스터",v:mastered}]
+    .map(s=>`<div class="stat" style="padding:.8rem 1rem;text-align:left">
+      <div style="font-size:10px;color:var(--ink3);margin-bottom:3px">${s.l}</div>
+      <div style="font-size:22px;font-weight:700;font-family:'DM Serif Display',serif">${s.v}</div>
+    </div>`).join('')}
+</div>
+
+<div class="sec-prog-card">
+  <div class="sec-prog-hdr">
+    <span style="font-size:13px;font-weight:600">섹션별 진행률</span>
+  </div>
+  <div class="sec-prog-body">${secRows}</div>
+</div>
+
+<div class="sec-prog-card">
+  <div class="sec-prog-hdr"><span style="font-size:13px;font-weight:600">최근 14일 XP</span></div>
+  <div style="padding:1rem">
+    <div class="chart-wrap">${xpBars}</div>
+  </div>
+</div>
+
+</div>`;
+}
+
+// ═══════════════════════════════
+// SPEECH ENGINE
+// ═══════════════════════════════
+let enVoice = null;
+
+function initVoices(){
+  if(!window.speechSynthesis) return;
+  function load(){
+    const vs = window.speechSynthesis.getVoices();
+    enVoice = vs.find(v=>v.lang==='en-US') ||
+              vs.find(v=>v.lang.startsWith('en')) ||
+              vs[0] || null;
+  }
+  load();
+  window.speechSynthesis.addEventListener('voiceschanged', load);
+}
+
+function speakEN(text, el){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if(enVoice) u.voice = enVoice;
+  u.lang = 'en-US';
+  u.rate = 0.88;
+  // Flash highlight
+  if(el){ el.style.background='#EFF6FF'; setTimeout(()=>el.style.background='',800); }
+  window.speechSynthesis.speak(u);
+}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+loadP();
+initVoices();
+renderHome();
+refreshBadge();
+</script>
+</body>
+</html>

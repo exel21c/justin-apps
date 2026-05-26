@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Justin 2026 Life Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1917;--ink2:#5c5954;--ink3:#a8a49f;
+  --bg:#f5f3ef;--card:#fff;--card2:#f0ede8;--border:rgba(0,0,0,0.08);
+  --r:14px;--sh:0 1px 3px rgba(0,0,0,.05),0 4px 20px rgba(0,0,0,.04);
+  --gold:#c9a84c;--gold2:#f8f3e6;--gold3:#7a6030;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+#app{max-width:780px;margin:0 auto;min-height:100vh;background:var(--bg)}
+
+/* NAV */
+.nav{background:var(--ink);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-brand{padding:14px 16px;font-family:'DM Serif Display',serif;font-size:15px;color:var(--gold);border-right:1px solid rgba(255,255,255,.1);white-space:nowrap;flex-shrink:0}
+.nt{padding:14px 13px;border:none;background:transparent;cursor:pointer;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.4);border-bottom:2.5px solid transparent;font-family:inherit;transition:all .15s;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
+.nt.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nt:hover:not(.active){color:rgba(255,255,255,.7)}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* BACK BAR */
+.back-bar{display:flex;align-items:center;gap:10px;padding:.7rem 1rem;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer}
+.back-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);display:flex;align-items:center;gap:4px}
+.back-area-name{font-size:14px;font-weight:700}
+
+/* HERO */
+.hero{background:var(--ink);color:#fff;padding:2rem 1.2rem 1.8rem;overflow:hidden;position:relative}
+.hero::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.15) 0%,transparent 70%);top:-60px;right:-60px}
+.hero-year{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:700}
+.hero-name{font-family:'DM Serif Display',serif;font-size:30px;line-height:1.1;margin-bottom:4px}
+.hero-name span{color:var(--gold)}
+.hero-sub{font-size:12.5px;color:rgba(255,255,255,.45);margin-bottom:18px;line-height:1.6}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hstat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.65rem .4rem;text-align:center}
+.hstat-v{font-family:'DM Serif Display',serif;font-size:20px;color:var(--gold)}
+.hstat-l{font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+
+/* TODAY CARD */
+.today-wrap{padding:1rem 1rem .5rem}
+.today-card{background:linear-gradient(135deg,#222,#2a2824);border-radius:var(--r);padding:1rem 1.1rem;border:1px solid rgba(255,255,255,.07)}
+.today-eye{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:700}
+.today-title{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;margin-bottom:10px}
+.habit-row{display:flex;gap:7px;flex-wrap:wrap}
+.hchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);cursor:pointer;transition:all .15s;user-select:none}
+.hchip.done{background:var(--gold);border-color:var(--gold3);color:var(--ink)}
+
+/* AREA GRID */
+.sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:.65rem 1rem .3rem;display:flex;align-items:center;justify-content:space-between}
+.sec-r{font-size:11px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink2)}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:.2rem 1rem 1rem}
+.acard{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:.85rem;cursor:pointer;transition:all .15s;box-shadow:var(--sh);position:relative;overflow:hidden;border-top-width:3px}
+.acard:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.acard-emoji{font-size:24px;margin-bottom:7px}
+.acard-name{font-size:13px;font-weight:700}
+.acard-sub{font-size:10px;color:var(--ink3);line-height:1.5;margin-bottom:9px}
+.pbar{height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:2px;transition:width .5s}
+.acard-pct{font-size:10px;font-weight:700;margin-top:3px;text-align:right}
+
+/* MANDART */
+.mandart-wrap{padding:.8rem;overflow-x:auto}
+.mgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;min-width:540px}
+.mc{border-radius:7px;padding:5px 3px;text-align:center;font-size:9px;font-weight:500;line-height:1.4;min-height:50px;display:flex;align-items:center;justify-content:center;transition:transform .12s,box-shadow .12s;border:1px solid transparent;word-break:keep-all}
+.mc.clickable{cursor:pointer}
+.mc.clickable:hover{transform:scale(1.06);box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:2;position:relative}
+.mc.area-center{font-size:10px;font-weight:700;border-radius:9px}
+.mc.main-center{background:#1a1917;color:var(--gold);font-family:'DM Serif Display',serif;font-size:11px;border-radius:9px;border:2px solid var(--gold3)}
+
+/* AREA DETAIL */
+.area-hdr{padding:1.1rem 1rem .85rem;background:var(--card);border-bottom:1px solid var(--border)}
+.area-meta{display:flex;align-items:center;gap:10px;margin-bottom:.5rem}
+.area-emoji-big{font-size:32px;cursor:pointer;padding:4px;border-radius:8px;transition:background .15s}
+.area-emoji-big:hover{background:var(--card2)}
+.area-title-input{font-family:'DM Serif Display',serif;font-size:22px;border:none;background:transparent;color:var(--ink);outline:none;width:100%;border-bottom:2px solid transparent;transition:border-color .15s;padding-bottom:2px}
+.area-title-input:focus{border-bottom-color:var(--gold)}
+.color-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:.5rem}
+.color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0}
+.color-swatch.active,.color-swatch:hover{transform:scale(1.2);border-color:var(--ink)}
+
+/* GOAL ITEMS */
+.goal-list{padding:.5rem 1rem 0}
+.gi{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem .8rem;margin-bottom:7px;box-shadow:var(--sh)}
+.gi-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--card2);color:var(--ink3)}
+.gi-num.done-num{color:#fff}
+.gi-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .15s}
+.gi-check.done{border-color:var(--green,#2d7a4f);background:var(--green,#2d7a4f);color:#fff}
+.gi-text{flex:1;font-size:13px;color:var(--ink);line-height:1.4}
+.gi-text.done-text{text-decoration:line-through;opacity:.5}
+.gi-input{flex:1;border:1.5px solid var(--gold);border-radius:7px;padding:5px 9px;font-size:13px;font-family:inherit;background:var(--gold2);color:var(--ink);outline:none}
+.gi-btn{border:1px solid var(--border);background:var(--card2);border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--ink2);transition:all .15s;flex-shrink:0;font-weight:600}
+.gi-btn:hover{background:var(--card);border-color:var(--ink3)}
+.gi-btn.save{background:var(--gold);border-color:var(--gold3);color:var(--ink)}
+.gi-btn.save:hover{opacity:.85}
+.gi-btn.del{color:#c0392b;border-color:#f0c0bb}
+.gi-btn.del:hover{background:#fdecea}
+.add-btn{display:flex;align-items:center;gap:7px;padding:.7rem .8rem;border:1.5px dashed var(--border);border-radius:10px;margin:7px 1rem;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink3);background:transparent;font-family:inherit;transition:all .15s;width:calc(100% - 2rem)}
+.add-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold2)}
+.add-max{display:flex;align-items:center;justify-content:center;padding:.6rem;font-size:11px;color:var(--ink3);margin:0 1rem 4px}
+
+/* NOTE */
+.note-wrap{padding:.5rem 1rem 1.5rem}
+.note-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.note-area{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:12.5px;font-family:inherit;background:var(--card);color:var(--ink);resize:vertical;min-height:80px;outline:none;transition:border-color .15s;line-height:1.6}
+.note-area:focus{border-color:var(--gold)}
+
+/* WEEKLY */
+.wgrid{display:grid;grid-template-columns:58px repeat(7,1fr);border-top:1px solid var(--border);overflow-x:auto;min-width:480px}
+.wh{padding:7px 3px;font-size:9.5px;font-weight:700;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);background:var(--card);color:var(--ink3);letter-spacing:.04em;text-transform:uppercase}
+.wtime{padding:5px 6px;font-size:9.5px;color:var(--ink3);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--card);font-weight:500}
+.wcell{padding:3px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--card);min-height:34px}
+.wev{border-radius:5px;padding:3px 5px;font-size:9px;font-weight:600;line-height:1.35;margin-bottom:2px}
+
+/* TIMELINE */
+.tl{padding:1.2rem 1rem 1rem;position:relative}
+.tl::before{content:'';position:absolute;left:2.4rem;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--gold),var(--card2))}
+.ti{display:flex;gap:11px;margin-bottom:14px;position:relative}
+.ty{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0;z-index:1;font-family:'DM Serif Display',serif}
+.ty.cur{background:var(--gold);color:var(--ink);font-size:11px}
+.ty.fut{background:var(--card);border:2px solid var(--border);color:var(--ink3)}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:.65rem .9rem;flex:1;box-shadow:var(--sh)}
+.ty-lbl{font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;letter-spacing:.05em}
+.tgoals{display:flex;flex-wrap:wrap;gap:5px}
+.tg{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600}
+
+/* UTIL */
+.tag{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">Justin ✦</div>
+    <button class="nt active" data-v="home" onclick="go('home')">홈</button>
+    <button class="nt" data-v="mandart" onclick="go('mandart')">만다라트</button>
+    <button class="nt" data-v="weekly" onclick="go('weekly')">주간</button>
+    <button class="nt" data-v="goals" onclick="go('goals')">목표</button>
+  </div>
+</nav>
+
+<div id="v-home" class="view active"></div>
+<div id="v-mandart" class="view"></div>
+<div id="v-area" class="view"></div>
+<div id="v-weekly" class="view"></div>
+<div id="v-goals" class="view"></div>
+
+</div>
+<script>
+// ═══════════════════════════════════════
+// DEFAULT DATA
+// ═══════════════════════════════════════
+const DEFAULT_AREAS = [
+  {id:'business',emoji:'💼',name:'사업',color:'#c9a84c',color2:'#fdf6e3',
+   items:['Shopify','Custom Broker','K-Glass Shop','스마트스토어','세라뷰티 $10K','eBay/ETSY','마케팅','재테크']},
+  {id:'study',emoji:'📚',name:'공부',color:'#1e4fa3',color2:'#e8eef8',
+   items:['영어 문법','리스닝','슬랭·이디엄','발음','스피킹','스몰톡','독해','중국어']},
+  {id:'health',emoji:'⛳',name:'건강',color:'#2d7a4f',color2:'#e8f5ee',
+   items:['골프 화목·PAR3','피클볼','하이킹 5마일','근력운동 홈트','자전거','식단','동네공원','건강검진']},
+  {id:'hobby',emoji:'🎮',name:'취미',color:'#6b3fa0',color2:'#f0eaf8',
+   items:['가드닝','드론 DJI Mini','캠핑·차박','카고밴→RV','PS4/PS5','모터사이클','사진','독서']},
+  {id:'travel',emoji:'✈️',name:'여행',color:'#1d6fa3',color2:'#e8f0f8',
+   items:['베트남·동남아','멕시코','National Park Senior','시애틀','그랜드캐년','뉴욕','한국','캠핑로드트립']},
+  {id:'retire',emoji:'🌅',name:'은퇴 준비',color:'#8a5a2a',color2:'#f8f0e6',
+   items:['한국 관세사','인맥','Locksmith 2nd Job','RV·DMV','재무계획','정리정돈','건강보험','은퇴 후']},
+  {id:'finance',emoji:'💰',name:'재무',color:'#27704a',color2:'#e8f5ee',
+   items:['재테크 포트폴리오','월별 예산','긴급자금 3개월','투자','파이프라인','경제기사','401k/IRA','부동산']},
+  {id:'life',emoji:'🏡',name:'일상',color:'#5c5954',color2:'#f0ede8',
+   items:['부엌','사무실','뒷마당·그린하우스','한국신문 30분','스윙연습','감사일기','수면루틴','긍정마인드셋']}
+];
+
+const COLORS = ['#c9a84c','#1e4fa3','#2d7a4f','#6b3fa0','#1d6fa3','#8a5a2a','#c0392b','#374151','#27704a','#5c5954','#e07b39'];
+
+// Mandart: blockRow/blockCol → areaIndex (-1 = main center)
+const BLOCK_TO_AREA = [[0,1,2],[3,-1,4],[5,6,7]];
+// Within main-center block: local (row)(col) → area index
+const CTR_REF = {'00':0,'01':1,'02':2,'12':4,'22':7,'21':6,'20':5,'10':3};
+// Goal positions within a block (clockwise from top-left, skipping center)
+const GPOS = [{r:0,c:0},{r:0,c:1},{r:0,c:2},{r:1,c:2},{r:2,c:2},{r:2,c:1},{r:2,c:0},{r:1,c:0}];
+
+// ═══════════════════════════════════════
+// STATE & PERSISTENCE
+// ═══════════════════════════════════════
+const SK = 'jlp-v3';
+let P = {areas:null,goalDone:{},habitDone:{},notes:{},streak:0,lastDay:''};
+let prevView = 'home';
+let curAreaId = 'business';
+
+function load(){try{const s=localStorage.getItem(SK);if(s)P=JSON.parse(s);}catch(e){}}
+function persist(){try{localStorage.setItem(SK,JSON.stringify(P));}catch(e){}}
+
+function getAreas(){
+  if(!P.areas) P.areas = DEFAULT_AREAS.map(a=>({...a,items:[...a.items]}));
+  return P.areas;
+}
+function getArea(id){return getAreas().find(a=>a.id===id);}
+function getAreaIdx(id){return getAreas().findIndex(a=>a.id===id);}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function go(view, areaId){
+  if(view !== 'area') prevView = view;
+  if(areaId) curAreaId = areaId;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.toggle('active', t.dataset.v===view));
+  document.getElementById('v-'+view).classList.add('active');
+  window.scrollTo(0,0);
+  render(view);
+}
+function goBack(){ go(prevView); }
+function render(view){
+  if(view==='home')renderHome();
+  else if(view==='mandart')renderMandart();
+  else if(view==='area')renderArea();
+  else if(view==='weekly')renderWeekly();
+  else if(view==='goals')renderGoals();
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function todayLabel(){const d=new Date();return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';}
+function pbar(pct,color){return '<div class="pbar"><div class="pbar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>';}
+function areaPct(a){
+  const areas = getAreas();
+  const ai = areas.findIndex(x=>x.id===a.id);
+  const done = a.items.filter((_,i)=>{
+    const k = todayStr()+'_g_'+ai+'_'+i;
+    return P.goalDone[k];
+  }).length;
+  return a.items.length ? Math.round(done/a.items.length*100) : 0;
+}
+
+// ═══════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════
+const HABITS = ['영어공부','골프 스윙','피클볼','하이킹','한국신문','홈트레이닝'];
+
+function renderHome(){
+  const el = document.getElementById('v-home');
+  const today = todayStr();
+  const areas = getAreas();
+  const studyArea = areas.find(a=>a.id==='study');
+  const studyDone = studyArea ? studyArea.items.filter((_,i)=>P.goalDone[today+'_g_1_'+i]).length : 0;
+  const habitsDone = HABITS.filter(h=>P.habitDone[today+'_'+h]).length;
+  const totalPct = Math.round(areas.reduce((s,a)=>s+areaPct(a),0)/areas.length);
+
+  let chips = '';
+  HABITS.forEach(h=>{
+    const done = !!P.habitDone[today+'_'+h];
+    chips += '<span class="hchip'+(done?' done':'')+'" onclick="toggleHabit(\''+esc(h)+'\')">'+esc(h)+'</span>';
+  });
+
+  let cards = '';
+  areas.forEach(a=>{
+    const pct = areaPct(a);
+    const sub = a.items.slice(0,2).map(esc).join(' · ');
+    cards += '<div class="acard" onclick="go(\'area\',\''+a.id+'\')" style="border-top-color:'+a.color+'">';
+    cards += '<div class="acard-emoji">'+a.emoji+'</div>';
+    cards += '<div class="acard-name">'+esc(a.name)+'</div>';
+    cards += '<div class="acard-sub">'+sub+'</div>';
+    cards += pbar(pct, a.color);
+    cards += '<div class="acard-pct" style="color:'+a.color+'">'+pct+'%</div>';
+    cards += '</div>';
+  });
+
+  el.innerHTML =
+    '<div class="hero">' +
+      '<div class="hero-year">2026 LIFE PLAN</div>' +
+      '<h1 class="hero-name">Justin\'s <span>Dream Year</span></h1>' +
+      '<p class="hero-sub">사업 · 공부 · 건강 · 취미 · 여행 · 은퇴<br>'+todayLabel()+'</p>' +
+      '<div class="hstats">' +
+        '<div class="hstat"><div class="hstat-v">'+studyDone+'/'+( studyArea?studyArea.items.length:8)+'</div><div class="hstat-l">오늘 공부</div></div>' +
+        '<div class="hstat"><div class="hstat-v">'+habitsDone+'/'+HABITS.length+'</div><div class="hstat-l">오늘 습관</div></div>' +
+        '<div class="hstat"><div class="hstat-v">'+totalPct+'%</div><div class="hstat-l">전체 진행</div></div>' +
+        '<div class="hstat"><div class="hstat-v">'+(P.streak||0)+'🔥</div><div class="hstat-l">연속일</div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="today-wrap">' +
+      '<div class="today-card">' +
+        '<div class="today-eye">TODAY\'S HABITS</div>' +
+        '<div class="today-title">오늘 할 일을 체크하세요 ✦</div>' +
+        '<div class="habit-row">'+chips+'</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="sec">8가지 삶의 영역 <span class="sec-r">탭해서 편집</span></div>' +
+    '<div class="agrid">'+cards+'</div>';
+}
+
+function toggleHabit(key){
+  const k = todayStr()+'_'+key;
+  P.habitDone[k] = !P.habitDone[k];
+  updateStreak(); persist(); renderHome();
+}
+function updateStreak(){
+  const t = todayStr();
+  if(P.lastDay === t) return;
+  const y = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  P.streak = (P.lastDay===y) ? (P.streak||0)+1 : 1;
+  P.lastDay = t;
+}
+
+// ═══════════════════════════════════════
+// AREA DETAIL (shared for all 8 areas)
+// ═══════════════════════════════════════
+function renderArea(){
+  const el = document.getElementById('v-area');
+  const areas = getAreas();
+  const ai = getAreaIdx(curAreaId);
+  const a = areas[ai];
+  if(!a){el.innerHTML='<p style="padding:2rem;color:var(--ink3)">영역을 찾을 수 없습니다.</p>';return;}
+  const today = todayStr();
+
+  // color swatches
+  let swatches = '';
+  COLORS.forEach(c=>{
+    const active = c === a.color;
+    swatches += '<div class="color-swatch'+(active?' active':'')+'" style="background:'+c+'" onclick="changeColor(\''+c+'\')"></div>';
+  });
+
+  // goal items
+  let items = '';
+  a.items.forEach((text, gIdx)=>{
+    const dk = today+'_g_'+ai+'_'+gIdx;
+    const done = !!P.goalDone[dk];
+    items += makeGIrow(ai, gIdx, text, done);
+  });
+
+  // add button or max notice
+  let addArea = '';
+  if(a.items.length < 8){
+    addArea = '<button class="add-btn" onclick="addGoal()">+ 목표 추가 ('+a.items.length+'/8)</button>';
+  } else {
+    addArea = '<div class="add-max">최대 8개 목표 ('+a.items.length+'/8) · 삭제 후 추가 가능</div>';
+  }
+
+  const notesKey = 'area_'+a.id;
+  const doneCount = a.items.filter((_,i)=>P.goalDone[today+'_g_'+ai+'_'+i]).length;
+  const pct = a.items.length ? Math.round(doneCount/a.items.length*100) : 0;
+
+  el.innerHTML =
+    '<div class="back-bar" onclick="goBack()">' +
+      '<button class="back-btn">← 뒤로</button>' +
+      '<span class="back-area-name">'+a.emoji+' '+esc(a.name)+'</span>' +
+    '</div>' +
+    '<div class="area-hdr">' +
+      '<div class="area-meta">' +
+        '<div class="area-emoji-big" title="이모지 클릭해서 변경" onclick="changeEmoji()">'+a.emoji+'</div>' +
+        '<input class="area-title-input" id="area-name-inp" value="'+esc(a.name)+'" oninput="saveAreaName(this.value)" />' +
+      '</div>' +
+      '<div class="color-row">'+swatches+'</div>' +
+      '<div style="margin-top:.6rem">'+pbar(pct, a.color)+'</div>' +
+      '<div style="display:flex;justify-content:space-between;margin-top:4px">' +
+        '<span style="font-size:10px;color:var(--ink3)">오늘 완료: '+doneCount+'/'+a.items.length+'</span>' +
+        '<span style="font-size:10px;font-weight:700;color:'+a.color+'">'+pct+'%</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="sec" style="padding-top:.9rem">목표 목록 <span class="sec-r">체크 · 편집 · 삭제</span></div>' +
+    '<div class="goal-list" id="goal-list">'+items+'</div>' +
+    addArea +
+    '<div class="note-wrap" style="margin-top:.3rem">' +
+      '<div class="note-label">메모 & 노트</div>' +
+      '<textarea class="note-area" placeholder="계획, 아이디어, 링크 등..." oninput="saveNote(\''+notesKey+'\',this.value)">'+esc(P.notes[notesKey]||'')+'</textarea>' +
+    '</div>';
+}
+
+function makeGIrow(ai, gIdx, text, done){
+  const dk = todayStr()+'_g_'+ai+'_'+gIdx;
+  const areas = getAreas();
+  const a = areas[ai];
+  const color = a ? a.color : '#c9a84c';
+  return '<div class="gi" id="gi-'+ai+'-'+gIdx+'">' +
+    '<div class="gi-num'+(done?' done-num':'')+'" style="'+(done?'background:'+color+';color:#fff':'')+'">'+( gIdx+1)+'</div>' +
+    '<div class="gi-check'+(done?' done':'')+'" style="'+(done?'border-color:'+color+';background:'+color:'')+ '" onclick="toggleGoal('+ai+','+gIdx+')">'+(done?'✓':'')+'</div>' +
+    '<span class="gi-text'+(done?' done-text':'')+'" >'+esc(text)+'</span>' +
+    '<button class="gi-btn" onclick="startEdit('+ai+','+gIdx+')">✏</button>' +
+    '<button class="gi-btn del" onclick="deleteGoal('+ai+','+gIdx+')">×</button>' +
+    '</div>';
+}
+
+function toggleGoal(ai, gIdx){
+  const k = todayStr()+'_g_'+ai+'_'+gIdx;
+  P.goalDone[k] = !P.goalDone[k];
+  updateStreak(); persist(); renderArea();
+}
+
+function startEdit(ai, gIdx){
+  const areas = getAreas();
+  const text = areas[ai].items[gIdx] || '';
+  const row = document.getElementById('gi-'+ai+'-'+gIdx);
+  if(!row) return;
+  row.innerHTML =
+    '<input class="gi-input" id="gi-inp-'+ai+'-'+gIdx+'" value="'+esc(text)+'" onkeydown="if(event.key===\'Enter\')saveEdit('+ai+','+gIdx+')" />' +
+    '<button class="gi-btn save" onclick="saveEdit('+ai+','+gIdx+')">저장</button>' +
+    '<button class="gi-btn" onclick="renderArea()">취소</button>';
+  const inp = document.getElementById('gi-inp-'+ai+'-'+gIdx);
+  if(inp){inp.focus();inp.select();}
+}
+
+function saveEdit(ai, gIdx){
+  const inp = document.getElementById('gi-inp-'+ai+'-'+gIdx);
+  if(!inp) return;
+  const val = inp.value.trim();
+  if(!val) return;
+  const areas = getAreas();
+  areas[ai].items[gIdx] = val;
+  P.areas = areas; persist(); renderArea();
+}
+
+function deleteGoal(ai, gIdx){
+  if(!confirm('이 목표를 삭제할까요?')) return;
+  const areas = getAreas();
+  areas[ai].items.splice(gIdx, 1);
+  // Clean up done states for this area
+  const today = todayStr();
+  for(let i = gIdx; i < areas[ai].items.length+1; i++){
+    delete P.goalDone[today+'_g_'+ai+'_'+i];
+  }
+  P.areas = areas; persist(); renderArea();
+}
+
+function addGoal(){
+  const areas = getAreas();
+  const ai = getAreaIdx(curAreaId);
+  if(areas[ai].items.length >= 8){return;}
+  areas[ai].items.push('새 목표');
+  P.areas = areas; persist(); renderArea();
+  const newIdx = areas[ai].items.length - 1;
+  setTimeout(()=>startEdit(ai, newIdx), 30);
+}
+
+function saveAreaName(val){
+  const areas = getAreas();
+  const ai = getAreaIdx(curAreaId);
+  areas[ai].name = val;
+  P.areas = areas; persist();
+}
+
+function changeColor(color){
+  const areas = getAreas();
+  const ai = getAreaIdx(curAreaId);
+  areas[ai].color = color;
+  P.areas = areas; persist(); renderArea();
+}
+
+function changeEmoji(){
+  const emojis = ['💼','📚','⛳','🎮','✈️','🌅','💰','🏡','🎯','🚀','💡','🌟','🏋️','🎨','🌿','🚗','🏠','📱','💻','🎵','📷','🏕️','🚴','🏌️'];
+  const cur = getArea(curAreaId);
+  const curI = emojis.indexOf(cur.emoji);
+  const next = emojis[(curI+1) % emojis.length];
+  const areas = getAreas();
+  const ai = getAreaIdx(curAreaId);
+  areas[ai].emoji = next;
+  P.areas = areas; persist(); renderArea();
+}
+
+function saveNote(key, val){P.notes[key]=val;persist();}
+
+// ═══════════════════════════════════════
+// MANDART
+// ═══════════════════════════════════════
+function renderMandart(){
+  const el = document.getElementById('v-mandart');
+  const areas = getAreas();
+  let cells = '';
+  for(let r=0;r<9;r++){
+    for(let c=0;c<9;c++){
+      cells += buildCell(r,c,areas);
+    }
+  }
+  el.innerHTML =
+    '<div style="background:var(--card);border-bottom:1px solid var(--border);padding:.85rem 1rem">' +
+      '<h2 style="font-family:\'DM Serif Display\',serif;font-size:20px;margin-bottom:3px">Justin\'s 만다라트</h2>' +
+      '<p style="font-size:12px;color:var(--ink3)">영역 이름 또는 목표 셀을 탭하면 편집 가능</p>' +
+    '</div>' +
+    '<div class="mandart-wrap"><div class="mgrid">'+cells+'</div></div>' +
+    '<div style="padding:0 1rem 1.5rem">' +
+      '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;font-size:11.5px;color:var(--ink2);line-height:1.8;box-shadow:var(--sh)">' +
+        '🔵 <strong style="color:var(--ink)">진하게 색칠된 셀</strong> = 영역 중심 → 탭하면 상세 편집<br>' +
+        '⬜ <strong style="color:var(--ink)">연하게 색칠된 셀</strong> = 세부 목표 → 탭하면 해당 영역 편집<br>' +
+        '✦ <strong style="color:var(--ink)">가운데 검정 셀</strong> = 인생의 핵심 "Justin 2026"' +
+      '</div>' +
+    '</div>';
+}
+
+function buildCell(r, c, areas){
+  const br = Math.floor(r/3), bc = Math.floor(c/3);
+  const lr = r%3, lc = c%3;
+  const ai = BLOCK_TO_AREA[br][bc];
+
+  if(ai === -1){
+    // Main center block
+    if(lr===1 && lc===1){
+      return '<div class="mc main-center">✦ Justin<br>2026</div>';
+    }
+    const refAi = CTR_REF[''+lr+lc];
+    const ra = areas[refAi];
+    return '<div class="mc clickable" onclick="go(\'area\',\''+ra.id+'\')" style="background:'+ra.color2+';color:'+ra.color+'">' +
+      ra.emoji+'<br><span style="font-size:8px;font-weight:700">'+esc(ra.name)+'</span>' +
+    '</div>';
+  }
+
+  const a = areas[ai];
+  if(lr===1 && lc===1){
+    // Area center
+    return '<div class="mc area-center clickable" onclick="go(\'area\',\''+a.id+'\')" style="background:'+a.color+';color:#fff">' +
+      a.emoji+'<br><span style="font-size:8px">'+esc(a.name)+'</span>' +
+    '</div>';
+  }
+
+  // Goal cell
+  const gPosIdx = GPOS.findIndex(p=>p.r===lr&&p.c===lc);
+  const goalText = a.items[gPosIdx] || '';
+  const dk = todayStr()+'_g_'+ai+'_'+gPosIdx;
+  const done = !!P.goalDone[dk];
+  const border = done ? ';border:1.5px solid '+a.color : '';
+  return '<div class="mc clickable" onclick="go(\'area\',\''+a.id+'\')" style="background:'+a.color2+';color:'+a.color+border+'" title="'+esc(goalText)+'">' +
+    (done?'<span style="font-size:8px;margin-right:2px">✓</span>':'')+esc(goalText) +
+  '</div>';
+}
+
+// ═══════════════════════════════════════
+// WEEKLY
+// ═══════════════════════════════════════
+function renderWeekly(){
+  const el = document.getElementById('v-weekly');
+  const DAYS = ['시간','월','화','수','목','금','토','일'];
+  const rows = [
+    {t:'06:00',e:{월:'기상·커피',화:'기상·커피',수:'기상·커피',목:'기상·커피',금:'기상·커피',토:'기상·커피',일:'기상·커피'}},
+    {t:'07:00',e:{월:'한국신문\n30분',화:'한국신문\n30분',수:'한국신문\n30분',목:'한국신문\n30분',금:'한국신문\n30분',토:'하이킹\n그리피스팍',일:'골프\n연습장'}},
+    {t:'08:00',e:{월:'영어공부\n1~4 (2h)',화:'영어공부\n1~4 (2h)',수:'영어공부\n1~4 (2h)',목:'영어공부\n1~4 (2h)',금:'영어공부\n1~4 (2h)',토:'',일:''}},
+    {t:'10:00',e:{월:'사업작업',화:'골프\n화목골프',수:'사업작업',목:'골프\n화목골프',금:'사업작업',토:'자전거\n동네',일:'골프 필드'}},
+    {t:'12:00',e:{월:'점심',화:'점심',수:'점심',목:'점심',금:'점심',토:'점심',일:'점심'}},
+    {t:'13:00',e:{월:'영어공부\n5~8 (2h)',화:'영어공부\n5~8 (2h)',수:'영어공부\n5~8 (2h)',목:'영어공부\n5~8 (2h)',금:'영어공부\n5~8 (2h)',토:'캠핑/\n가드닝',일:''}},
+    {t:'15:00',e:{월:'피클볼',화:'',수:'피클볼',목:'',금:'',토:'',일:'피클볼'}},
+    {t:'18:00',e:{월:'근력운동\n철봉',화:'근력운동',수:'근력운동',목:'근력운동',금:'근력운동',토:'',일:''}},
+    {t:'20:00',e:{월:'스윙연습\n15분',화:'스윙연습',수:'스윙연습',목:'스윙연습',금:'스윙연습',토:'',일:'스윙연습'}},
+    {t:'21:00',e:{월:'독서/취미',화:'독서/취미',수:'독서/취미',목:'독서/취미',금:'',토:'',일:''}}
+  ];
+  const ECOLORS = {
+    '영어공부':['#e8eef8','#1e4fa3'],'사업':['#fdf6e3','#c9a84c'],'골프':['#e8f5ee','#2d7a4f'],
+    '피클볼':['#e8f5ee','#27704a'],'하이킹':['#e8f0f8','#1d6fa3'],'자전거':['#e8f0f8','#1d6fa3'],
+    '근력운동':['#fdecea','#c0392b'],'스윙연습':['#fdf6e3','#c9a84c'],
+    '기상':['#f0ede8','#5c5954'],'한국신문':['#f0ede8','#5c5954'],'점심':['#f0ede8','#5c5954'],
+    '독서':['#f0eaf8','#6b3fa0'],'캠핑':['#f0eaf8','#6b3fa0'],'가드닝':['#e8f5ee','#27704a']
+  };
+
+  let hdr = '';
+  DAYS.forEach(d=>{ hdr += '<div class="wh">'+d+'</div>'; });
+
+  let grid = hdr;
+  rows.forEach(row=>{
+    grid += '<div class="wtime">'+row.t+'</div>';
+    ['월','화','수','목','금','토','일'].forEach(d=>{
+      const ev = row.e[d]||'';
+      if(!ev){ grid += '<div class="wcell"></div>'; return; }
+      const key = Object.keys(ECOLORS).find(k=>ev.includes(k));
+      const bg = key ? ECOLORS[key][0] : 'var(--card2)';
+      const tc = key ? ECOLORS[key][1] : 'var(--ink)';
+      grid += '<div class="wcell"><div class="wev" style="background:'+bg+';color:'+tc+'">'+ev.replace(/\n/g,'<br>')+'</div></div>';
+    });
+  });
+
+  el.innerHTML =
+    '<div style="background:var(--card);border-bottom:1px solid var(--border);padding:.85rem 1rem">' +
+      '<h2 style="font-family:\'DM Serif Display\',serif;font-size:20px;margin-bottom:3px">주간 루틴</h2>' +
+      '<p style="font-size:12px;color:var(--ink3)">Justin의 이상적인 주간 일정표</p>' +
+    '</div>' +
+    '<div style="overflow-x:auto;padding-bottom:1.5rem">' +
+      '<div class="wgrid" style="margin:0 1rem">'+grid+'</div>' +
+    '</div>';
+}
+
+// ═══════════════════════════════════════
+// GOALS (10-year timeline)
+// ═══════════════════════════════════════
+const TIMELINE = [
+  {year:'2026',cur:true,goals:['Custom Broker 시작','영어 4h/일','피클볼 영어친구','Shopify 런칭','골프 PAR3'],color:'#c9a84c'},
+  {year:'2027',cur:false,goals:['K-Glass 온라인샵','세라뷰티 $10K','중국어 기초','엑셀 고급'],color:'#1e4fa3'},
+  {year:'2028',cur:false,goals:['스마트스토어 성장','회계 취득','드론 취미','차박 RV 준비'],color:'#2d7a4f'},
+  {year:'2029',cur:false,goals:['베트남/동남아 여행','2nd Job (Locksmith)','스패니쉬 기초','재테크 포트폴리오'],color:'#6b3fa0'},
+  {year:'2030',cur:false,goals:['멕시코 여행','카고밴→RV 전환','사업 안정화'],color:'#1d6fa3'},
+  {year:'2031',cur:false,goals:['한국 관세사 시험','National Park 투어','인맥 구축'],color:'#8a5a2a'},
+  {year:'2032~2035',cur:false,goals:['은퇴 계획 실행','Senior Park Pass','RV 전국 여행','한국 귀국 검토'],color:'#5c5954'}
+];
+
+function renderGoals(){
+  const el = document.getElementById('v-goals');
+  let tl = '';
+  TIMELINE.forEach(t=>{
+    let tags = '';
+    t.goals.forEach(g=>{ tags += '<span class="tg" style="background:'+t.color+'22;color:'+t.color+'">'+esc(g)+'</span>'; });
+    tl += '<div class="ti">' +
+      '<div class="ty'+(t.cur?' cur':' fut')+'">'+t.year.slice(-2)+'</div>' +
+      '<div class="tc"><div class="ty-lbl">'+t.year+'년</div><div class="tgoals">'+tags+'</div></div>' +
+    '</div>';
+  });
+
+  let monthly = '';
+  [['1월','신년 정리 · 설날 (1/28~30)'],['2월','영어 본격 시작 · Broker 등록'],
+   ['3월','삼일절 (3/1) · Shopify 런칭'],['4월','골프 시즌 시작'],
+   ['5월','시애틀 여행 · 석탄일'],['6월','현충일 (6/6) · 피클볼 시즌'],
+   ['7월','여름 사업 점검'],['8월','광복절 (8/15) · 건강 관리'],
+   ['9월','추석 (9/16~18) · 중간 점검'],['10월','개천절 · 한글날 (10/9)'],
+   ['11월','연말 준비 · 수능 (11/14)'],['12월','성탄절 · 2027 계획 수립']
+  ].forEach(([m,e])=>{
+    monthly +=
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 1rem;border-bottom:1px solid var(--border);font-size:12px">' +
+        '<span style="width:26px;font-weight:700;color:var(--gold);font-size:11px;flex-shrink:0">'+m+'</span>' +
+        '<span style="color:var(--ink2)">'+esc(e)+'</span>' +
+      '</div>';
+  });
+
+  el.innerHTML =
+    '<div style="background:var(--card);border-bottom:1px solid var(--border);padding:.85rem 1rem">' +
+      '<h2 style="font-family:\'DM Serif Display\',serif;font-size:20px;margin-bottom:3px">10년 인생 목표</h2>' +
+      '<p style="font-size:12px;color:var(--ink3)">2026 — 2035 · 사업 · 공부 · 건강 · 은퇴</p>' +
+    '</div>' +
+    '<div class="tl">'+tl+'</div>' +
+    '<div class="sec">2026 월별 핵심 일정</div>' +
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:0 1rem 1.5rem;box-shadow:var(--sh)">'+monthly+'</div>';
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+load();
+renderHome();
+</script>
+</body>
+</html>

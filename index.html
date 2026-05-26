@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Justin's Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a6fa8;--navy2:#2980b9;--navy3:#3a9ad9;
+  --gold:#c8a84b;--gold2:#f5f0e0;--gold3:#8a6e2a;
+  --ink:#1e2533;--ink2:#4a5568;--ink3:#8a9ab0;
+  --bg:#f0f3f7;--card:#ffffff;--border:#dde3ec;
+  --green:#1e6b3c;--green2:#e8f5ee;
+  --r:6px;--sh:0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.04);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans KR','Roboto',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+#app{max-width:1000px;margin:0 auto;min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy);border-bottom:3px solid #5bb3e0}
+.hdr-top{display:flex;align-items:center;justify-content:flex-end;padding:5px 1.5rem;background:rgba(0,0,0,.2);font-size:11px;color:rgba(255,255,255,.5);gap:12px}
+.hdr-top span{color:rgba(255,255,255,.7)}
+.hdr-top a{color:rgba(255,255,255,.5);text-decoration:none;cursor:pointer;transition:color .15s}
+.hdr-top a:hover{color:#fff}
+.hdr-main{display:flex;align-items:center;padding:.85rem 1.5rem;gap:1.5rem}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{width:38px;height:38px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--navy);font-family:'Roboto',sans-serif}
+.logo-text{font-size:17px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.logo-text span{color:var(--gold)}
+.hdr-divider{width:1px;height:28px;background:rgba(255,255,255,.15)}
+.hdr-subtitle{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.05em;text-transform:uppercase}
+.hdr-spacer{flex:1}
+.hdr-date{font-size:11.5px;color:rgba(255,255,255,.5);text-align:right;line-height:1.6}
+.hdr-date strong{color:rgba(255,255,255,.8);display:block;font-size:12px}
+
+/* ── NAV BAR ── */
+.nav{background:var(--navy2);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 1.5rem;gap:4px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-item{padding:10px 16px;font-size:12px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;letter-spacing:.02em;border:none;background:transparent;font-family:inherit}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;border-bottom-color:var(--gold)}
+.nav-spacer{flex:1}
+.nav-btn{padding:7px 14px;font-size:11px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;border:1px solid rgba(255,255,255,.15);border-radius:4px;background:transparent;font-family:inherit;margin:6px 0;transition:all .15s;white-space:nowrap}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-btn.edit-on{background:var(--gold);border-color:var(--gold3);color:var(--navy);font-weight:700}
+
+/* ── CONTENT ── */
+.content{padding:1.4rem 1.5rem 3rem}
+
+/* ── PAGE HEADER ── */
+.page-hdr{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.4rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;box-shadow:var(--sh)}
+.page-hdr-accent{width:4px;height:36px;border-radius:2px;background:var(--navy);flex-shrink:0}
+.page-hdr-title{font-size:17px;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+.page-hdr-sub{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.page-hdr-stats{margin-left:auto;display:flex;gap:16px}
+.stat-item{text-align:center}
+.stat-v{font-size:20px;font-weight:700;color:var(--navy);line-height:1}
+.stat-l{font-size:9.5px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+
+/* ── MAIN CAT ── */
+.main-cat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:1rem;box-shadow:var(--sh);overflow:hidden}
+.main-cat-hdr{display:flex;align-items:center;gap:10px;padding:.85rem 1.2rem;cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:background .12s}
+.main-cat-hdr:hover{background:#f8fafc}
+.main-cat-hdr.open{border-bottom-color:var(--border);background:#f8fafc}
+.cat-stripe{width:4px;height:32px;border-radius:2px;flex-shrink:0}
+.cat-emoji{font-size:20px;flex-shrink:0}
+.cat-label{font-size:14px;font-weight:700;color:var(--navy);flex:1}
+.cat-meta{font-size:11px;color:var(--ink3)}
+.cat-chevron{font-size:11px;color:var(--ink3);transition:transform .2s;flex-shrink:0}
+.cat-chevron.open{transform:rotate(90deg)}
+.ic-btn{width:26px;height:26px;border-radius:4px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink3);transition:all .12s;flex-shrink:0}
+.ic-btn:hover{background:var(--card);border-color:var(--ink3);color:var(--ink)}
+.ic-btn.del:hover{background:#fdecea;border-color:#f0b0aa;color:#c0392b}
+
+/* ── MAIN CAT BODY ── */
+.main-cat-body{display:none;padding:.9rem 1.2rem 1.1rem;background:#fafbfc}
+.main-cat-body.open{display:block}
+
+/* ── SUB CAT ── */
+.sub-cat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:.8rem}
+.sub-cat-hdr{display:flex;align-items:center;gap:8px;padding:.65rem .95rem;cursor:pointer;user-select:none;transition:background .12s;border-radius:var(--r)}
+.sub-cat-hdr:hover{background:#f8fafc}
+.sub-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sub-label{font-size:12.5px;font-weight:700;color:var(--ink2);flex:1;letter-spacing:.01em}
+.sub-count{font-size:10.5px;color:var(--ink3)}
+.sub-chevron{font-size:10px;color:var(--ink3);transition:transform .2s}
+.sub-chevron.open{transform:rotate(90deg)}
+.sub-ic-btn{width:22px;height:22px;border-radius:3px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink3);transition:all .12s;flex-shrink:0}
+.sub-ic-btn:hover{background:var(--card);border-color:var(--ink3);color:var(--ink)}
+.sub-ic-btn.del:hover{background:#fdecea;border-color:#f0b0aa;color:#c0392b}
+.sub-body{display:none;padding:.5rem .9rem .8rem}
+.sub-body.open{display:block}
+
+/* ── APP TABLE ── */
+.app-table{width:100%;border-collapse:collapse}
+.app-table th{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;padding:6px 10px;border-bottom:2px solid var(--border);text-align:left;background:#f8fafc}
+.app-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px}
+.app-table tr:last-child td{border-bottom:none}
+.app-table tr{cursor:pointer;transition:background .1s}
+.app-table tr:hover td{background:#f0f6ff}
+.app-emoji-cell{font-size:18px;width:36px;text-align:center}
+.app-name{font-weight:600;color:var(--navy)}
+.app-desc{font-size:11px;color:var(--ink3);margin-top:2px}
+.app-tag{display:inline-block;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:3px}
+.app-acts{display:flex;gap:4px;opacity:0;transition:opacity .12s}
+.app-table tr:hover .app-acts{opacity:1}
+body.edit-mode .app-acts{opacity:1}
+.app-launch-icon{font-size:13px;color:var(--ink3)}
+.add-row td{cursor:pointer;color:var(--ink3);font-size:12px;font-weight:500}
+.add-row:hover td{background:var(--gold2);color:var(--gold3)}
+.add-sub-btn{display:flex;align-items:center;gap:6px;padding:.55rem .9rem;border:1px dashed var(--border);border-radius:var(--r);cursor:pointer;font-size:11.5px;font-weight:500;color:var(--ink3);background:transparent;font-family:inherit;transition:all .15s;width:100%;margin-top:.5rem}
+.add-sub-btn:hover{border-color:var(--navy);color:var(--navy);background:#eef3fa}
+.add-main-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:.75rem;border:1px dashed var(--border);border-radius:var(--r);cursor:pointer;font-size:12.5px;font-weight:500;color:var(--ink3);background:var(--card);font-family:inherit;transition:all .15s;width:100%;box-shadow:var(--sh);display:none}
+.add-main-btn:hover{border-color:var(--navy);color:var(--navy);background:#eef3fa}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px;margin-bottom:1.2rem;box-shadow:var(--sh)}
+.search-bar input{flex:1;border:none;outline:none;font-size:13px;font-family:inherit;color:var(--ink);background:transparent}
+.search-bar input::placeholder{color:var(--ink3)}
+.search-icon{color:var(--ink3);font-size:14px;flex-shrink:0}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(10,20,40,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem}
+.overlay.hidden{display:none}
+.modal{background:var(--card);border-radius:8px;padding:1.5rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.18);animation:mIn .16s ease;border-top:3px solid var(--navy)}
+@keyframes mIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.m-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:1.1rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)}
+.mf{margin-bottom:.8rem}
+.ml{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.mi{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:5px;font-size:13px;font-family:inherit;background:#f8fafc;color:var(--ink);outline:none;transition:border-color .15s}
+.mi:focus{border-color:var(--navy);background:#fff}
+.mi::placeholder{color:var(--ink3)}
+.cp{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.sw{width:22px;height:22px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0}
+.sw.active,.sw:hover{transform:scale(1.2);border-color:var(--ink)}
+.eg-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-height:120px;overflow-y:auto;margin-top:4px}
+.eg{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:1px solid transparent;transition:all .12s}
+.eg:hover,.eg.active{border-color:var(--navy);background:#eef3fa}
+.mfoot{display:flex;gap:7px;justify-content:flex-end;margin-top:1.2rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.mbtn{padding:7px 18px;border-radius:5px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid var(--border);background:#f8fafc;color:var(--ink);transition:all .15s}
+.mbtn:hover{background:var(--bg)}
+.mbtn.ok{background:var(--navy);border-color:var(--navy2);color:#fff}
+.mbtn.ok:hover{background:var(--navy2)}
+.mbtn.danger{background:#fdecea;border-color:#f0b0aa;color:#c0392b}
+
+/* ── BACKUP MODAL ── */
+.bk-card{background:#f8fafc;border:1px solid var(--border);border-radius:5px;padding:.85rem 1rem;margin-bottom:.7rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.bk-card:hover{border-color:var(--navy);background:#eef3fa}
+.bk-icon{width:38px;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.bk-info{flex:1}
+.bk-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.bk-sub{font-size:11px;color:var(--ink3);line-height:1.4}
+.bk-arr{font-size:14px;color:var(--ink3)}
+.bk-divider{height:1px;background:var(--border);margin:.7rem 0;position:relative}
+.bk-divider::after{content:'또는';position:absolute;left:50%;transform:translateX(-50%);top:-9px;background:var(--card);padding:0 8px;font-size:10px;color:var(--ink3);font-weight:600}
+.bk-status{font-size:11px;color:var(--ink3);padding:.55rem .9rem;background:#f8fafc;border-radius:5px;text-align:center;margin-top:.5rem;min-height:30px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:.55rem 1.2rem;border-radius:4px;font-size:12px;font-weight:600;z-index:1000;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;border-bottom:2px solid var(--gold)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:2rem 1rem;color:var(--ink3)}
+.empty-icon{font-size:36px;margin-bottom:.5rem}
+.empty-t{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:.3rem}
+.empty-s{font-size:11.5px;line-height:1.6}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header class="hdr">
+  <div class="hdr-top">
+    <span id="hdate-top"></span>
+    <span>|</span>
+    <a onclick="openBackup()">💾 백업 & 복원</a>
+    <span>|</span>
+    <a id="edit-link" onclick="toggleEdit()">편집 모드</a>
+  </div>
+  <div class="hdr-main">
+    <div class="logo">
+      <div class="logo-icon">JH</div>
+      <div class="logo-text">Justin's <span>Hub</span></div>
+    </div>
+    <div class="hdr-divider"></div>
+    <div class="hdr-subtitle">Personal Command Center</div>
+    <div class="hdr-spacer"></div>
+    <div class="hdr-date" id="hdate-main"></div>
+  </div>
+  <nav class="nav" id="main-nav">
+    <div class="nav-spacer"></div>
+  </nav>
+</header>
+
+<div class="content">
+  <div class="page-hdr">
+    <div class="page-hdr-accent"></div>
+    <div>
+      <div class="page-hdr-title" id="page-title">전체 메뉴</div>
+      <div class="page-hdr-sub" id="page-sub">모든 카테고리와 앱을 확인하세요</div>
+    </div>
+    <div class="page-hdr-stats">
+      <div class="stat-item"><div class="stat-v" id="s-cats">0</div><div class="stat-l">카테고리</div></div>
+      <div class="stat-item"><div class="stat-v" id="s-apps">0</div><div class="stat-l">앱</div></div>
+      <div class="stat-item"><div class="stat-v" id="s-rec">—</div><div class="stat-l">최근 실행</div></div>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="앱 또는 카테고리 검색..." oninput="renderAll()">
+  </div>
+
+  <div id="board"></div>
+  <button class="add-main-btn" id="add-main-btn" onclick="openAddMain()">＋ 메인 카테고리 추가</button>
+</div>
+
+</div>
+
+<div class="overlay hidden" id="overlay" onclick="bgClose(event)">
+  <div class="modal" id="modal">
+    <div class="m-title" id="m-title"></div>
+    <div id="m-body"></div>
+    <div class="mfoot" id="m-foot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SK='jhub-v2';
+var editMode=false;
+var openState={};
+var curTab='all';
+
+var DEFAULT={
+  cats:[
+    {id:'biz',name:'Business',emoji:'💼',color:'#1a3a5c',
+     subs:[
+       {id:'biz-s1',name:'Broker & Trade',color:'#1a3a5c',
+        apps:[
+          {id:'a1',name:'BrokerLedger',emoji:'🛃',file:'broker_ledger.html',desc:'세관 브로커 회계 · AR Aging · P&L',color:'#1a3a5c'}
+        ]}
+     ]},
+    {id:'per',name:'Personal',emoji:'🏡',color:'#2d5f96',
+     subs:[
+       {id:'per-study',name:'Study',color:'#1e4fa3',
+        apps:[
+          {id:'a2',name:'영어 문법',emoji:'📖',file:'grammar_in_focus.html',desc:'Grammar in Use · 30유닛',color:'#1e4fa3'},
+          {id:'a3',name:'영어 회화',emoji:'💬',file:'conversation_lab.html',desc:'26토픽 · 쉐도잉 · 퀴즈',color:'#1e4fa3'},
+          {id:'a4',name:'중국어',emoji:'🀄',file:'chinese_learner.html',desc:'성조 · 기본단어 · 인사말',color:'#c0392b'},
+          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'}
+        ]},
+       {id:'per-plan',name:'Life Planner',color:'#c8a84b',
+        apps:[
+          {id:'a5',name:'Life Planner',emoji:'🗓️',file:'justin_life_planner.html',desc:'만다라트 · 8영역 목표 관리',color:'#c8a84b'}
+        ]}
+     ]}
+  ],
+  recent:[]
+};
+
+var D=null;
+
+function load(){
+  try{var s=localStorage.getItem(SK);D=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT));}
+  catch(e){D=JSON.parse(JSON.stringify(DEFAULT));}
+  D.cats.forEach(function(c){
+    if(openState[c.id]===undefined)openState[c.id]=true;
+    c.subs.forEach(function(s){if(openState[s.id]===undefined)openState[s.id]=true;});
+  });
+}
+function save(){try{localStorage.setItem(SK,JSON.stringify(D));}catch(e){}}
+
+var PALETTE=['#1a3a5c','#2d5f96','#1e4fa3','#1e6b3c','#c8a84b','#6b3fa0','#8a5a2a','#c0392b','#374151','#5c5954','#0891b2','#e07b39'];
+var EMOJIS=['💼','🏡','📚','✈️','⛳','💰','🌅','🎮','📖','💬','🀄','🗓️','🛃','🛍️','📰','💻','🎯','🚀','💡','🌟','🏋️','🎨','📷','🚗','🏕️','🎵','📱','🔑','🌿','⚡'];
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2,5);}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+
+function updateHeader(){
+  var d=new Date();
+  var days=['일','월','화','수','목','금','토'];
+  var str=d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';
+  var str2='('+days[d.getDay()]+'요일)';
+  var el1=document.getElementById('hdate-top');
+  var el2=document.getElementById('hdate-main');
+  if(el1)el1.textContent=str+' '+str2;
+  if(el2){el2.innerHTML='<strong>'+str+'</strong>'+str2;}
+}
+
+function updateStats(){
+  var total=D.cats.reduce(function(s,c){return s+c.subs.reduce(function(ss,sub){return ss+sub.apps.length;},0);},0);
+  document.getElementById('s-cats').textContent=D.cats.length;
+  document.getElementById('s-apps').textContent=total;
+  document.getElementById('s-rec').textContent=(D.recent&&D.recent[0])||'—';
+}
+
+function toggleEdit(){
+  editMode=!editMode;
+  document.body.classList.toggle('edit-mode',editMode);
+  var el=document.getElementById('edit-link');
+  if(el)el.textContent=editMode?'✅ 편집 완료':'편집 모드';
+  document.getElementById('add-main-btn').style.display=editMode?'flex':'none';
+  renderNav();renderAll();
+}
+
+function toggleOpen(id,e){if(e)e.stopPropagation();openState[id]=!openState[id];renderAll();}
+
+function renderNav(){
+  var nav=document.getElementById('main-nav');
+  if(!nav)return;
+  var parts=['<button class="nav-item'+(curTab==="all"?" active":"")+' " onclick="switchTab(\"all\")">전체보기</button>'];
+  D.cats.forEach(function(cat){
+    parts.push('<button class="nav-item'+(curTab===cat.id?' active':'')+'" onclick="switchTab(\"'+cat.id+'\")">'+ cat.emoji+' '+esc(cat.name)+'</button>');
+  });
+  parts.push('<div class="nav-spacer"></div>');
+  parts.push('<div class="nav-spacer"></div>'); nav.innerHTML=parts.join('');
+}
+function switchTab(tab){
+  curTab=tab;
+  var cat=D.cats.find(function(c){return c.id===tab;});
+  var title=tab==='all'?'전체 메뉴':(cat?cat.name:tab);
+  var sub=tab==='all'?'모든 카테고리와 앱을 확인하세요':(cat?cat.subs.length+'개 섹션 · '+cat.subs.reduce(function(s,sub){return s+sub.apps.length;},0)+'개 앱':'');
+  document.getElementById('page-title').textContent=title;
+  document.getElementById('page-sub').textContent=sub;
+  renderNav();
+  renderAll();
+}
+
+function renderAll(){
+  var q=(document.getElementById('search').value||'').toLowerCase().trim();
+  var board=document.getElementById('board');
+  var html='';
+
+  var cats=D.cats;
+  if(curTab!=='all') cats=D.cats.filter(function(c){return c.id===curTab;});
+
+  cats.forEach(function(cat,_ci){
+    var ci=D.cats.indexOf(cat);
+    var catOpen=openState[cat.id]!==false;
+    var totalApps=cat.subs.reduce(function(s,sub){return s+sub.apps.length;},0);
+    var catMatch=cat.name.toLowerCase().includes(q);
+    var anyMatch=!q||catMatch||cat.subs.some(function(sub){
+      return sub.name.toLowerCase().includes(q)||sub.apps.some(function(a){
+        return a.name.toLowerCase().includes(q)||(a.desc||'').toLowerCase().includes(q);
+      });
+    });
+    if(!anyMatch)return;
+
+    html+='<div class="main-cat">';
+    html+='<div class="main-cat-hdr'+(catOpen?' open':'')+'" onclick="toggleOpen(\''+esc(cat.id)+'\')">';
+    html+='<div class="cat-stripe" style="background:'+esc(cat.color)+'"></div>';
+    html+='<div class="cat-emoji">'+esc(cat.emoji)+'</div>';
+    html+='<div class="cat-label">'+esc(cat.name)+'</div>';
+    html+='<div class="cat-meta">'+cat.subs.length+'개 섹션 · '+totalApps+'개 앱</div>';
+    if(editMode){
+      html+='<button class="ic-btn" onclick="event.stopPropagation();openEditMain('+ci+')">✏</button>';
+      html+='<button class="ic-btn del" onclick="event.stopPropagation();deleteMain('+ci+')">🗑</button>';
+    }
+    html+='<span class="cat-chevron'+(catOpen?' open':'')+'">›</span>';
+    html+='</div>';
+
+    html+='<div class="main-cat-body'+(catOpen?' open':'')+'">';
+    cat.subs.forEach(function(sub,si){
+      var subOpen=openState[sub.id]!==false;
+      var apps=sub.apps;
+      if(q&&!catMatch&&!sub.name.toLowerCase().includes(q)){
+        apps=apps.filter(function(a){return a.name.toLowerCase().includes(q)||(a.desc||'').toLowerCase().includes(q);});
+        if(!apps.length)return;
+      }
+      html+='<div class="sub-cat">';
+      html+='<div class="sub-cat-hdr" onclick="toggleOpen(\''+esc(sub.id)+'\')">';
+      html+='<div class="sub-dot" style="background:'+esc(sub.color)+'"></div>';
+      html+='<span class="sub-label">'+esc(sub.name)+'</span>';
+      html+='<span class="sub-count">'+apps.length+'개</span>';
+      if(editMode){
+        html+='<button class="sub-ic-btn" onclick="event.stopPropagation();openEditSub('+ci+','+si+')">✏</button>';
+        html+='<button class="sub-ic-btn del" onclick="event.stopPropagation();deleteSub('+ci+','+si+')">×</button>';
+      }
+      html+='<span class="sub-chevron'+(subOpen?' open':'')+'">›</span>';
+      html+='</div>';
+
+      html+='<div class="sub-body'+(subOpen?' open':'')+'">';
+      html+='<table class="app-table"><thead><tr>';
+      html+='<th style="width:36px"></th><th>앱 이름</th><th style="display:none"></th><th style="width:90px">유형</th>';
+      if(editMode)html+='<th style="width:70px">관리</th>';
+      html+='<th style="width:30px"></th></tr></thead><tbody>';
+
+      apps.forEach(function(app){
+        var realAi=sub.apps.indexOf(app);
+        html+='<tr onclick="launch('+ci+','+si+','+realAi+',event)">';
+        html+='<td class="app-emoji-cell">'+esc(app.emoji)+'</td>';
+        html+='<td><div class="app-name">'+esc(app.name)+'</div><div class="app-desc">'+esc(app.desc||'')+'</div></td>';
+        html+='<td style="display:none"></td>';
+        if(app.external){
+          html+='<td><span class="app-tag" style="background:#e8eef8;color:#1e4fa3">외부 링크</span></td>';
+        } else {
+          html+='<td><span class="app-tag" style="background:'+esc(app.color||sub.color)+'22;color:'+esc(app.color||sub.color)+'">HTML 앱</span></td>';
+        }
+        if(editMode){
+          html+='<td><div class="app-acts">';
+          html+='<button class="sub-ic-btn" onclick="event.stopPropagation();openEditApp('+ci+','+si+','+realAi+')">✏</button>';
+          html+='<button class="sub-ic-btn del" onclick="event.stopPropagation();deleteApp('+ci+','+si+','+realAi+')">×</button>';
+          html+='</div></td>';
+        }
+        html+='<td><span class="app-launch-icon">↗</span></td>';
+        html+='</tr>';
+      });
+
+      if(editMode){
+        html+='<tr class="add-row" onclick="openAddApp('+ci+','+si+')">';
+        html+='<td>＋</td><td colspan="'+(editMode?4:3)+'">앱 추가</td></tr>';
+      }
+      html+='</tbody></table></div></div>';
+    });
+
+    if(editMode){
+      html+='<button class="add-sub-btn" onclick="openAddSub('+ci+')">＋ 섹션 추가</button>';
+    }
+    html+='</div></div>';
+  });
+
+  if(!html&&q){
+    html='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-t">검색 결과 없음</div><div class="empty-s">"'+esc(q)+'"에 해당하는 앱이 없습니다</div></div>';
+  }
+  board.innerHTML=html;
+  updateStats();
+}
+
+function launch(ci,si,ai,e){
+  if(editMode)return;
+  var app=D.cats[ci].subs[si].apps[ai];
+  if(!app)return;
+  D.recent=D.recent||[];D.recent.unshift(app.name);D.recent=D.recent.slice(0,5);
+  save();updateStats();
+  window.open(app.file,'_blank');
+}
+
+// ── MODAL ──
+var mCb=null;
+function openModal(title,body,foot,cb){
+  document.getElementById('m-title').textContent=title;
+  document.getElementById('m-body').innerHTML=body;
+  document.getElementById('m-foot').innerHTML=foot;
+  document.getElementById('overlay').classList.remove('hidden');
+  mCb=cb||null;
+  var inp=document.querySelector('#modal input.mi');
+  if(inp)setTimeout(function(){inp.focus();},80);
+}
+function closeModal(){document.getElementById('overlay').classList.add('hidden');mCb=null;}
+function bgClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function confirmModal(){if(mCb)mCb();}
+
+var STD_FOOT='<button class="mbtn" onclick="closeModal()">취소</button><button class="mbtn ok" onclick="confirmModal()">저장</button>';
+var DEL_FOOT='<button class="mbtn" onclick="closeModal()">취소</button><button class="mbtn danger" onclick="confirmModal()">삭제</button>';
+
+function swHtml(sel){return PALETTE.map(function(c){return '<div class="sw'+(c===sel?' active':'')+'" style="background:'+c+'" onclick="pickSw(this,\''+c+'\')" data-c="'+c+'"></div>';}).join('');}
+function pickSw(el){document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('active');});el.classList.add('active');}
+function getSw(){var s=document.querySelector('.sw.active');return s?s.dataset.c:PALETTE[0];}
+function egHtml(sel){return EMOJIS.map(function(em){return '<div class="eg'+(em===sel?' active':'')+'" onclick="pickEg(this)" data-em="'+em+'">'+em+'</div>';}).join('');}
+function pickEg(el){document.querySelectorAll('.eg').forEach(function(e){e.classList.remove('active');});el.classList.add('active');}
+function getEg(){var s=document.querySelector('.eg.active');return s?s.dataset.em:'📁';}
+
+function catFormHtml(c){
+  c=c||{};
+  return '<div class="mf"><div class="ml">이름</div><input class="mi" id="fn" value="'+esc(c.name||'')+'" placeholder="카테고리 이름"/></div>'+
+    '<div class="mf"><div class="ml">이모지</div><div class="eg-grid">'+egHtml(c.emoji||'📁')+'</div></div>'+
+    '<div class="mf"><div class="ml">색상</div><div class="cp">'+swHtml(c.color||PALETTE[0])+'</div></div>';
+}
+function subFormHtml(s){
+  s=s||{};
+  return '<div class="mf"><div class="ml">섹션 이름</div><input class="mi" id="fn" value="'+esc(s.name||'')+'" placeholder="섹션 이름"/></div>'+
+    '<div class="mf"><div class="ml">색상</div><div class="cp">'+swHtml(s.color||PALETTE[0])+'</div></div>';
+}
+function appFormHtml(a,sc){
+  a=a||{};
+  return '<div class="mf"><div class="ml">앱 이름</div><input class="mi" id="an" value="'+esc(a.name||'')+'" placeholder="앱 이름"/></div>'+
+    '<div class="mf"><div class="ml">파일명 또는 URL</div><input class="mi" id="af" value="'+esc(a.file||'')+'" placeholder="예: grammar.html 또는 https://..."/></div>'+
+    '<div class="mf"><div class="ml">설명 (선택)</div><input class="mi" id="ad" value="'+esc(a.desc||'')+'" placeholder="간단한 설명"/></div>'+
+    '<div class="mf"><div class="ml">이모지</div><div class="eg-grid">'+egHtml(a.emoji||'📄')+'</div></div>'+
+    '<div class="mf"><div class="ml">색상</div><div class="cp">'+swHtml(a.color||sc||PALETTE[0])+'</div></div>';
+}
+
+function openAddMain(){openModal('카테고리 추가',catFormHtml(),STD_FOOT,function(){var n=document.getElementById('fn').value.trim();if(!n){toast('이름 입력 필요');return;}var id=uid();D.cats.push({id:id,name:n,emoji:getEg(),color:getSw(),subs:[]});openState[id]=true;save();closeModal();renderAll();toast('✅ '+n);});}
+function openEditMain(ci){var c=D.cats[ci];openModal('카테고리 편집',catFormHtml(c),STD_FOOT,function(){var n=document.getElementById('fn').value.trim();if(!n)return;D.cats[ci].name=n;D.cats[ci].emoji=getEg();D.cats[ci].color=getSw();save();closeModal();renderAll();toast('✅ 저장됨');});}
+function deleteMain(ci){var c=D.cats[ci];openModal('카테고리 삭제','<p style="font-size:13px;color:var(--ink2);line-height:1.8"><strong>'+esc(c.name)+'</strong> 및 하위 앱 전체가 삭제됩니다.</p>',DEL_FOOT,function(){D.cats.splice(ci,1);save();closeModal();renderAll();toast('🗑 삭제됨');});}
+function openAddSub(ci){openModal('섹션 추가',subFormHtml(),STD_FOOT,function(){var n=document.getElementById('fn').value.trim();if(!n)return;var id=uid();D.cats[ci].subs.push({id:id,name:n,color:getSw(),apps:[]});openState[id]=true;save();closeModal();renderAll();toast('✅ '+n);});}
+function openEditSub(ci,si){var s=D.cats[ci].subs[si];openModal('섹션 편집',subFormHtml(s),STD_FOOT,function(){var n=document.getElementById('fn').value.trim();if(!n)return;D.cats[ci].subs[si].name=n;D.cats[ci].subs[si].color=getSw();save();closeModal();renderAll();toast('✅ 저장됨');});}
+function deleteSub(ci,si){var s=D.cats[ci].subs[si];openModal('섹션 삭제','<p style="font-size:13px;color:var(--ink2);line-height:1.8"><strong>'+esc(s.name)+'</strong> 섹션과 앱 '+s.apps.length+'개가 삭제됩니다.</p>',DEL_FOOT,function(){D.cats[ci].subs.splice(si,1);save();closeModal();renderAll();toast('🗑 삭제됨');});}
+function openAddApp(ci,si){var sub=D.cats[ci].subs[si];openModal('앱 추가',appFormHtml(null,sub.color),STD_FOOT,function(){var n=document.getElementById('an').value.trim(),f=document.getElementById('af').value.trim();if(!n||!f){toast('이름과 파일명 필요');return;}D.cats[ci].subs[si].apps.push({id:uid(),name:n,file:f,desc:document.getElementById('ad').value.trim(),emoji:getEg(),color:getSw(),external:f.startsWith('http')});save();closeModal();renderAll();toast('✅ '+n);});}
+function openEditApp(ci,si,ai){var a=D.cats[ci].subs[si].apps[ai],sub=D.cats[ci].subs[si];openModal('앱 편집',appFormHtml(a,sub.color),STD_FOOT,function(){var n=document.getElementById('an').value.trim(),f=document.getElementById('af').value.trim();if(!n||!f)return;D.cats[ci].subs[si].apps[ai]={id:a.id,name:n,file:f,desc:document.getElementById('ad').value.trim(),emoji:getEg(),color:getSw(),external:f.startsWith('http')};save();closeModal();renderAll();toast('✅ 저장됨');});}
+function deleteApp(ci,si,ai){var a=D.cats[ci].subs[si].apps[ai];openModal('앱 삭제','<p style="font-size:13px;color:var(--ink2);line-height:1.8"><strong>'+esc(a.name)+'</strong>을 삭제할까요?</p>',DEL_FOOT,function(){D.cats[ci].subs[si].apps.splice(ai,1);save();closeModal();renderAll();toast('🗑 삭제됨');});}
+
+// ── BACKUP ──
+var ALL_SK=['jlp-v3','jhub-v1','jhub-v2','jdb-v1','chinese-learner-v1','grammar-v1','convlab-v1'];
+function openBackup(){
+  var saved=ALL_SK.filter(function(k){try{return!!localStorage.getItem(k);}catch(e){return false;}});
+  var lastBk=localStorage.getItem('jbk-last');
+  var body=
+    '<div class="bk-card" onclick="doExport()"><div class="bk-icon" style="background:#e8f5ee">📥</div><div class="bk-info"><div class="bk-title">전체 백업 — JSON 저장</div><div class="bk-sub">모든 앱 데이터를 파일로 다운로드<br>저장된 앱: '+saved.length+'개</div></div><span class="bk-arr">↓</span></div>'+
+    '<div class="bk-divider"></div>'+
+    '<div class="bk-card" onclick="triggerImport()"><div class="bk-icon" style="background:#e8eef8">📤</div><div class="bk-info"><div class="bk-title">백업 복원 — JSON 불러오기</div><div class="bk-sub">저장된 파일에서 데이터 복원<br>⚠️ 현재 데이터를 덮어씁니다</div></div><span class="bk-arr">↑</span></div>'+
+    '<input type="file" id="bk-inp" accept=".json" style="display:none" onchange="doImport(event)">'+
+    '<div class="bk-status" id="bk-st">'+(lastBk?'마지막 백업: '+lastBk:'백업 기록 없음')+'</div>';
+  openModal('💾 백업 & 복원',body,'<button class="mbtn" onclick="closeModal()">닫기</button>',null);
+}
+function doExport(){
+  var data={version:1,date:new Date().toLocaleString('ko-KR'),apps:{}};
+  ALL_SK.forEach(function(k){try{var v=localStorage.getItem(k);if(v)data.apps[k]=JSON.parse(v);}catch(e){}});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='justin-hub-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  localStorage.setItem('jbk-last',new Date().toLocaleString('ko-KR'));
+  var st=document.getElementById('bk-st');if(st){st.textContent='✅ 백업 완료!';st.style.color='#1e6b3c';}
+  toast('✅ 백업 완료!');
+}
+function triggerImport(){var i=document.getElementById('bk-inp');if(i)i.click();}
+function doImport(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      if(!data.apps){toast('❌ 올바른 파일이 아닙니다');return;}
+      var cnt=0;Object.keys(data.apps).forEach(function(k){try{localStorage.setItem(k,JSON.stringify(data.apps[k]));cnt++;}catch(err){}});
+      load();renderAll();localStorage.setItem('jbk-last','복원: '+new Date().toLocaleString('ko-KR'));
+      var st=document.getElementById('bk-st');if(st){st.textContent='✅ 복원 완료! '+cnt+'개 앱';st.style.color='#1e6b3c';}
+      toast('✅ 복원 완료! '+cnt+'개 앱');
+    }catch(err){toast('❌ 파일 오류');}
+  };r.readAsText(f);
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeModal();
+  if(e.key==='Enter'&&!document.getElementById('overlay').classList.contains('hidden')){
+    if(document.activeElement&&document.activeElement.classList.contains('mi'))confirmModal();
+  }
+});
+
+// migrate: if jhub-v2 has no english_learner, add it
+try{
+  var _d=localStorage.getItem('jhub-v2');
+  if(_d){
+    var _p=JSON.parse(_d);
+    var _study=null;
+    _p.cats.forEach(function(c){c.subs.forEach(function(s){if(s.id==='per-study')_study=s;});});
+    if(_study&&!_study.apps.find(function(a){return a.file==='english_learner.html';})){
+      _study.apps.push({id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'});
+      localStorage.setItem('jhub-v2',JSON.stringify(_p));
+    }
+  }
+}catch(e){}
+load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
+</script>
+</body>
+</html>

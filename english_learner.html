@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>캘리쌤 영어 학습</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a5c;--navy2:#234a74;--navy3:#2d5f96;
+  --gold:#c8a84b;--gold2:#fdf6e3;--gold3:#8a6e2a;
+  --ink:#1e2533;--ink2:#4a5568;--ink3:#8a9ab0;
+  --bg:#f0f3f7;--card:#fff;--border:#dde3ec;
+  --green:#1e6b3c;--green2:#e8f5ee;
+  --r:8px;--sh:0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.04);
+}
+body{font-family:'Noto Sans KR','Roboto',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+#app{max-width:860px;margin:0 auto}
+
+/* HEADER */
+.hdr{background:var(--navy);border-bottom:3px solid var(--gold)}
+.hdr-top{display:flex;align-items:center;justify-content:flex-end;padding:4px 1.4rem;background:rgba(0,0,0,.2);font-size:11px;color:rgba(255,255,255,.45);gap:10px}
+.hdr-main{display:flex;align-items:center;padding:.8rem 1.4rem;gap:12px}
+.logo-box{width:36px;height:36px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--navy);flex-shrink:0}
+.logo-text{font-size:16px;font-weight:700;color:#fff}.logo-text span{color:var(--gold)}
+.hdr-space{flex:1}
+.hdr-prog{font-size:11px;color:rgba(255,255,255,.5);text-align:right}
+.hdr-prog strong{color:var(--gold);font-size:14px}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* LIST VIEW */
+.list-wrap{padding:1.2rem 1.2rem 3rem}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px;margin-bottom:1rem;box-shadow:var(--sh)}
+.search-bar input{flex:1;border:none;outline:none;font-size:13px;font-family:inherit;color:var(--ink);background:transparent}
+.search-bar input::placeholder{color:var(--ink3)}
+.week-section{margin-bottom:1.2rem}
+.week-label{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem;padding:0 2px}
+.lesson-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .14s;box-shadow:var(--sh)}
+.lesson-card:hover{border-color:var(--navy);background:#f5f8fc;transform:translateX(2px)}
+.lc-num{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lc-num.done{background:var(--green)}
+.lc-emoji{font-size:20px;flex-shrink:0}
+.lc-info{flex:1}
+.lc-title{font-size:13.5px;font-weight:700;color:var(--navy)}
+.lc-sub{font-size:11px;color:var(--ink3);margin-top:1px}
+.lc-badge{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:3px}
+.lc-badge.done{background:var(--green2);color:var(--green)}
+.lc-badge.todo{background:#f0f3f7;color:var(--ink3)}
+.lc-arr{font-size:14px;color:var(--ink3)}
+
+/* LESSON VIEW */
+.lesson-wrap{padding:0 0 3rem}
+.back-bar{display:flex;align-items:center;gap:10px;padding:.7rem 1.2rem;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer}
+.back-btn{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink);transition:all .14s}
+.back-btn:hover{background:var(--border)}
+.back-title{font-size:13.5px;font-weight:700;color:var(--navy)}
+.lesson-hdr{background:var(--navy);color:#fff;padding:1.2rem 1.4rem;position:relative;overflow:hidden}
+.lesson-hdr::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(200,168,75,.1);top:-60px;right:-40px}
+.lh-ep{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;font-weight:700}
+.lh-title{font-size:22px;font-weight:700;margin-bottom:2px}
+.lh-sub{font-size:12px;color:rgba(255,255,255,.45)}
+.lh-emoji{font-size:40px;position:absolute;right:1.4rem;top:50%;transform:translateY(-50%);opacity:.3}
+
+/* TABS */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:.7rem;font-size:12px;font-weight:700;text-align:center;cursor:pointer;border:none;background:transparent;font-family:inherit;color:var(--ink3);border-bottom:2px solid transparent;transition:all .14s}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tab:hover:not(.active){color:var(--ink2);background:#f8fafc}
+.tab-content{display:none;padding:1.2rem 1.4rem}.tab-content.active{display:block}
+
+/* VOCAB */
+.vocab-item{display:flex;align-items:center;gap:10px;padding:.65rem .8rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:.5rem;cursor:pointer;transition:all .14s}
+.vocab-item:hover{border-color:var(--navy3);background:#f5f8fc}
+.vi-word{font-size:14px;font-weight:700;color:var(--navy);width:170px;flex-shrink:0}
+.vi-kr{font-size:12px;color:var(--ink3);flex:1}
+.vi-ex{font-size:11px;color:var(--ink2);display:none;padding:.5rem .8rem .5rem 1rem;border-left:3px solid var(--gold);margin:2px 0 4px 0;font-style:italic;line-height:1.6}
+.vi-ex.show{display:block}
+.vi-speak{width:26px;height:26px;border-radius:50%;background:var(--navy);border:none;cursor:pointer;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .14s}
+.vi-speak:hover{background:var(--navy3)}
+
+/* QUIZ */
+.quiz-progress{display:flex;align-items:center;gap:10px;margin-bottom:1.2rem}
+.qp-bar{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.qp-fill{height:100%;background:var(--navy);border-radius:3px;transition:width .3s}
+.qp-txt{font-size:11px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.quiz-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;box-shadow:var(--sh)}
+.qc-q{font-size:13px;color:var(--ink2);margin-bottom:.3rem}
+.qc-sentence{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:1.2rem;line-height:1.5}
+.qc-sentence em{color:var(--ink3);font-style:normal;border-bottom:2px solid var(--gold);padding:0 4px}
+.qc-input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .14s;background:#fafbfc;margin-bottom:.8rem}
+.qc-input:focus{border-color:var(--navy)}
+.qc-input.correct{border-color:var(--green);background:#e8f5ee;color:var(--green)}
+.qc-input.wrong{border-color:#c0392b;background:#fdecea}
+.qc-hint{font-size:11px;color:var(--ink3);margin-bottom:.8rem}
+.qc-hint strong{color:var(--navy)}
+.qc-btns{display:flex;gap:8px}
+.qbtn{padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid var(--border);background:#f0f3f7;color:var(--ink);transition:all .14s}
+.qbtn:hover{background:var(--border)}
+.qbtn.primary{background:var(--navy);border-color:var(--navy2);color:#fff}
+.qbtn.primary:hover{background:var(--navy2)}
+.quiz-result{text-align:center;padding:2rem 1rem}
+.qr-score{font-size:48px;font-weight:700;color:var(--navy);font-family:'Roboto',sans-serif;line-height:1}
+.qr-label{font-size:14px;color:var(--ink3);margin-top:.3rem;margin-bottom:1.2rem}
+.qr-stars{font-size:32px;margin-bottom:1.2rem}
+.qr-msg{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:1.5rem}
+
+/* AUDIO PLAYER */
+.audio-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.2rem;margin-bottom:1rem;box-shadow:var(--sh)}
+.audio-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:.7rem}
+.audio-file-area{border:1.5px dashed var(--border);border-radius:6px;padding:.9rem;text-align:center;cursor:pointer;transition:all .14s;background:#fafbfc}
+.audio-file-area:hover{border-color:var(--navy);background:#f0f6ff}
+.audio-file-label{font-size:12.5px;color:var(--ink3);line-height:1.7}
+.audio-file-label strong{color:var(--navy);display:block;font-size:13px}
+audio{width:100%;margin-top:.8rem;accent-color:var(--navy)}
+.audio-tip{font-size:10.5px;color:var(--ink3);margin-top:.5rem;text-align:center;line-height:1.6}
+
+/* COMPLETE BTN */
+.complete-section{padding:1rem 1.4rem;text-align:center}
+.complete-btn{width:100%;padding:.85rem;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .14s;display:flex;align-items:center;justify-content:center;gap:8px}
+.complete-btn:hover{background:var(--navy2)}
+.complete-btn.done{background:var(--green);cursor:default}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(12px);background:var(--navy);color:#fff;padding:.55rem 1.2rem;border-radius:4px;font-size:12px;font-weight:600;z-index:1000;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;border-bottom:2px solid var(--gold)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SCRIPT/SUBTITLE */
+.script-controls{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.script-toggle{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink3);transition:all .14s}
+.script-toggle.active{background:var(--navy);border-color:var(--navy2);color:#fff}
+.script-speed{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink3);transition:all .14s}
+.script-speed.active{background:var(--gold2);border-color:var(--gold3);color:var(--gold3)}
+.script-line{display:flex;gap:10px;padding:.65rem .8rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:.45rem;cursor:pointer;transition:all .14s;align-items:flex-start}
+.script-line:hover{border-color:var(--navy3);background:#f5f8fc}
+.script-line.playing{border-color:var(--gold);background:var(--gold2)}
+.sl-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sl-num.playing{background:var(--gold);color:var(--ink)}
+.sl-text{flex:1}
+.sl-en{font-size:13.5px;color:var(--ink);font-weight:500;line-height:1.5}
+.sl-kr{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.5}
+.sl-speak{width:24px;height:24px;border-radius:50%;background:transparent;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--ink3);transition:all .14s;margin-top:1px}
+.sl-speak:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+/* SCROLL */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header class="hdr">
+  <div class="hdr-top" style="justify-content:space-between;flex-wrap:wrap;gap:6px">
+    <span>캘리쌤 · 30 Lessons · 미국 일상 영어</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <label class="folder-btn" id="folder-btn" style="cursor:pointer">
+        📁 오디오 파일 선택
+        <input type="file" id="af-multi" accept="audio/*" multiple style="display:none" onchange="loadAllAudio(this)">
+      </label>
+      <span class="folder-status" id="folder-status"></span>
+    </div>
+  </div>
+  <div class="hdr-main">
+    <div class="logo-box">KS</div>
+    <div>
+      <div class="logo-text">캘리쌤 <span>영어 학습</span></div>
+    </div>
+    <div class="hdr-space"></div>
+    <div class="hdr-prog"><div>완료 <strong id="done-count">0</strong> / 30</div><div id="done-bar-wrap" style="width:120px;height:5px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:4px;overflow:hidden"><div id="done-bar" style="height:100%;background:var(--gold);border-radius:3px;transition:width .4s"></div></div></div>
+  </div>
+</header>
+
+<!-- LIST VIEW -->
+<div id="v-list" class="view active">
+  <div class="list-wrap">
+    <div class="search-bar">
+      <span style="color:var(--ink3)">🔍</span>
+      <input type="text" id="search" placeholder="레슨 검색..." oninput="renderList()">
+    </div>
+    <div id="lesson-list"></div>
+  </div>
+</div>
+
+<!-- LESSON VIEW -->
+<div id="v-lesson" class="view">
+  <div class="back-bar" onclick="goList()">
+    <button class="back-btn">← 목록</button>
+    <span class="back-title" id="lesson-back-title"></span>
+  </div>
+  <div id="lesson-detail"></div>
+</div>
+
+<script>
+var LESSONS = [[1, "Morning Routine", "모닝 루틴", "☀️", [["wake up", "잠에서 깨다", "I wake up at 7 every morning."], ["hit the snooze", "알람을 끄고 더 자다", "I always hit the snooze button."], ["get up", "일어나다", "It's hard to get up in winter."], ["brush my teeth", "양치하다", "I brush my teeth right away."], ["make coffee", "커피를 만들다", "I make coffee before anything else."], ["get ready", "준비하다", "I need 30 minutes to get ready."], ["grab breakfast", "아침을 챙겨먹다", "I grab breakfast on the go."], ["head out", "나가다", "I head out around 8:30."]], [["I usually ___ at 7 AM.", "wake up", "일어나다"], ["She ___ breakfast every morning.", "makes", "만들다"], ["He ___ his teeth twice a day.", "brushes", "양치하다"], ["I need to ___ before I leave.", "get ready", "준비하다"], ["We ___ to school together.", "head out", "나가다"]]], [2, "Gym", "헬스장", "🏋️", [["work out", "운동하다", "I work out three times a week."], ["warm up", "준비운동하다", "Always warm up before lifting."], ["lift weights", "웨이트 하다", "He lifts weights every evening."], ["burn calories", "칼로리를 태우다", "Running burns a lot of calories."], ["personal trainer", "개인 트레이너", "I hired a personal trainer."], ["stretch", "스트레칭하다", "Don't forget to stretch after."], ["sore muscles", "근육통", "My muscles are so sore today."], ["stay in shape", "몸매 유지하다", "I exercise to stay in shape."]], [["I ___ at the gym three times a week.", "work out", "운동하다"], ["You should always ___ before exercising.", "warm up", "준비운동하다"], ["My ___ are killing me today.", "sore muscles", "근육통"], ["She wants to ___ for summer.", "stay in shape", "몸매 유지하다"], ["I need to ___ more after workouts.", "stretch", "스트레칭하다"]]], [3, "Grocery Shopping", "장보기", "🛒", [["shopping list", "쇼핑 리스트", "Did you bring the shopping list?"], ["on sale", "할인 중인", "These apples are on sale today."], ["check out", "계산하다", "Let's check out now."], ["aisle", "통로/진열대", "It's in aisle five."], ["organic", "유기농", "I prefer organic vegetables."], ["in stock", "재고가 있는", "Is this item in stock?"], ["rain check", "품절 시 다음 구매 약속", "Can I get a rain check?"], ["bulk", "대량으로", "I buy rice in bulk."]], [["Did you make a ___?", "shopping list", "쇼핑 리스트"], ["These bananas are ___.", "on sale", "할인 중"], ["The cereal is in ___ seven.", "aisle", "통로"], ["I always buy ___ produce.", "organic", "유기농"], ["Let's go ___ now.", "check out", "계산하다"]]], [4, "Cafe", "카페", "☕", [["loyalty card", "포인트 카드", "Do you have a loyalty card?"], ["go-to drink", "자주 마시는 음료", "My go-to is an iced latte."], ["cut back on", "줄이다", "I'm trying to cut back on sugar."], ["decaf", "디카페인", "I'll have a decaf today."], ["non-dairy milk", "식물성 우유", "Can I get oat milk instead?"], ["customize", "커스터마이즈하다", "You can customize your order."], ["for here or to go", "매장/테이크아웃", "For here or to go?"], ["sweetener", "감미료", "No sweetener for me, please."]], [["I'm trying to ___ caffeine.", "cut back on", "줄이다"], ["My ___ is a vanilla latte.", "go-to drink", "자주 마시는 음료"], ["I prefer ___ milk in my coffee.", "non-dairy", "식물성"], ["Do you want it ___ or to go?", "for here", "매장"], ["You can ___ your order any way you like.", "customize", "커스터마이즈하다"]]], [5, "Festival", "축제", "🎪", [["food stall", "음식 노점", "There are so many food stalls!"], ["live music", "라이브 음악", "I love the live music here."], ["packed", "사람이 가득한", "This place is packed today."], ["vendor", "행상인", "The vendors are very friendly."], ["souvenir", "기념품", "I bought a souvenir for my mom."], ["line up", "줄을 서다", "We had to line up for an hour."], ["sunscreen", "선크림", "Don't forget your sunscreen."], ["crowd", "군중", "I hate big crowds."]], [["The festival is ___ with people.", "packed", "가득한"], ["We had to ___ for the ride.", "line up", "줄을 서다"], ["She bought a ___ at the gift shop.", "souvenir", "기념품"], ["Apply ___ before going outside.", "sunscreen", "선크림"], ["There are many food ___ at the fair.", "stalls", "노점"]]], [6, "Night Routine", "밤 루틴", "🌙", [["wind down", "긴장을 풀다", "I wind down with some tea."], ["skincare routine", "스킨케어 루틴", "My skincare routine takes 10 minutes."], ["dim the lights", "조명을 어둡게 하다", "I dim the lights before bed."], ["journal", "일기를 쓰다", "I journal every night."], ["set an alarm", "알람을 맞추다", "Don't forget to set an alarm."], ["toss and turn", "뒤척이다", "I tossed and turned all night."], ["sleep like a log", "깊이 잠들다", "I slept like a log last night."], ["bedtime", "취침 시간", "My bedtime is 10:30."]], [["I like to ___ with a book before sleep.", "wind down", "긴장을 풀다"], ["Remember to ___ for tomorrow.", "set an alarm", "알람을 맞추다"], ["She ___ every night before bed.", "journals", "일기 쓰다"], ["I ___ all night and couldn't sleep.", "tossed and turned", "뒤척이다"], ["He ___ after a long hike.", "slept like a log", "깊이 잠들다"]]], [7, "Restaurant", "레스토랑", "🍽️", [["reservation", "예약", "Do you have a reservation?"], ["be seated", "자리에 앉다", "Please wait to be seated."], ["appetizer", "전채 요리", "Shall we order an appetizer?"], ["the special", "오늘의 특선", "What's the special today?"], ["medium rare", "미디엄 레어", "I'd like my steak medium rare."], ["split the bill", "계산을 나누다", "Let's split the bill."], ["on the house", "서비스로 제공되는", "This dessert is on the house."], ["leave a tip", "팁을 남기다", "Don't forget to leave a tip."]], [["Do you have a ___?", "reservation", "예약"], ["What's the ___ today?", "special", "특선"], ["I'll have my steak ___.", "medium rare", "미디엄 레어"], ["Let's ___ the bill equally.", "split", "나누다"], ["The manager said drinks are ___.", "on the house", "서비스"]]], [8, "Mall", "쇼핑몰", "🛍️", [["window shopping", "아이쇼핑", "I love window shopping on weekends."], ["try on", "입어보다", "Can I try this on?"], ["fitting room", "탈의실", "The fitting room is over there."], ["in style", "유행하는", "These shoes are really in style."], ["bargain", "저렴한 물건", "That's a real bargain!"], ["exchange", "교환하다", "I need to exchange this shirt."], ["sold out", "품절된", "Sorry, that's sold out."], ["mall food court", "푸드코트", "Let's eat at the food court."]], [["Can I ___ this jacket?", "try on", "입어보다"], ["The ___ is on the second floor.", "fitting room", "탈의실"], ["Those sneakers are totally ___.", "in style", "유행하는"], ["That price is a real ___.", "bargain", "저렴한 가격"], ["I'm sorry, we're ___ of that size.", "sold out", "품절"]]], [9, "Art", "미술/예술", "🎨", [["art gallery", "미술관", "We visited an art gallery downtown."], ["exhibit", "전시", "The new exhibit opens Friday."], ["abstract", "추상적인", "I don't understand abstract art."], ["sculpture", "조각품", "That sculpture is incredible."], ["curator", "큐레이터", "The curator gave us a great tour."], ["masterpiece", "걸작", "This painting is a true masterpiece."], ["impression", "인상", "What's your impression of this piece?"], ["art appreciation", "예술 감상", "I'm taking an art appreciation class."]], [["Let's visit the ___ this weekend.", "art gallery", "미술관"], ["I don't really understand ___ art.", "abstract", "추상적인"], ["That painting is considered a ___.", "masterpiece", "걸작"], ["The ___ told us about the artist's life.", "curator", "큐레이터"], ["What's your ___ of this sculpture?", "impression", "인상"]]], [10, "Hair Salon", "미용실", "💇", [["appointment", "예약", "I have a 2 o'clock appointment."], ["trim", "다듬다", "Just a trim, please."], ["highlights", "하이라이트", "I want to add some highlights."], ["blow dry", "드라이하다", "Can you blow dry it straight?"], ["split ends", "갈라진 머리끝", "I have a lot of split ends."], ["touch up", "손질하다", "I need to touch up my roots."], ["layered cut", "레이어드 컷", "I'd like a layered cut."], ["good tip", "좋은 팁을 주다", "She always leaves a good tip."]], [["I made an ___ for Saturday.", "appointment", "예약"], ["Just a ___ please, nothing too short.", "trim", "다듬다"], ["I have terrible ___ right now.", "split ends", "갈라진 끝"], ["I want ___ to add some color.", "highlights", "하이라이트"], ["Can you ___ it after washing?", "blow dry", "드라이하다"]]], [11, "Weekend Routine", "주말 루틴", "🌤️", [["sleep in", "늦잠 자다", "I love to sleep in on Saturdays."], ["brunch", "브런치", "Let's do brunch at 11."], ["run errands", "볼일을 보다", "I need to run some errands."], ["catch up", "따라잡다 / 만나다", "I caught up with an old friend."], ["binge watch", "몰아보다", "I binge watched a show all weekend."], ["recharge", "재충전하다", "Weekends are for recharging."], ["hang out", "어울리다", "We hung out at the park."], ["take it easy", "여유롭게 지내다", "I just want to take it easy today."]], [["I love to ___ on Sunday mornings.", "sleep in", "늦잠 자다"], ["Let's grab ___ at that new place.", "brunch", "브런치"], ["I need to ___ this afternoon.", "run errands", "볼일을 보다"], ["We ___ the whole series last weekend.", "binge watched", "몰아봤다"], ["I just want to ___ this weekend.", "take it easy", "여유롭게"]]], [12, "Work Routine", "직장 루틴", "💼", [["commute", "통근하다", "My commute takes 40 minutes."], ["clock in", "출근 체크하다", "I clock in at 9 sharp."], ["catch up on emails", "이메일을 확인하다", "First I catch up on emails."], ["deadline", "마감일", "The deadline is Friday."], ["conference call", "화상통화", "I have a conference call at 2."], ["wrap up", "마무리하다", "Let's wrap up before 5."], ["overtime", "초과근무", "I worked overtime again."], ["work-life balance", "워라밸", "Work-life balance is important."]], [["My ___ takes about an hour.", "commute", "통근"], ["I need to catch up on ___ first thing.", "emails", "이메일"], ["The project ___ is next Monday.", "deadline", "마감일"], ["Let's ___ this meeting.", "wrap up", "마무리하다"], ["Good ___ is hard to maintain.", "work-life balance", "워라밸"]]], [13, "Holiday Routine (추석)", "추석 연휴", "🎑", [["long weekend", "긴 연휴", "It's a long weekend this week."], ["family gathering", "가족 모임", "We have a big family gathering."], ["travel", "여행하다", "Lots of people travel during the holidays."], ["traditional food", "전통 음식", "We eat traditional food."], ["give thanks", "감사하다", "This holiday is about giving thanks."], ["holiday traffic", "명절 교통", "Holiday traffic is terrible."], ["catch up", "근황을 나누다", "We catch up over dinner."], ["rest and relax", "쉬고 휴식하다", "I just want to rest and relax."]], [["We have a big family ___ on holidays.", "gathering", "모임"], ["The ___ traffic is always terrible.", "holiday", "명절"], ["We always eat ___ food during the holiday.", "traditional", "전통"], ["I want to just ___ this long weekend.", "rest and relax", "쉬고 휴식하다"], ["We always ___ over a big meal.", "catch up", "근황을 나누다"]]], [14, "Birthday Trip", "생일 여행", "🎂", [["road trip", "자동차 여행", "We took a road trip for my birthday."], ["treat yourself", "자신을 대접하다", "You should treat yourself today!"], ["make a wish", "소원을 빌다", "Close your eyes and make a wish."], ["birthday getaway", "생일 여행", "We planned a birthday getaway."], ["celebrate", "축하하다", "How do you want to celebrate?"], ["surprise", "깜짝 놀라게 하다", "We threw her a surprise party."], ["bucket list", "버킷 리스트", "It's on my bucket list."], ["once in a lifetime", "일생에 한 번", "This is a once-in-a-lifetime trip."]], [["Let's ___ with a nice dinner.", "celebrate", "축하하다"], ["She didn't know — it was a ___ party.", "surprise", "깜짝"], ["Close your eyes and ___.", "make a wish", "소원을 빌다"], ["You deserve to ___ on your birthday.", "treat yourself", "자신을 대접하다"], ["Visiting Hawaii is on my ___.", "bucket list", "버킷 리스트"]]], [15, "Party Weekend", "파티 주말", "🎉", [["throw a party", "파티를 열다", "We're throwing a party Saturday."], ["RSVP", "참석 여부를 알리다", "Please RSVP by Friday."], ["potluck", "각자 음식을 가져오는 파티", "It's a potluck — bring a dish!"], ["party favor", "파티 답례품", "She made cute party favors."], ["the more the merrier", "많을수록 좋다", "Bring your friends — the more the merrier!"], ["let loose", "신나게 즐기다", "Let's let loose tonight."], ["after-party", "애프터 파티", "Are you coming to the after-party?"], ["designated driver", "음주운전 대리운전자", "We need a designated driver."]], [["We're ___ a party next Saturday.", "throwing", "파티를 열다"], ["Please ___ by Thursday.", "RSVP", "참석 여부를"], ["It's a ___ so bring your favorite dish.", "potluck", "음식을 가져오는 파티"], ["We need a ___ tonight.", "designated driver", "대리"], ["Let's just ___ and have fun!", "let loose", "신나게 즐기다"]]], [16, "Journal 1", "저널 1", "📓", [["write in a journal", "일기를 쓰다", "I write in a journal every night."], ["self-reflect", "자기 성찰하다", "Journaling helps me self-reflect."], ["gratitude", "감사", "I list three things of gratitude."], ["mood", "기분", "I track my mood in my journal."], ["process emotions", "감정을 처리하다", "Writing helps me process emotions."], ["jot down", "메모하다", "I jot down ideas throughout the day."], ["habit tracker", "습관 추적기", "I use a habit tracker in my journal."], ["stream of consciousness", "의식의 흐름", "I write stream of consciousness."]], [["I write in my ___ every night.", "journal", "일기"], ["I always write three things of ___.", "gratitude", "감사"], ["I ___ my mood every day.", "track", "추적하다"], ["Writing helps me ___ my emotions.", "process", "처리하다"], ["I like to ___ down my ideas.", "jot", "메모하다"]]], [17, "Perfect Day", "완벽한 하루", "✨", [["perfect day", "완벽한 하루", "I had the most perfect day."], ["slow morning", "여유로운 아침", "I love a slow morning."], ["golden hour", "황금 시간대", "The sky during golden hour is beautiful."], ["go for a walk", "산책하다", "We went for a walk on the beach."], ["unwind", "긴장을 풀다", "I unwind with a good book."], ["satisfying", "만족스러운", "That meal was so satisfying."], ["picture perfect", "그림 같이 완벽한", "The sunset was picture perfect."], ["end on a high note", "좋게 마무리하다", "Let's end on a high note."]], [["I love having a ___ morning on weekends.", "slow", "여유로운"], ["We went ___ along the river.", "for a walk", "산책하다"], ["The view at ___ is always beautiful.", "golden hour", "황금 시간대"], ["That dinner was so ___.", "satisfying", "만족스러운"], ["Let's ___ on a high note tonight.", "end", "마무리하다"]]], [18, "Journal 2", "저널 2", "📔", [["set intentions", "의도를 설정하다", "I set intentions in the morning."], ["daily affirmation", "일일 긍정 확언", "I say my daily affirmations."], ["brain dump", "생각을 전부 쏟아내다", "I do a brain dump when stressed."], ["future self", "미래의 자신", "Write a letter to your future self."], ["life goals", "인생 목표", "I write about my life goals."], ["visualization", "시각화", "Visualization helps me stay focused."], ["mindset", "마음가짐", "A positive mindset changes everything."], ["reflect on", "되돌아보다", "I reflect on the week each Sunday."]], [["I ___ my intentions every morning.", "set", "설정하다"], ["___ helps me clear my head.", "Brain dump", "생각 쏟아내기"], ["I ___ on the past week every Sunday.", "reflect", "되돌아보다"], ["___ is key to achieving your goals.", "Visualization", "시각화"], ["A positive ___ changes everything.", "mindset", "마음가짐"]]], [19, "Korea Bucket List", "한국 버킷 리스트", "🇰🇷", [["bucket list", "버킷 리스트", "Korea is on my bucket list."], ["must-see", "꼭 봐야 할", "Gyeongbokgung is a must-see."], ["street food", "길거리 음식", "Korean street food is amazing."], ["K-drama filming location", "드라마 촬영지", "I want to visit K-drama locations."], ["hanbok", "한복", "I want to try on a hanbok."], ["temple stay", "템플 스테이", "A temple stay sounds so peaceful."], ["DMZ", "비무장지대", "I want to visit the DMZ."], ["local experience", "현지 경험", "I want a real local experience."]], [["Korea has been on my ___ for years.", "bucket list", "버킷 리스트"], ["Gyeongbokgung Palace is a ___.", "must-see", "꼭 봐야 할"], ["I want to try all the ___ food.", "street", "길거리"], ["I'd love to do a ___ at a Buddhist temple.", "temple stay", "템플 스테이"], ["I want to wear a ___ in Insadong.", "hanbok", "한복"]]], [20, "Beauty Routine", "뷰티 루틴", "💄", [["skincare routine", "스킨케어 루틴", "My skincare routine has 7 steps."], ["moisturizer", "보습제", "Always apply moisturizer after cleansing."], ["SPF", "자외선 차단제", "Never skip SPF during the day."], ["primer", "프라이머", "Primer makes makeup last longer."], ["tinted moisturizer", "틴티드 모이스처라이저", "I prefer a tinted moisturizer."], ["no-makeup makeup", "자연스러운 메이크업", "I love the no-makeup makeup look."], ["setting spray", "세팅 스프레이", "Finish with a setting spray."], ["on a budget", "예산 내에서", "You can look great on a budget."]], [["I never skip ___ in the morning.", "SPF", "자외선 차단제"], ["___ helps your makeup stay on longer.", "Primer", "프라이머"], ["I prefer a ___ for light coverage.", "tinted moisturizer", "틴티드"], ["Finish your look with a ___.", "setting spray", "세팅 스프레이"], ["You can build a great routine ___.", "on a budget", "예산 내에서"]]], [21, "Journal 3", "저널 3", "📒", [["track progress", "진행 상황을 추적하다", "I track my progress weekly."], ["overcome challenges", "도전을 극복하다", "I write about overcoming challenges."], ["lessons learned", "배운 교훈", "What lessons did you learn this week?"], ["personal growth", "개인 성장", "Journaling supports personal growth."], ["hold accountable", "책임지게 하다", "Writing holds me accountable."], ["pivot", "방향을 바꾸다", "Sometimes you need to pivot your plans."], ["big picture", "큰 그림", "Don't lose sight of the big picture."], ["stay consistent", "꾸준하게 하다", "Stay consistent, even on bad days."]], [["I ___ my progress every Sunday.", "track", "추적하다"], ["Writing holds me ___ for my goals.", "accountable", "책임지게"], ["What ___ did you learn this month?", "lessons", "교훈"], ["Sometimes you need to ___ your approach.", "pivot", "방향을 바꾸다"], ["Always keep the ___ in mind.", "big picture", "큰 그림"]]], [22, "Airport", "공항", "✈️", [["check in", "체크인하다", "I need to check in online."], ["boarding pass", "탑승권", "Where's my boarding pass?"], ["carry-on", "기내 수하물", "I only packed a carry-on."], ["overhead bin", "선반 짐칸", "Put your bag in the overhead bin."], ["boarding time", "탑승 시간", "Boarding time is 6:45."], ["layover", "경유", "I have a 3-hour layover in Tokyo."], ["jet lag", "시차", "I always get jet lag on long flights."], ["customs", "세관", "We have to go through customs."]], [["Did you ___ online yet?", "check in", "체크인"], ["I only brought a ___.", "carry-on", "기내 수하물"], ["I have a two-hour ___ in LA.", "layover", "경유"], ["We need to go through ___ first.", "customs", "세관"], ["I always get ___ after long flights.", "jet lag", "시차"]]], [23, "Christmas Cookie", "크리스마스 쿠키", "🍪", [["bake from scratch", "직접 처음부터 굽다", "We bake cookies from scratch."], ["preheat the oven", "오븐을 예열하다", "Preheat the oven to 350°F."], ["roll out the dough", "반죽을 밀다", "Roll out the dough on a flat surface."], ["cookie cutter", "쿠키 커터", "I have a star-shaped cookie cutter."], ["frosting", "아이싱/크림", "Decorate with red and green frosting."], ["sprinkles", "스프링클", "I added sprinkles on top."], ["batch", "한 번에 굽는 양", "This recipe makes two batches."], ["holiday tradition", "명절 전통", "Baking cookies is our holiday tradition."]], [["___ the oven before you start baking.", "Preheat", "예열하다"], ["We bake everything ___ at our house.", "from scratch", "직접"], ["___ the dough before using cookie cutters.", "Roll out", "밀다"], ["Add colorful ___ on top of the frosting.", "sprinkles", "스프링클"], ["This is our favorite ___ tradition.", "holiday", "명절"]]], [24, "Thanksgiving", "추수감사절", "🦃", [["Thanksgiving", "추수감사절", "Thanksgiving is my favorite holiday."], ["turkey", "칠면조", "We always roast a turkey."], ["stuffing", "스터핑", "My mom's stuffing is the best."], ["be grateful for", "감사하게 여기다", "I'm grateful for my family."], ["gather around the table", "식탁에 모이다", "We gather around the table."], ["feast", "잔치", "Thanksgiving is a real feast."], ["leftovers", "남은 음식", "I love Thanksgiving leftovers."], ["give back", "베풀다", "The holiday reminds us to give back."]], [["We always roast a ___ for Thanksgiving.", "turkey", "칠면조"], ["I am so ___ for my health.", "grateful", "감사한"], ["Thanksgiving is such a ___.", "feast", "잔치"], ["I love eating ___ the next day.", "leftovers", "남은 음식"], ["The holiday reminds us to ___.", "give back", "베풀다"]]], [25, "Road Trip", "로드 트립", "🚗", [["hit the road", "출발하다", "Let's hit the road early."], ["road trip playlist", "로드 트립 플레이리스트", "I made a road trip playlist."], ["rest stop", "휴게소", "Let's pull over at the rest stop."], ["scenic route", "경치 좋은 길", "Take the scenic route today."], ["car snacks", "차 안 간식", "Don't forget the car snacks!"], ["navigate", "길을 안내하다", "Can you navigate while I drive?"], ["pull over", "길가에 세우다", "We pulled over for gas."], ["miles per gallon", "연비", "This car gets 35 miles per gallon."]], [["Let's ___ early tomorrow morning.", "hit the road", "출발하다"], ["I love taking the ___ route.", "scenic", "경치 좋은"], ["Let's stop at the next ___.", "rest stop", "휴게소"], ["Can you ___ for me?", "navigate", "길을 안내하다"], ["Don't forget to pack ___ snacks.", "car", "차 안"]]], [26, "Girls Trip", "걸스 트립", "👯", [["girls trip", "여자들끼리 여행", "We're planning a girls trip to Vegas."], ["spa day", "스파 데이", "We're doing a full spa day."], ["brunch spot", "브런치 장소", "I found the perfect brunch spot."], ["split the cost", "비용을 나누다", "We split the cost of the Airbnb."], ["catch up", "근황을 나누다", "We catch up over wine."], ["matching outfits", "맞춤 의상", "We wore matching outfits."], ["photo dump", "사진 모음 게시", "I posted a photo dump on Instagram."], ["memories", "추억", "We made so many memories!"]], [["We're going on a ___ next month.", "girls trip", "여자들끼리 여행"], ["We ___ the Airbnb cost between four of us.", "split", "나누다"], ["We always ___ over dinner.", "catch up", "근황을 나누다"], ["We posted a ___ from the trip.", "photo dump", "사진 모음"], ["We made the best ___ together.", "memories", "추억"]]], [27, "Doctor's Visit", "병원 방문", "🏥", [["make an appointment", "예약하다", "I need to make an appointment."], ["symptoms", "증상", "What are your symptoms?"], ["prescription", "처방전", "The doctor gave me a prescription."], ["follow-up", "추후 방문", "Come back for a follow-up in two weeks."], ["blood pressure", "혈압", "My blood pressure is normal."], ["diagnose", "진단하다", "The doctor diagnosed me with allergies."], ["take it easy", "무리하지 않다", "The doctor said to take it easy."], ["over the counter", "처방전 없이 살 수 있는", "You can buy that over the counter."]], [["I need to ___ with my doctor.", "make an appointment", "예약하다"], ["What are your main ___?", "symptoms", "증상"], ["The doctor gave me a ___.", "prescription", "처방전"], ["You can buy this medicine ___.", "over the counter", "처방전 없이"], ["Come back for a ___ in two weeks.", "follow-up", "추후 방문"]]], [28, "New York Food", "뉴욕 음식", "🗽", [["street cart", "길거리 카트", "I got a hotdog from a street cart."], ["deli", "델리", "NYC delis are famous."], ["New York-style pizza", "뉴욕 스타일 피자", "I love New York-style pizza."], ["bagel", "베이글", "NYC bagels are the best in the world."], ["food scene", "음식 문화", "NYC has an amazing food scene."], ["hole in the wall", "허름하지만 맛있는 곳", "That hole in the wall place is amazing."], ["grab a bite", "간단히 먹다", "Let's grab a bite before the show."], ["wait in line", "줄을 서다", "I waited in line for an hour for that bagel."]], [["NYC has an incredible food ___.", "scene", "문화"], ["I love getting pizza from a ___ slice place.", "New York-style", "뉴욕 스타일"], ["Let's ___ before the museum.", "grab a bite", "간단히 먹다"], ["That ___ on 8th Ave is incredible.", "hole in the wall", "허름하지만 맛있는"], ["I ___ for 45 minutes for that famous bagel.", "waited in line", "줄을 섰다"]]], [29, "Weird American Foods", "이상한 미국 음식 (월마트)", "🛒", [["processed food", "가공식품", "America has a lot of processed foods."], ["peanut butter and jelly", "땅콩버터 젤리 샌드위치", "PB&J is a classic American lunch."], ["ranch dressing", "랜치 드레싱", "Americans put ranch on everything."], ["corn dog", "콘도그", "Corn dogs are popular at fairs."], ["deep fried", "튀김", "Deep fried Oreos? Only in America."], ["portion size", "음식 양", "American portion sizes are huge."], ["food aisle", "식품 코너", "The snack aisle at Walmart is wild."], ["junk food", "정크 푸드", "There's so much junk food here."]], [["American ___ sizes are so much bigger.", "portion", "음식 양"], ["They put ___ dressing on everything.", "ranch", "랜치"], ["The snack ___ at Walmart goes on forever.", "aisle", "코너"], ["PB&J is the most classic American ___.", "processed food", "가공식품"], ["___ everything is apparently a thing here.", "Deep frying", "튀김"]]], [30, "Christmas in NYC", "뉴욕의 크리스마스", "🎄", [["Christmas lights", "크리스마스 조명", "The Christmas lights are stunning."], ["ice skating", "아이스 스케이팅", "We went ice skating at Rockefeller Center."], ["holiday market", "크리스마스 마켓", "The holiday market at Bryant Park is magical."], ["window display", "윈도우 디스플레이", "Macy's window display is incredible."], ["carolers", "캐롤 부르는 사람들", "There were carolers on every corner."], ["cozy", "아늑한", "NYC feels so cozy in December."], ["once-in-a-lifetime", "일생에 한 번", "Christmas in NYC is once-in-a-lifetime."], ["make memories", "추억을 만들다", "We made so many Christmas memories."]], [["We went ___ at Rockefeller Center.", "ice skating", "아이스 스케이팅"], ["The Bryant Park ___ market is magical.", "holiday", "크리스마스"], ["There were ___ singing on every corner.", "carolers", "캐롤 부르는 사람들"], ["NYC feels so ___ during the holidays.", "cozy", "아늑한"], ["Christmas in NYC is a ___ experience.", "once-in-a-lifetime", "일생에 한 번"]]]];
+
+
+var SCRIPTS={"1": [["Good morning, everybody! I just woke up, so I'm going to show you my daily morning routine.", "좋은 아침이에요, 여러분! 저는 방금 일어났는데요. 오늘은 제 모닝 루틴을 보여드릴게요."], ["The very first thing I do every single morning is drink some water because I always wake up feeling a little bit dehydrated.", "아침에 일어나자마자 하는 일은 물 마시기예요. 일어나면 약간 수분이 부족한 느낌이거든요."], ["So, I'm gonna open the bottle and take a sip. Refreshing!", "물병을 열고 한 모금 마십니다. 정신이 맑아지는 느낌이에요!"], ["Now, I'm going to go brush my teeth. I've got my toothbrush and my toothpaste, and I am going to squeeze the toothpaste onto my toothbrush.", "이제 이를 닦으러 갈 거예요. 칫솔과 치약이 있는데, 치약을 짜서 칫솔 위에 바릅니다."], ["After brushing my teeth, I like to swish some water in my mouth. My teeth are squeaky clean.", "이를 닦고 나서 물로 입을 헹굽니다. 이가 아주 깨끗하죠?"], ["Now, I'm going to do a little bit of stretching and meditation. I do very simple stretches, such as touching my toes or raising my arms above my head.", "이제 스트레칭과 명상을 할 건데, 주로 아주 간단한 스트레칭을 합니다. 발끝을 닿게 한다거나, 머리 위로 팔을 올려요."], ["After doing about five minutes of stretching, I meditate. I'm going to sit down on the ground with my legs crossed.", "5분 정도 스트레칭을 하고 나면 명상을 합니다. 땅바닥에 앉아서 양반다리를 하고요."], ["I close my eyes and rest my hands on my knees. I try to sit very still and focus on my breath.", "눈을 감고 무릎 위에 손을 편히 올려놓아요. 가만히 앉아서 숨쉬기에 집중합니다."], ["It's a good way to clear my mind in the morning. I breathe in through my nose and out through my mouth.", "아침에 머리를 맑게 하는 좋은 방법이에요. 코로 숨을 들이마시고 입으로 내뱉습니다."], ["After I meditate, it's time to make my bed. I grab the comforter and spread it evenly across the bed.", "명상을 하고 나면 침대를 정리할 시간인데요. 이불을 잡고 침대 전체를 골고루 펴줍니다."], ["I got dressed, and now it's time for my favorite part of my morning routine: eating breakfast and drinking coffee.", "옷을 갈아입었고요. 이제 제가 가장 좋아하는 모닝 루틴! 바로 아침을 먹고 커피를 마시는 시간이죠."], ["Normally, I cook breakfast, but today I got delivery from a local vegan cafe. I ordered an iced coffee and a sandwich.", "보통 아침을 요리해서 먹는 편인데, 오늘은 동네 비건 카페에서 배달을 시켰어요. 아이스커피와 샌드위치를 시켰답니다."]], "2": [["Today I'm going to show you my exercise routine, so let's hit the gym for a full-body workout.", "오늘은 제 운동 루틴을 알려드릴게요! 헬스장에서 전신 운동 한번 해봅시다!"], ["So first, I'm going to do some cardio on the treadmill. Since this is just a warm-up, I'm going at a bit of a slower pace.", "처음에는 런닝머신 위에서 유산소 운동을 할 겁니다. 준비 운동이니까 조금 천천히 갈게요."], ["Now that I'm all warmed up, I head to the free weight section to do some squats.", "이제 준비가 끝났으니 프리웨이트 존에서 스쿼트를 할 거예요."], ["I stand with my feet shoulder-width apart, and I squat down and stand up. I usually do about three sets of ten reps.", "다리를 어깨너비로 벌리고 섭니다. 앉았다가 일어나고, 보통 10회 정도로 3세트를 하는 편이에요."], ["Now we're moving on to deadlifts to work out my hamstrings and my glutes. I bend over and stand up, bend over and stand up.", "이제 데드리프트를 해볼 건데요. 햄스트링과 엉덩이 위주로 합니다. 몸을 굽혔다가 일어납니다."], ["I'm going to work out my chest, so I'm going to do a bench press. Spot me, bro! I almost died!", "다음은 가슴 운동을 할 거라서 벤치 프레스를 합니다. 도와줘! 보조!! 큰일 날 뻔했어요."], ["This is a lat machine to train your back. Grab the bar and pull down. Make sure you squeeze your back muscles.", "이건 등 운동을 위한 광배 머신이에요. 바를 잡고 아래로 당겨요. 집중해서 등 근육을 쥐어짜야 해요."], ["Now I'm on the mat to do an ab workout because I want to get ripped before summer. Let's start with a traditional crunch.", "이제 매트 위에 앉아 복근 운동을 할 건데요. 여름이 오기 전에 몸을 만들고 싶거든요. 크런치부터 시작해요."], ["I'm going to end my workout by stretching because I don't want any sore muscles. I always end my workout sessions with a gym selfie!", "이제 스트레칭으로 운동을 마무리할 건데요. 근육통을 정말 싫어하거든요. 저는 운동이 끝나면 항상 운동 셀카로 마무리해요!"]], "3": [["Let's learn English at Costco today. I'm going grocery shopping, and I've already got my cart, so let's get started.", "마트(코스트코)에서 영어 표현들을 배워볼게요. 오늘은 장을 볼 건데 카트는 이미 가져왔으니까 시작해볼까요?"], ["First, let's head to the produce section, which is full of fruits and vegetables — my favorite!", "먼저 농산물 코너부터 들를게요. 과일이랑 채소를 살 수 있는 곳인데, 제가 제일 좋아하는 곳이에요."], ["I'm going to buy some grapes, so I'll just put them in the cart. I love Korean melon, so I'm going to buy some today.", "포도를 좀 살 건데요. 카트에 담을게요. 참외를 좋아해서 몇 개 사볼게요."], ["Now, I'm in the deli where you can buy different kinds of meats, cheese, and all kinds of good stuff.", "델리 코너에 왔어요. 여기서는 고기나 치즈처럼 맛있는 것들을 아주 많이 팔아요."], ["I'm going to buy a bag of precooked chicken breast and some packs of salad. I found sauerkraut — it's like kimchi but not spicy!", "조리된 닭가슴살 한 봉지랑 샐러드를 팩으로 사볼게요. 사우어크라우트를 발견했어요! 외국 김치 같은 건데, 맵지 않아요."], ["They have one of my favorites, Bitchin' Sauce. It's made with almonds, and it's so delicious. I recommend it.", "제일 좋아하는 소스도 있네요! 비친 소스! 아몬드로 만들어진 소스예요. 정말 맛있어요. 추천드려요!"], ["Let's go down the freezer aisle. I'm in the dry goods aisle, and oh my god, look at how huge this tuna is — it's bigger than my head!", "냉동 코너로 가볼게요. 마른 음식 코너에 왔는데요, 이 참치캔 크기 좀 보세요. 제 머리보다 더 크네요."], ["That's why people come to Costco: to buy things in bulk. Everything by the bakery smells amazing!", "이런 게 코스트코에 오는 이유죠. 대량으로 사려고요. 베이커리 옆을 지나는데, 냄새가 기가 막혀요!"], ["The best part of Costco is the free samples, so I've got some dark chocolate that I'm going to try. Delicious!", "코스트코에서 제일 좋은 점은 무료 시식! 다크 초콜릿을 받았는데 먹어볼게요. 정말 맛있어요!"], ["Finally, let's go to the checkout to pay for all of our groceries. If you have time before you leave, make sure to check out the food court!", "마지막으로 계산대에 가서 오늘 산 것들 계산할게요. 떠나기 전에 시간이 남으시면 푸드코트도 들러보세요!"]], "4": [["Hello everybody! I'm in the mood for coffee, so let's go to a cafe together.", "안녕하세요, 여러분! 커피 한잔 마시고 싶으니까 같이 카페로 가볼까요?"], ["At this cafe, you can place your order using a kiosk, so you don't even have to talk to a barista here.", "이 카페는 키오스크로 주문할 수 있어요. 바리스타에게 말을 걸 필요도 없죠!"], ["Let's look at the menu — they even have an English option, so convenient! I usually like to eat in, but today I'll do takeaway.", "메뉴를 한번 볼까요? 영어로도 볼 수 있네요! 아주 편리해요! 보통 매장에서 마시는 걸 좋아하는데, 오늘은 테이크아웃 하려고요."], ["Usually in the mornings I go for black coffee, but in the afternoons my go-to drink is an iced latte.", "아침에는 보통 아메리카노를 마시는 편인데, 오후에는 약간 달달한 게 땡겨요. 주로 마시는 커피는 아이스 라떼예요."], ["I'm also trying to cut back on caffeine, so I'll go for decaf. A decaf vanilla latte sounds great.", "요즘 카페인을 줄이려고 하고 있어서 디카페인으로 할게요. 디카페인 바닐라 라떼가 맛있을 것 같아요!"], ["Wow, it is so customizable here — you can add an extra shot of espresso or topping cream, which I'm guessing is whipped cream.", "다양하게 커스텀이 가능하네요! 샷도 추가할 수 있고, 토핑 크림도 올릴 수 있어요. 토핑은 휘핑 크림을 말하는 것 같아요."], ["I don't drink regular milk, so I'll choose the non-dairy option, which is oat milk, and I'll add it to my cart.", "저는 일반 우유는 안 마셔서 유제품이 아닌 걸 고를 거예요. 오트밀크로요! 그리고 장바구니에 추가할게요."], ["I'm ready to pay, so I'll place my order. I don't have a loyalty card here, so I'll pay with a credit card.", "결제할 준비가 됐으니까 바로 주문해볼게요. 적립 카드가 없어서 포인트는 못 쌓으니, 신용카드로 결제할게요."], ["I've got my receipts and my order number, so I'll wait for my coffee to be prepared. Korean cafes are the best — they even have a photo zone!", "영수증이랑 주문번호를 받았어요! 커피가 준비될 때까지 기다릴게요. 한국 카페는 정말 최고예요! 카페에 포토존도 있네요!"], ["Now I'll head to the counter to pick up my coffee. I've got my coffee, and I'm going to use a sleeve so my hands don't get too cold.", "이제 카운터로 가서 커피를 챙길게요. 커피는 받았고, 컵홀더를 사용할 거예요. 손이 너무 차지 않도록 해야죠."], ["Now it's the best part — I'll take off the lid and stir the coffee and milk with my straw. After mixing it, I'll take my first sip. Mmm, fire!", "이제 드디어 커피를 마실 수 있겠네요! 뚜껑을 열고, 빨대로 커피랑 우유가 섞이게 저어줍니다. 첫 모금 마셔볼게요. 크... 끝내주네요!"]], "5": [["Hello everybody! Today I'm going to a music festival. I got will-call tickets, so I just have to pick them up at the ticket booth.", "안녕하세요, 여러분! 오늘은 음악 페스티벌에 왔어요. 현장 수령 티켓이 있어서 매표소에서 티켓을 수령해야 해요."], ["I already see there's a huge line, so let's get going right away! I got my wristband, now I'm going to check the timetable for the lineup.", "이미 줄이 엄청 길네요, 바로 가봐야겠어요! 팔찌를 받았고, 이제 라인업 타임테이블을 확인할 거예요."], ["I think Lauv is the headliner, but my favorite artist is Jessie Reyez. I'm so excited!", "헤드라이너는 로브인 것 같은데, 제가 제일 좋아하는 아티스트는 제시 레이에스예요. 너무 신나요!"], ["Besides the music, one of the best parts of a festival is the food, so I came to the concession stands, and there are so many vendors.", "음악 말고도 페스티벌의 가장 좋은 점 중 하나는 음식이에요! 매점에 왔는데 행상인이 너무 많아요."], ["It looks like they're selling a variety of beverages and lots of different finger foods because it's easier to eat.", "다양한 음료랑 손으로 집어먹기 편한 핑거 푸드들을 팔고 있는 것 같아요."], ["I can't make up my mind, though. There's so much good stuff here!", "근데 결정을 못 하겠어요. 맛있어 보이는 게 너무 많아요!"], ["After lots of looking around, I found my favorite stall. The first thing I learned how to say in Korean was 'one beer please!' Cheers, everybody!", "한참 둘러보고 나서, 제가 제일 좋아하는 곳을 찾았어요. 제가 한국어로 처음 배운 말이 '맥주 한 잔이요!'였어요. 건배, 여러분!"]], "6": [["Good evening, everybody! Tonight, I am going to show you my night routine.", "안녕하세요, 여러분! 즐거운 저녁이에요. 오늘은 저의 저녁 루틴을 보여드리려고 해요."], ["I've already got my PJs on, and now I'm going to wash my face and take all of my makeup off.", "벌써 잠옷으로 갈아입었고, 이제 세안부터 해볼 건데 화장을 다 지울 거예요."], ["First, I have to remove my eyeliner and mascara, so I use some remover with a cotton pad. The makeup I wear is very stubborn, so it takes a while to remove.", "먼저 아이라이너와 마스카라를 제거해야 해요. 리무버를 솜에 묻혀서 닦아요. 제 화장은 아주 잘 지워지지 않아서 시간이 좀 걸려요."], ["Now I'm going to use a toner, and I just rub it all over my face to make sure that there is no makeup at all.", "이제 토너를 사용할 거예요. 얼굴 전체에 문질러서 화장이 남아있지 않도록 해요."], ["For the last step of my skincare routine, I use eye cream and serum — these are both for wrinkles because I'm not getting any younger.", "스킨케어 루틴의 마지막 단계로 아이크림과 세럼을 사용해요. 둘 다 주름을 위한 건데, 나이는 계속 드니까요."], ["I've got my tea, and now the fun begins. I love the smell of candles and how cozy it makes my house feel.", "이제 차를 마시며 즐거운 시간이 시작돼요. 캔들 향기와 집이 아늑해지는 느낌을 정말 좋아해요."], ["I just got a cheap candle at Daiso, but it smells pretty good. This is apricot and magnolia — it's a good combo.", "다이소에서 저렴한 캔들을 샀는데, 꽤 좋은 향이에요. 살구와 목련 향인데, 좋은 조합이에요."], ["As you can see, I've got a stack of books over here. I'm a huge bookworm, and I love to read.", "보시다시피 책이 한 무더기 있어요. 저는 정말 책벌레예요. 독서를 너무 좋아해요."], ["I'm getting pretty sleepy, so I'm going to go upstairs to bed. First, I need to blow out the candle.", "꽤 졸려서 이제 위층에 있는 침대로 갈 거예요. 먼저 캔들을 꺼야 해요."], ["I always take magnesium before bed because it helps me sleep really deeply.", "항상 자기 전에 마그네슘을 먹어요. 숙면에 도움이 되거든요."], ["Two things I must have when I sleep are my silk bonnet for my hair and my eye mask.", "잠을 잘 때 꼭 필요한 두 가지는 머리카락을 위한 실크 보닛과 수면 안대예요."]], "7": [["Hello everybody! I'm feeling quite hungry for lunch, so I came to a very popular vegan restaurant in Seoul called Plant Cafe.", "안녕하세요! 점심인데 꽤 배가 고파서 서울에서 굉장히 유명한 비건 레스토랑에 왔어요. 플랜트 카페라는 곳이에요."], ["Well, I guess I have bad luck because it's closed. All the lights are off. No Plant today.", "이런, 운이 없네요. 문을 닫았어요. 불이 다 꺼져있어요. 오늘은 플랜트 카페는 안 되겠네요."], ["The first restaurant we visited was closed, but luckily, right across the street, there's a really delicious French restaurant.", "첫 번째 식당은 문을 닫았지만, 다행히도 바로 길 건너편에 맛있는 프랑스 식당이 있어요."], ["'May I take your order?' 'Yes, I think we'll have the grilled salmon.' 'And then, the beef stew.' 'Did you want any drinks?' 'Coke Zero, sure!'", "주문하시겠어요? 네, 그릴드 살몬으로 주세요. 그리고 비프스튜도요. 음료는요? 코크 제로 주세요!"], ["You can never go wrong with bread. I like to dip it in the oil and vinegar. I do not fear carbs. I embrace them.", "빵은 언제나 옳아요. 올리브 오일과 식초에 찍어 먹는 걸 좋아해요. 저는 탄수화물을 두려워하지 않아요. 오히려 반겨요."], ["I got my stew, and it smells delicious. Let's try the salmon. They definitely know what they're doing in the kitchen here.", "비프스튜가 왔는데, 냄새가 맛있어요. 살몬도 먹어볼게요. 여기 주방장은 요리를 정말 잘 하는 것 같아요."], ["'Would you like something else?' 'I think we're all set.' 'Can I get a small box for takeout?' 'Yeah, sure!'", "더 필요한 거 있으신가요? 다 된 것 같아요. 테이크아웃 박스 작은 거 하나 받을 수 있을까요? 네, 물론이죠!"], ["'Can we get the bill?' 'You can pay up front.' I had a really lovely time here. Everything was delicious. I'll definitely be back.", "계산서 주시겠어요? 앞에서 계산하시면 돼요. 정말 즐거운 시간이었어요. 다 맛있었어요. 꼭 다시 올게요."]], "8": [["Hello everybody! I am outside of The Hyundai, which is one of Seoul's biggest and most popular malls. Let's go shop till we drop!", "안녕하세요! 저는 더현대 근처에 와 있는데요. 서울에서 가장 크고 유명한 쇼핑몰 중 하나예요. 지칠 때까지 쇼핑하러 가보시죠!"], ["Korean department stores are amazing. They have amazing food, great brands, and they're just a really pleasant shopping experience.", "한국 백화점은 정말 대단해요. 음식도 훌륭하고, 좋은 브랜드도 많고, 정말 즐거운 쇼핑 경험이에요."], ["We made our first purchase of the day! We bought one of the cool soaps as a gift, and she also gave us a scrunchie for free.", "오늘 첫 번째 구매를 했어요! 멋진 비누를 선물로 샀는데, 스크런치도 무료로 주셨어요."], ["The third floor has apparel, so they have men's fashion and women's fashion, but I don't really need anything, so I'm just kind of browsing.", "3층에는 의류가 있어서 남성 패션과 여성 패션이 있는데, 딱히 필요한 건 없어서 그냥 둘러보는 중이에요."], ["This store caught my eye. I was walking by and saw their hats. I really like these hats. It says 'Hello Sunrise.'", "이 가게가 눈에 띄었어요. 지나가다 모자를 봤는데, 정말 마음에 들어요. '헬로 선라이즈'라고 써 있네요."], ["Now we have to go to Gangnam and get it. I'm a bit bummed about the acai bowl, so I'm getting Super Matcha to make myself feel better.", "이제 강남에 가서 사야겠어요. 아사이볼을 못 먹어서 조금 아쉽지만, 슈퍼 말차를 마셔서 기분을 달랠게요."], ["I'm going to try the matcha. It's so bitter! But I love it.", "말차를 마셔볼게요. 너무 써요! 하지만 좋아해요."]], "9": [["Hello everybody! Today, I'm at the opening night of an exhibition. I love art and anything creative, so I'm really excited to see some beautiful paintings.", "안녕하세요! 오늘은 전시회 개막 행사에 왔어요. 저는 예술이랑 창의적인 걸 뭐든 좋아해서 멋진 그림을 볼 생각을 하니까 신나네요."], ["So, we just got to the event, and there are lots of people, and they even give free drinks, so we're going to enjoy.", "막 도착했는데, 사람이 정말 많고, 무료 음료도 주네요! 즐겨볼게요."], ["All of her paintings are so colorful and vibrant! The artist said that she likes to combine different concepts in one painting.", "그림들이 정말 다채롭고 생동감 있어요! 작가님이 한 그림 안에 다양한 개념을 결합하는 걸 좋아한다고 했어요."], ["Wow, this one is huge. I have so much respect for artists. I have no idea how someone can make something like this. Look at how detailed it is!", "와, 이건 정말 크네요. 예술가들에게 정말 경의를 표해요. 어떻게 이런 걸 만들 수 있는지 이해가 안 돼요. 얼마나 세밀한지 좀 보세요!"], ["This is the life for me. Attending art openings, drinking wine, except everyone else is wearing dresses and heels, and I'm in baggy jeans.", "이게 바로 제 삶이에요. 전시회 개막식에 참석하고 와인을 마시는 거요. 근데 다들 드레스에 힐을 신었는데 저는 벙벙한 청바지를 입었네요."], ["At this museum, there are also a lot of rooftop spaces, so you can go outside and enjoy the beautiful view. You can even see the Lotte Tower from here.", "이 미술관에는 옥상 공간도 많아서 밖으로 나가서 아름다운 전망을 즐길 수 있어요. 여기서 롯데타워도 보여요."], ["I like how they have descriptions to talk about her work and where she got her inspiration from. The art just keeps getting more and more impressive.", "작가의 작품과 영감에 대한 설명이 있어서 좋아요. 볼수록 더 인상적인 작품들이에요."]], "10": [["Hello everybody! As you could probably tell, I'm at the hair salon right now. I've already chopped off a lot of my hair, and my stylist is mixing some colors.", "안녕하세요, 여러분! 아마 눈치채셨겠지만, 저는 미용실에 와 있어요! 이미 머리를 꽤 잘랐고요. 디자이너 선생님은 염색약을 섞고 계세요."], ["So I decided that I'm going to get a balayage, and that will brighten up my hair color for the summer. I'm very excited!", "발레야쥬를 받기로 했어요. 여름을 위해 머리 색을 밝게 할 거예요. 너무 기대돼요!"], ["I've got my cape on, I'm very comfortable, and I'm just ready for a new change.", "케이프를 두르고, 아주 편안해요. 새로운 변화를 맞을 준비가 됐어요."], ["I already feel lighter. I think I need this haircut to survive Korea's humidity.", "벌써 가벼워진 느낌이에요. 한국의 습도를 버티려면 이 헤어컷이 필요한 것 같아요."], ["I always get a little bit nervous about haircuts, but I always try to keep the perspective that it can always grow back.", "헤어컷은 항상 약간 긴장되지만, 머리는 다시 자란다는 마음가짐을 유지하려고 해요."], ["I feel like as I get older, I really try to take care of my hair and my skin. When I was younger, I never really took care of it much.", "나이가 들수록 머리카락과 피부를 정말 잘 관리하려고 노력하게 되는 것 같아요. 어렸을 때는 별로 신경 안 썼는데요."], ["I feel like a new woman! Feel so good! My hair is so soft now. I wish I could get this every day.", "새 사람이 된 것 같아요! 정말 기분 좋아요! 머리카락이 너무 부드러워요. 매일 이렇게 할 수 있으면 좋겠어요."], ["I feel like a brand new person after this hair appointment. We touched up a few things and made it look a little bit more polished.", "헤어 어포인트먼트 후에 완전히 새로운 사람이 된 것 같아요. 몇 가지를 다듬고 더 세련되게 만들었어요."]], "11": [["Hello everybody! It is Sunday morning, and I'm going to show you a bit of my Sunday routine. I slept in, but now I'm ready to get my day started.", "안녕하세요! 지금은 일요일 아침인데요. 제 일요일 루틴을 조금 보여드릴게요. 늦잠을 자긴 했지만 하루를 시작할 준비가 됐어요."], ["I've already got a cup of coffee because I like to treat myself with a pick-me-up in the morning. This is going to give me the energy I need.", "이미 커피도 한 잔 준비했어요. 왜냐하면 아침에 기분 전환하는 걸 즐기거든요. 커피가 오늘 에너지를 줄 거예요."], ["I'm a morning person, and my brain works better in the morning, so I prefer to do these kinds of tasks right away in the morning with my cup of coffee.", "저는 아침형 인간이라 머리가 아침에 더 잘 돌아가서 이런 작업은 아침에 커피와 함께 바로 하는 걸 선호해요."], ["After drinking my coffee and getting my life together, I meal prep. Meal prep is so important to me because it helps me stay healthy.", "커피를 마시고 일정을 정리한 후에 식단 준비를 해요. 식단 준비는 저한테 정말 중요한데, 건강을 유지하는 데 도움을 주거든요."], ["I don't make meal prep too hard — I usually just prepare a few simple things. I clean as I go because I'm a very clean person.", "식단 준비를 힘들게 하지는 않고, 보통 몇 가지만 간단하게 준비해요. 깔끔한 게 좋아서 요리하면서 바로 치워요."], ["I'm going to put some dressing in there: Greek yogurt and mustard, and some seasonings, of course. Then I mix the tofu with the seasonings and sauces.", "드레싱을 넣어줄 건데, 그릭 요거트하고 겨자랑 양념도 넣습니다. 이제 두부랑 같이 양념 소스를 섞어줄게요."], ["The last step is just to add in all the veggies. This is what the tofu salad looks like. Mmm, the texture is really good!", "마지막으로 채소를 넣어줍니다. 이게 두부 샐러드예요. 음... 식감이 정말 좋아요. 아삭한 채소랑 부드러운 두부 덕분이죠."], ["After cooking, I clean the kitchen surfaces more carefully and vacuum the floor. I shed a lot of hair, so I need to vacuum often.", "요리가 끝나고 나면 부엌 표면을 닦아줄게요. 바닥도 청소기를 돌릴 거예요. 머리카락을 많이 흘려서 청소기를 자주 돌려야 해요."], ["I also had to get some dumplings because they just looked so good. And of course, the meal would not be complete without a big side of kimchi!", "만두도 시켰어요. 정말 맛있어 보였거든요. 역시 완벽한 식사에 김치가 빠질 수 없죠!"]], "12": [["Hello everybody! It's 11:00 a.m. on a Tuesday. I've already worked out, got ready, and I just had my breakfast. Now I'm going to show you my work routine.", "안녕하세요! 지금은 화요일 오전 11시고요. 벌써 운동을 다녀와서 나갈 준비하고 방금 아침을 먹었어요. 오늘은 제가 일하는 루틴을 보여드릴게요."], ["My schedule is pretty packed today, but I've got about an hour to spare before I leave the house, so I'm going to do a bit of work from home.", "오늘 스케줄이 꽤나 꽉 차 있는데, 한 시간 정도 여유 시간이 있네요. 집을 나가기 전에 집에서 일을 조금 할게요."], ["Now, I am heading out to my first job outside of the house. I've been doing the live streaming cooking show for about three weeks now, and I really love it.", "지금은 나서는 길인데, 첫 번째 일을 하러 가고 있어요. 생방송 요리쇼를 하고 있는데요. 이제 3주 정도 했는데 너무 좋아요."], ["I'm not a great cook, but I enjoy it, and I'm excited to see what we're going to cook today. I take a bus to get to my job — luckily the commute is pretty easy.", "요리를 아주 잘하는 건 아니지만 좋아해서 오늘은 어떤 요리를 하게 될지 기대가 되네요. 버스를 타야 하는데 다행히도 출근하는 길이 꽤 쉬워요."], ["Hi, I'm the judge. So I get to decide if this passes or fails. She's very important — we need to impress her. Alright, let's put on our aprons!", "안녕하세요! 우리의 심판이에요. 통과인지 실패인지 정하는 분이에요. 우리 모두 앞치마를 두르고 준비 완료예요."], ["I'm a little bit hungry. I know we just cooked at my last job, but we shared it with the whole team, so I only got one or two bites.", "사실 약간 배가 고픈데요. 방금 촬영장에서 요리를 하긴 했는데, 전체 인원이 다 나눠 먹어서 한두 입밖에 먹질 못했어요."], ["I got Greek yogurt and a matcha latte to eat before my class, and I'm hoping that it holds me over until dinner time.", "그릭 요거트랑 말차 라떼를 시켰어요. 수업 전에 먹으려고요. 이걸로 저녁 때까지 잘 버틸 수 있으면 좋겠네요."], ["I promise I'm not shady, but I have two phones — one personal phone and one work phone that I use to edit videos. Right now I'm editing a skincare ad.", "저 이상한 사람은 아닌데, 핸드폰이 두 개예요. 하나는 개인용이고 하나는 업무용으로 영상 편집을 해요. 지금은 화장품 광고를 편집하고 있어요."]], "13": [["Good morning everybody! It's Chuseok holiday so we're heading to Changwon. We're at the KTX station and it's 5:45 AM — all the trains were fully booked so this was the earliest we could leave.", "좋은 아침이에요, 여러분! 추석 연휴라 창원에 내려갈 거예요. KTX 역에 있는데요. 새벽 5시 45분이에요. 모든 열차가 다 예약이 꽉 차서 출발 가능한 시간이 아주 이른 시간밖에 없었어요."], ["We almost missed the train! We were sweating from running. But we made it. The food here is very fresh and delicious. I am very satisfied.", "열차를 잡으려고 뛰어와서 땀이 나요. 다행히 탔어요. 음식이 아주 신선하고 맛있어요. 아주 만족스러워요."], ["Food made with love is always the best food. He's the dishwasher. I hate doing dishes. This is the sign of a happy household — one person cooking and one person cleaning!", "사랑으로 만든 음식이 항상 최고의 음식이죠. 아버님은 설거지 담당이에요. 저는 설거지하는 걸 싫어하거든요. 이런 게 행복한 가정의 신호예요. 한 명은 요리하고, 한 사람은 치우고요."], ["Now we're going to make doenjang jjigae. We're going to make the broth from scratch using anchovies.", "이제 된장찌개를 만들 건데, 육수를 처음부터 만들 거예요. 멸치를 이용할 거예요."], ["I've been living in Korea for a long time, but I was vegan the whole time so I haven't actually tried a lot of Korean food. I'm really excited to eat some now!", "제가 한국에 오래 살긴 했는데, 여기 사는 동안 계속 비건이었어서 사실은 많은 한식을 먹어보지 못했어요. 한식을 먹어볼 생각에 기대되네요."], ["Apparently if you make songpyeon beautifully you'll have a beautiful daughter. Let me try! It looks similar to making dumplings.", "송편을 예쁘게 빚으면 예쁜 딸을 낳는대요. 예쁜 딸을 낳아보죠! 만두를 만드는 거랑 비슷해 보이네요."]], "14": [["Hello everybody! Today is practically my birthday and I'm going on a trip to Sokcho with my husband. I wanted to spend my birthday at the beach.", "안녕하세요, 여러분! 오늘이 실질적으로 제 생일이에요. 남편이랑 속초로 여행을 가고 있어요. 생일에 해변에서 좋은 시간을 보내고 싶었거든요."], ["Wow, good view! We checked into our hotel and I am so happy with it. The view is incredible — we can see the lake, we can see the sea!", "와! 뷰가 정말 좋아요! 호텔에 체크인했는데 정말 마음에 드네요. 전망도 엄청 좋고요. 호수도 보이고 바다도 보여요."], ["Every time I go to a hotel I always have to check the bed first. Alright, give it the jump test! We were feeling a bit hungry for dinner, so we went to Sokcho market.", "호텔에 갈 때마다 항상 침대부터 확인해야 해요. 좋아요. 이제 점프 테스트를 해볼게요! 저녁 시간에 배가 고파져서 속초 시장에 왔어요."], ["Good morning everybody! Don't mind my bed head — I just woke up. But it is officially my birthday, and I am so stoked because the weather looks absolutely perfect!", "굿모닝, 여러분! 머리가 엉망인 건 신경 쓰지 마세요. 지금 막 일어났거든요. 그리고 오늘이 공식적으로 제 생일이에요! 정말 신나요. 날씨가 완벽해 보이거든요."], ["I want to spend all day at the beach. Let's not eat too much before swimming, though. I'm so excited for the day ahead!", "하루 종일 해변에서 보내고 싶어요. 수영하기 전에 너무 많이 먹는 건 좋지 않겠죠. 오늘 하루가 너무 기대돼요!"], ["Happy birthday to you, happy birthday dear Callie! Let me make my wish — woo, I got them both. That means my wish is definitely coming true!", "생일 축하합니다~ 사랑하는 캘리쌤~ 생일 축하합니다! 소원을 빌게요. 두 개를 한 번에 껐어요. 제 소원이 반드시 이루어진다는 뜻이에요!"], ["Thank you everybody for sharing my birthday with me. Today has been one of the best birthdays of my life. We swam at the beach, swam in the pool, and ate delicious cake.", "여러분, 보고 계신다면 정말 감사해요. 오늘은 제 인생에서 최고의 생일 중 하나였어요. 해변에서 수영하고, 수영장에서도 수영하고, 맛있는 케이크도 먹고."]], "15": [["Hello everybody! I'm usually a bit of a homebody, but this weekend I have so much planned, so I wanted to spend my weekend with you.", "안녕하세요, 여러분! 저는 보통 집순이로 지내는 편인데, 이번 주말에는 계획이 많아서 여러분과 이번 주말을 같이 보내고 싶어요."], ["It's Friday night, and I'm about to go to an Olivia Rodrigo concert. The weather is super rainy, but I think the concert will be lots of fun.", "지금은 금요일 밤이고, 올리비아 로드리고 콘서트에 가려고 해요. 비가 매우 많이 내려서 조금 별로지만, 콘서트는 정말 재미있을 것 같아요."], ["It is Saturday night, and I'm in a taxi on my way to Seongsu to go see a jazz concert. I'm really excited — I haven't been to a jazz club for a really long time.", "오늘은 토요일 밤이라 지금 택시를 타고 성수동으로 가서 재즈 콘서트를 볼 거예요. 정말 신나요. 재즈 클럽에 가는 게 정말 오랜만이거든요."], ["This one seems especially cool because it's on a rooftop. I'm with my husband, and I'm feeling a bit spoiled because we've had two nights out in a row!", "이번에는 루프탑에서 열리는 거라 특히 더 멋질 것 같아요. 남편과 가는 중인데, 이틀 저녁 연속으로 놀고 있어서 약간 사치부리는 것 같아요!"], ["The fashion show just ended, and it was a really cool event. It was nice to get out of the city and see some familiar faces. They had music and models walking the runway.", "패션쇼가 막 끝났고, 정말 멋진 행사였어요. 도심을 벗어나서 익숙한 얼굴들을 보니 좋았어요. 음악도 있었고, 다양한 모델이 런웨이를 걸었죠."], ["We are starving now so we're waiting for our shuttle bus to get back to Seoul. After the fashion show, we ate maratang with friends — and now I need something sweet!", "지금은 정말 배가 고파서 서울로 돌아가는 셔틀버스를 기다리고 있어요. 패션쇼가 끝나고 마라탕을 먹었는데, 뭔가 달달한 것이 필요하네요!"]], "16": [["Today is Sunday, so I'm going to reflect on my week. I'm not gonna lie, I was feeling a bit homesick this week. I love fall time back in Michigan.", "오늘은 일요일이고, 이번 주를 되돌아보려고 하는데요. 솔직히 말하자면 이번 주에 향수병이 좀 찾아왔어요. 미시간의 가을을 정말 좋아하거든요."], ["As the weather is getting cooler here in Seoul, I'm thinking about home a lot. I love going to pumpkin patches and watching the leaves change.", "서울 날씨가 점점 쌀쌀해지니까 고향 생각이 많이 나네요. 호박 밭에 가는 것도 좋아하고, 단풍 드는 걸 보는 것도 좋아해요."], ["Even though I was missing home a little bit more than usual this week, luckily I had a lot of things to keep me busy. We filmed four videos this week!", "이번 주에 고향이 그립긴 했지만, 다행히도 저를 바쁘게 하는 일들이 많았어요. 이번 주에 영상을 네 개나 찍었어요!"], ["I've been really busy with work, but I'm feeling very energized and passionate about my work lately because I love that what I do is creative.", "일이 정말 바빴는데, 최근에 일할 때 에너지도 넘치고 열정적인 것 같아요. 제가 하는 일이 창의적이라서 좋거든요."], ["My high this week was going to my best friend's birthday. Four of us went out for dim sum at Din Tai Fung. It was so delicious — I think our eyes were bigger than our stomachs!", "이번 주 가장 좋았던 순간은 제 베프 생일파티에 간 건데요. 저희 넷이서 딘타이펑에서 딤섬을 먹었어요. 정말 맛있었어요. 살짝 욕심을 부렸던 거죠!"], ["After that, we grabbed a few drinks, sang 'Happy Birthday,' had a bit of cake, and just had a really good time together.", "그 후에 술도 몇 잔 마시고, 생일 축하하면서 케이크도 먹고, 함께 즐거운 시간을 보냈어요. 정말 좋았죠."]], "17": [["Good morning everybody! Today feels like a holiday because it is my perfect day. Last night I did not set an alarm, and I allowed myself to sleep in this morning. It felt so nice!", "안녕하세요, 여러분! 오늘은 마치 휴일 같아요. 오늘은 제 완벽한 하루거든요. 어젯밤에는 알람을 맞추지 않았고, 늦잠을 허락했어요. 늦잠을 자니까 정말 좋더라고요!"], ["Since it's my perfect day, I'm going to show you some of my favorite things to do and some of my favorite foods.", "오늘은 완벽한 하루를 보낼 예정이라 여러분께 제가 좋아하는 활동이나 좋아하는 음식도 보여드릴게요."], ["I'm out of breath because I ran to catch this bus. Luckily, the driver was so sweet and waited for me to catch up.", "숨이 차는데, 이 버스를 타려고 뛰었거든요. 다행히도 운전기사님이 정말 친절하셔서 제가 따라잡을 때까지 기다려주셨어요."], ["I made it to the Pancake House. It really makes me think of home. Look at how many different kinds of pancakes they have — it's crazy!", "팬케이크 하우스에 도착했어요. 미국 생각이 나네요. 팬케이크 종류가 얼마나 많은지 보세요. 대단한데요!"], ["I love that you can get eggs cooked the way you want them. My preference is usually sunny-side up.", "계란을 원하는 방식으로 조리해 주는 게 너무 좋아요. 정말 세심하죠. 제 취향은 보통 반숙 계란이에요."], ["I'm looking for Bath and Body Works now, and I somehow ended up in the food court. It's like a maze in here — I keep getting lost!", "지금 Bath & Body Works를 찾고 있는데, 어쩌다 보니 푸드코트에 도착했어요. 마치 미로 같아요. 계속 길을 잃어요!"], ["I was torn between a board game cafe, karaoke, or an arcade — but we decided on a board game cafe because it sounds like a nice cozy rainy day activity.", "보드게임 카페, 노래방, 오락실 중에 어디 갈지 고민했어요. 하지만 결국 보드게임 카페로 정했어요. 비 오는 날에 아늑하게 딱 어울리는 것 같아요."]], "18": [["This week was another busy but very productive and good week. I did lots of teaching, lots of filming, lots of editing, and I even made breakfast on live stream!", "이번 주는 또 바쁘긴 했지만 아주 생산적이고 알찬 한 주였답니다. 수업도 많이 하고, 영상도 많이 찍고, 편집도 많이 했어요. 라이브에서 아침 식사를 만들기도 했어요!"], ["I filmed a video with one of my friends, and we ate good food and talked about a really interesting topic. I actually learned a lot from the interview.", "친구 한 명과 영상을 찍고 맛있는 음식을 먹으면서 정말 흥미로운 주제에 대해 이야기를 나누었어요. 인터뷰를 통해 많은 것을 배웠어요."], ["Something I'm really proud of this week is that I successfully overcame my TV addiction. I was watching a lot of reality TV shows. That habit started during COVID.", "이번 주에 정말 자랑스러운 일은 TV 중독을 성공적으로 극복한 것인데요. 리얼리티 TV 프로그램을 정말 많이 봤거든요. 이런 습관이 코로나 시기에 시작된 것 같아요."], ["I also attended a really fun event this week. I was invited to the SKIN1004 skincare event — I got to visit their flagship store in Myeongdong for the first time.", "이번 주에 정말 재미있는 행사에도 참석했는데요. SKIN1004 피부 관리 행사에 초대받았어요. 처음으로 명동에 있는 플래그십 스토어에 방문할 수 있었거든요."], ["We ate delicious food, drank champagne, and we even learned how to make cocktails. A professional bartender came and taught us three different cocktails. It was so fun!", "맛있는 음식을 먹고 샴페인도 마셨어요. 심지어 칵테일 만드는 법도 배웠어요. 전문 바텐더가 와서 세 가지 칵테일을 만드는 법을 알려주셨어요. 정말 재미있었어요!"]], "19": [["Hello everybody! I have big news to share with you! I'm actually going on a long trip to the US soon. I'll be staying for three months.", "여러분, 안녕하세요! 여러분에게 전할 큰 소식이 있어요! 사실 곧 미국으로 긴 여행을 떠나게 됐어요. 세 달 동안 머물 예정이에요."], ["I thought about things I haven't done yet in Korea, things I really want to do before I leave. So today I'm going to do some things on my Korea bucket list!", "한국에서 아직 해보지 않은 일을 생각해 봤어요. 떠나기 전에 꼭 하고 싶은 것들로요. 그래서 오늘은 제 한국 버킷리스트에 있는 일을 해보려고 해요!"], ["I decided to come back home for a little while. I actually killed two birds with one stone — I shopped at the market, and I also bought some yogurt from the yogurt lady!", "잠시 집에 돌아오기로 결정했어요. 실은 두 마리 토끼를 잡았어요. 벼룩시장에 가보는 게 버킷리스트 중 하나였는데, 요구르트 아주머니한테 요구르트도 샀어요!"], ["Buying yogurt from the yogurt cart lady is something I've wanted to do in Korea for a very long time, but for some reason I always got nervous and embarrassed.", "한국에서 아주 오래 전부터 꼭 해보고 싶었던 일이었거든요. 근데 어떤 이유에서인지 길에서 요구르트 아주머니를 보면 항상 굉장히 긴장되고 부끄러웠거든요."], ["I am doing saju, so I'm going to a fortune teller to see if I have good fortune and if I'll be lucky this upcoming year. Fingers crossed for good news!", "사주를 볼 거예요. 점술가에게 운세가 좋은지 알아보려고요. 다가오는 해에 행운이 있을지 말이죠. 부디 사주가 좋은 내용이길 바랄게요!"], ["The last thing on my bucket list today is a PC bang. I don't really play games, so this will be an interesting experience. I'm excited to try something new!", "오늘의 마지막 버킷리스트는 PC방이에요. 저는 게임을 잘 안 하기 때문에 흥미로운 경험이 될 것 같아요. 새로운 경험이 될 거예요!"]], "20": [["It's a rainy day today, so I was feeling a bit lazy and had kind of a slow morning. But now it's time to get ready. I'm going to show you my beauty and makeup routine.", "안녕하세요 여러분! 오늘은 비가 와서 좀 게을러지는 기분이었어요. 그래서 좀 여유로운 아침을 보냈어요. 하지만 이제 준비할 시간이에요. 뷰티랑 메이크업 루틴을 보여드릴게요."], ["First things first, I have to take a shower. These days on social media, there's something called an 'everything shower' — where you do everything at once!", "우선은요, 샤워를 해야 해요. 요즘 소셜 미디어에 '에브리씽 샤워'라는 게 있더라고요. 머리도 감고, 스크럽도 하고, 말 그대로 모든 걸 다 하는 샤워예요!"], ["Dr. Jart's BB Cream is my absolute favorite. I've been buying it for years. I love that you can sample the products before buying them at Olive Young.", "닥터자르트 비비크림은 제가 정말 좋아하는 제품이에요. 몇 년째 계속 사서 쓰고 있는데요. 테스터로 제품들을 써볼 수 있어서 좋아요. 올리브영에서 구매하기 전에요."], ["I feel like I need to have a disclaimer that makeup is not really my forte. I'm not great at makeup and I have a very simple routine that I've been doing for a long time.", "미리 주의사항을 말씀드려야 할 것 같은데, 메이크업이 제 전문 분야는 아니라서 메이크업을 잘 하지는 못해요. 아주 오랫동안 해온 간단한 루틴을 가지고 있어요."], ["For my base, I start with this serum. I use a few drops on my face to make the skin look hydrated and glowy.", "베이스 메이크업으로는 세럼으로 시작할게요. 피부가 촉촉하고 윤기 나게 만들거든요. 몇 방울 정도를 얼굴에 떨어뜨려요."], ["Eyebrows are done! If I am going out for the night, now is when I would do my eyeshadow. I have this big palette with lots of shimmery glittery colors.", "좋아요! 눈썹 완성! 오늘 밤에 외출하려면 이제 아이섀도우를 할 차례예요. 여기 큰 팔레트가 있는데, 반짝이고 빛나는 색상이 많이 있어요."], ["The last step is just to put a little bit of glittery eyeshadow right in the corners of my eyes. It adds a little bit of dimension. It's just a cute little touch!", "마지막 단계로 반짝이는 아이섀도우를 눈 바로 안쪽에 발라줄 거예요. 눈에 입체감이 더해지는 것 같아요. 귀여운 포인트가 되죠!"]], "21": [["This past week was especially hectic because it was my last week in Korea. I thought I was prepared, but then it came up so quickly, and I had so much to do before coming to the US.", "지난주는 정말 정신없이 바빴어요. 한국에서 보내는 마지막 주였거든요. 준비가 됐다고 생각했는데 막상 시간이 너무 빨리 다가왔고, 미국으로 떠나기 전에 해야 할 일이 너무 많아서요."], ["My schedule was jam-packed. On top of working, I also had to pack up everything in our house and prepare for the move.", "일정이 꽉 차 있었어요. 일을 하면서도 집안의 모든 짐을 정리하고 이사 준비를 해야 했어요."], ["I had also ordered a new suitcase and realized when I was packing that it was defective — the zipper was broken. I paid a pretty penny for it, so I didn't want to keep a broken one.", "새 캐리어도 주문했는데, 짐을 싸다가 알게 됐는데 지퍼가 제대로 작동하지 않더라고요. 꽤 비싼 돈을 주고 산 거였는데, 고장 난 상태로 그냥 쓰고 싶지는 않았어요."], ["My husband had to go to the department store to get a new one. Unfortunately, it was raining and there was heavy traffic, which made everything more stressful.", "남편이 백화점에 가서 새 캐리어를 사야 했어요. 안타깝게도 비와 교통 체증으로 모든 것이 더 스트레스스럽게 됐어요."], ["I was also very excited to wear my hanbok again. The hanbok I wore is very special because it was a wedding gift from my mother-in-law.", "한복을 다시 입을 수 있었던 것도 정말 기뻤어요. 제가 입었던 한복은 저에게 정말 특별한데, 시어머니께서 결혼 선물로 주셨거든요."], ["We celebrated my brother-in-law's wedding and ate good food with the family. It was a great day — but another very long night was ahead because we had to take a bus back to Seoul.", "저희는 남편 동생의 결혼식을 축하하고 가족들과 맛있는 음식을 먹었어요. 정말 멋진 날이었지만, 결혼식이 끝난 후에 버스를 타고 서울로 돌아와야 했어요."]], "22": [["I'm at the airport because I have an early morning flight to the US. We couldn't do online check-in last night, so we're going to the check-in counter first.", "저는 지금 미국행 아침 비행기를 타기 위해 공항에 나와 있어요. 어젯밤에 온라인 체크인을 못 해서 먼저 체크인 카운터로 갔다가 보안 검색대로 갈 예정이에요."], ["We have three pieces of luggage. I'm hoping none of them are over the weight limit. Let me find the airline's check-in counter by checking the departures board.", "짐이 세 개가 있는데 중량이 초과되지 않았으면 좋겠어요. 출발 안내판을 확인하며 저희 항공사 탑승 수속 창구를 찾으러 가볼게요."], ["I am at my gate because it's almost departure time. I've got my ticket and my passport, and I'm ready to board the plane!", "지금 게이트에 도착했어요. 곧 출발 시간이거든요. 티켓과 여권을 준비했고, 비행기에 탈 준비가 됐습니다!"], ["I just got my in-flight meal. I chose the chicken option — it actually doesn't look too bad. Let's try it.", "방금 기내식을 받았어요. 치킨을 선택했는데 생각보다 괜찮아 보이네요. 먹어볼게요."], ["'Do you have green tea?' 'Do you need cream or sugar?' 'No, that's okay. Thank you.' 'Would you like an omelet or noodles?' 'Omelet, please!'", "녹차 있나요? 크림이나 설탕 필요하세요? 아니요, 괜찮습니다. 감사합니다. 오믈렛이나 국수 중에 고를 수 있어요. 오믈렛 주세요!"]], "23": [["It's the day after Thanksgiving, and we're already moving on to Christmas. Today I am making Christmas cookies with my family.", "추수감사절 다음 날이에요. 저희는 벌써 크리스마스로 넘어가고 있어요. 오늘 저는 가족과 함께 크리스마스 쿠키를 만들 거예요."], ["This recipe has been in our family for a very long time. It's the best Christmas cookie recipe ever. My stepmom already mixed all of the dough yesterday.", "이 레시피는 저희 가족에게 오래전부터 전해 내려온 레시피인데요. 제가 아는 최고의 크리스마스 쿠키 레시피예요. 새어머니가 어제 이미 모든 쿠키 반죽을 섞어 두었고요."], ["Now we are rolling out the dough and cutting it with cookie cutters. We have so many different shapes — reindeer, Santa, stars, trees.", "그리고 지금 우리는 반죽을 밀어서 펴고 쿠키 커터로 자르고 있어요. 순록, 산타, 별, 나무 등 다양한 모양이 있어요."], ["We finished baking the cookies and set them out to cool. We counted them — we made 176 cookies today! In the past, my stepmom said she's made 400 at one time.", "쿠키를 다 구웠고, 지금 쿠키를 식히고 있어요. 세어 보니까 오늘 쿠키를 176개 만들었네요! 예전에 새어머니는 한 번에 400개를 만든 적도 있대요."], ["They smell delicious, they look delicious, and I'm sure they must taste delicious as well. I'm trying an elephant-shaped one — elephants are my favorite animal!", "맛있는 냄새가 나고, 맛있어 보여요. 분명 진짜로 맛도 좋을 거예요. 코끼리 모양의 쿠키를 먹어볼게요. 제가 제일 좋아하는 동물이 코끼리거든요!"], ["This brings me back to my childhood. I've eaten these every Christmas season since I was very young. I highly recommend dipping them in milk — it's the perfect combo!", "어린 시절이 떠오르는 맛이에요. 어렸을 때부터 매년 크리스마스 시즌에 먹어왔어요. 우유에 찍어 먹는 걸 추천해요. 완벽한 조합이죠!"]], "24": [["Happy Thanksgiving everybody! My parents woke up early this morning to prepare the turkey and a huge feast for us all to enjoy this afternoon.", "여러분, 행복한 추수감사절이에요! 부모님은 오늘 아침 일찍 일어나서 칠면조를 준비하고 엄청난 잔치 음식을 준비하셨어요."], ["Our family tradition while the food is cooking is to watch the Macy's Thanksgiving Day Parade. So we all gathered in the living room to watch it on TV.", "음식이 요리될 때 저희 가족 전통은 뉴욕시의 메이시 추수감사절 퍼레이드를 보는 거예요. 그래서 저희 모두 거실에 모여서 TV로 봤어요."], ["Sometimes if we have leftover turkey, we like to make turkey sandwiches in the evening. It's kind of like a Thanksgiving midnight snack.", "가끔 남은 칠면조 고기가 있으면 저녁에 칠면조 샌드위치를 만들어 먹는 걸 좋아해요. 추수감사절 야식 같은 거죠."], ["It's not Thanksgiving without eating a slice of pie. Different families like different kinds of pie, but my favorite is pumpkin pie. This is a classic Thanksgiving treat.", "파이 한 조각을 안 먹으면 추수감사절이 아니죠. 각 집마다 다른 종류의 파이를 요리하는데, 제가 제일 좋아하는 건 호박 파이예요. 전통적인 추수감사절 간식이에요."]], "25": [["Yesterday I rented a car, and today I'm taking a long road trip to my grandparents' cabin in the Upper Peninsula. We've got our bags packed, so let's load them in the trunk and hit the road!", "어제 차를 렌트했고, 오늘은 장거리 로드트립을 떠나요. 목적지는 미시간 어퍼 페닌슐라에 있는 할머니, 할아버지네 통나무집이에요. 짐은 다 챙겼고, 이제 트렁크에 싣고 출발할 거예요!"], ["I've got our GPS set, but the first stop will be a gas station because I want to fill up the tank. I've arrived at a gas pump and I'm going to fill up the tank.", "GPS를 설정했지만, 첫 번째로 들를 장소는 주유소예요. 기름을 채우고 싶거든요. 주유기 앞에 도착했고, 주유 노즐로 연료를 채울 거예요."], ["It's a really pretty road, but I'm a little bit nervous because it's deer season. If you hit a deer, it can completely destroy your car.", "정말 예쁜 길인데 약간 긴장돼요. 사슴이 돌아다니는 시기라서요. 사슴과 부딪히면 차가 완전히 망가질 수도 있어요."], ["When I was 16 and driving to a friend's house, a deer jumped in front of my car and the hood completely caved in. It was so traumatic — and I felt so bad for the deer.", "저는 16살 때 친구 집에 가는 길에 사슴이 제 차 앞으로 뛰어들었고, 차 후드가 완전히 찌그러졌어요. 정말 충격적이었고, 사슴이 불쌍했어요."], ["There will be a tollbooth up ahead. To enter the Upper Peninsula, you have to pay a toll — I think it costs $4. Hello! Thank you! Have a good day!", "앞에 톨게이트가 있을 텐데, 미시간 U.P에 들어가려면 통행료를 내야 해요. 아마 4달러 정도일 거예요. 안녕하세요! 감사합니다, 좋은 하루 보내세요!"]], "26": [["Today I am in Detroit. I'm going to spend a girls night out with my mom and my sister. We are heading to a dog-friendly tea house right now!", "오늘 저는 디트로이트에 와 있어요. 엄마와 언니랑 함께 걸스 나잇을 보낼 거예요. 지금 저는 반려견 동반 가능한 찻집으로 가는 중이에요."], ["We just got back to our hotel. We had lots of fun at the tree lighting ceremony and the Christmas market. We did a bit of shopping and just enjoyed the atmosphere.", "저희는 방금 호텔로 돌아왔어요. 트리 점등식과 크리스마스 마켓에서 정말 재밌는 시간을 보냈는데, 쇼핑도 좀 하고 그곳의 분위기를 즐겼어요."], ["We actually didn't stay and wait for the tree lighting. They kept delaying it, and we got a little too cold to keep waiting. So we left early and went to a store.", "사실 트리 점등식을 끝까지 기다리지는 않았어요. 계속 지연됐거든요. 그리고 너무 추워서 참기가 힘들었어요. 그래서 일찍 나와서 마트에 갔어요."], ["We bought some snacks to enjoy comfortably in our hotel room. It's been such a fun and cozy girls night so far!", "호텔 방에서 편하게 쉬면서 먹을 간식을 샀어요. 정말 재미있고 아늑한 걸스 나잇이었어요!"]], "27": [["This is my sacrifice. I got a swollen eye so that I can teach you guys hospital English! It's not even been one week in the US and I'm going to the hospital.", "제 눈을 희생했어요. 여러분께 병원 영어를 가르쳐드리려고 눈이 부었나 봐요! 미국에 온 지 일주일도 되지 않았는데 병원에 가고 있어요."], ["I woke up two days ago with a very swollen eye. It's quite painful, especially when I blink or close my eyes. The swelling is getting bigger, so I'm going to urgent care.", "이틀 전에 눈이 많이 부은 채로 일어났어요. 많이 아프고, 특히 눈을 깜빡이거나 감을 때 더 아프네요. 통증이 느껴지고 점점 더 커지고 있어서 응급 케어에 가요."], ["'Usually this is pretty common. It can be due to either an allergy or bacteria. Especially with the change of environment. So what I would recommend is an oral steroid.'", "보통 이런 증상은 꽤 흔해요. 알레르기나 눈에 침투한 박테리아로 인해 발생할 수 있죠. 특히 환경 변화로 인해 발생할 가능성이 높아요. 경구용 스테로이드를 추천드릴게요."], ["'Hi, my name's Callie Anderson. I was in there earlier for a swollen eye. I don't have insurance, so the eye drops are really expensive. Is there a cheaper alternative?'", "안녕하세요. 제 이름은 캘리 앤더슨이고, 오늘 눈이 부은 것 때문에 방문했었어요. 보험이 없어서 안약이 정말 비싸더라고요. 더 저렴한 대체품이 있을까요?"], ["'Let me ask the doctor for you.' 'Okay, sounds good.' Healthcare in the US can be very expensive, especially without insurance. This is something everyone should know about!", "담당 의사에게 물어볼게요. 네, 좋아요. 미국의 의료비는 정말 비쌀 수 있어요. 특히 보험이 없으면요. 이건 모두가 알아야 할 중요한 사실이에요!"]], "28": [["Today I am trying viral foods in New York City to see if they're actually worth the hype. I've got my yoga pants on for maximum comfort and stretchability!", "오늘은 뉴욕에서 유행하고 있는 음식들을 먹어볼 거예요. 실제로 유명한 만큼 맛있는지 확인해보려고 해요. 최대한 편하게 움직이려고 요가 팬츠를 입었어요!"], ["Our first stop of the day is PopUp Bagels. This has been all over my TikTok feed. It's a pretty unique bagel.", "오늘의 첫 번째 목적지는 팝업 베이글인데요. 제 TikTok 피드에 계속 등장하더라고요. 꽤 독특한 베이글이에요."], ["Next up is Crumbl Cookies. I am probably most excited to review this one because I think my algorithm knows that I'm a cookie monster!", "다음은 크럼블 쿠키예요. 아마 이걸 리뷰하는 게 가장 기대되는데요. 제 알고리즘이 제가 쿠키를 엄청 좋아하는 걸 알고 있는 것 같거든요!"], ["Now it's finally my turn! We got the four-pack for about $20. I chose the hot chocolate cookie, a classic chocolate chip, a snickerdoodle cupcake, and a holiday confetti cookie.", "이제 드디어 제 차례예요. 4개짜리 세트를 주문했고 약 20달러 정도 나왔어요. 핫초콜릿 쿠키, 클래식 초콜릿 칩 쿠키, 스니커두들 컵케이크 쿠키, 홀리데이 콘페티 쿠키를 골랐어요."], ["'Excuse me, how long have you been waiting?' '30 minutes.' 'Oh, okay! That's not as bad as I expected.' I just got in line for a viral hot chocolate called Glaze.", "실례합니다. 얼마나 기다리셨는지 여쭤봐도 될까요? 30분이요. 오, 생각보다 나쁘지 않네요. 방금 소문난 핫 초콜릿 '글레이스' 줄을 섰어요."], ["From best to least favorite: Crumbl Cookies is first — I totally get why it's so popular! Second is surprisingly the hot chocolate. And the bagel was also delicious!", "가장 좋아했던 순서로: 첫 번째는 크럼블 쿠키예요. 왜 그렇게 인기가 많은지 알겠어요! 두 번째는 놀랍게도 핫 초콜릿이에요. 베이글도 정말 맛있었어요!"]], "29": [["Today I am going shopping to find the most bizarre grocery items that you can only find in the USA. So I came to Walmart, which is one of the most popular stores in the US.", "안녕하세요, 여러분! 오늘은 장을 보러 갈 건데 가장 특이한 음식을 찾아볼 거예요. 특히 미국에서만 찾을 수 있는 것으로요. 그래서 월마트에 왔어요. 월마트는 미국에서 가장 인기 있는 상점 중 하나예요."], ["They have everything you could ever imagine and more — beauty items, electronics, home decor. But today I'm only going to the grocery section!", "뷰티 제품, 전자제품, 홈 데코 등 상상할 수 있는 것 이상이에요. 하지만 오늘은 식료품 코너에만 갈 거예요!"], ["Holy moly — I can barely pick it up. This thing is a weapon. 10 pounds of ground beef! If I need a workout, I can just come to Walmart's meat section.", "세상에, 거의 들 수가 없어요. 이건 무기나 다름없어요. 10파운드짜리 다진 쇠고기예요! 운동이 필요하면 월마트 정육 코너에만 와도 될 것 같아요."], ["I think you can easily hit your protein goals in the US. This ranch dressing — Americans put ranch on literally everything. I wonder what Koreans would think!", "미국에서는 단백질 섭취 목표를 쉽게 달성할 수 있을 것 같아요. 이 랜치 드레싱! 미국인들은 거의 모든 것에 랜치를 뿌려요. 한국 사람들이 어떻게 생각할지 궁금하네요!"], ["I introduced my mom to the Yuka app. You scan a product with your phone and it tells you how clean it is — scoring everything based on ingredients and processing.", "제가 엄마한테 Yuka라는 앱을 소개해드렸어요. 휴대폰으로 제품을 스캔하면 그게 얼마나 깨끗한지 알려줘요. 모든 제품에 점수를 매겨줘요."], ["Now it's going to take us twice as long to shop because we're scanning everything! Cinnamon Toast Crunch flavored bacon? Only in America!", "이제 쇼핑하는 데 시간이 두 배로 들겠어요. 모든 걸 스캔하니까요. 시나몬 토스트 크런치 맛 베이컨? 오직 미국에서만 볼 수 있는 거죠!"]], "30": [["I am in New York City during the most magical time of the year. Today I'm going to show you around NYC and the most festive Christmas spots and activities!", "저는 가장 마법 같은 시기에 뉴욕에 와 있어요. 오늘 여러분에게 뉴욕 시내를 구경시켜 드리고 크리스마스 분위기 물씬 나는 장소들과 활동들을 보여드릴 거예요!"], ["We're starting the day at the Union Square Holiday Market. I'm a little hungry, so let's find something to eat. It's peak season in NYC, so everywhere is crowded.", "유니온 스퀘어 홀리데이 마켓에서 하루를 시작할 거예요. 배가 고픈데요. 어서 가서 먹을 것 좀 찾아봐야겠어요. 지금이 뉴욕의 성수기라서 어디를 가든 붐벼요."], ["We are at Bryant Park Holiday Market, which is probably one of the biggest and most famous holiday markets in New York City.", "브라이언트 파크 홀리데이 마켓에 왔어요. 아마도 가장 크고, 뉴욕시에서 가장 유명한 홀리데이 마켓 중 하나일 거예요."], ["I'm glad we saved a bit of our appetite because I can already smell and see so much delicious food! There's also a carousel right behind me.", "배(식욕)를 조금 남겨둔 게 다행이에요. 벌써부터 맛있는 냄새도 나고 음식들도 보이거든요. 제 바로 뒤에는 회전목마도 있어요."], ["When I lived in New York, we went ice skating at Central Park. But this rink is very popular and apparently admission is completely free — you only pay to rent skates!", "제가 뉴욕에 살 때는 센트럴 파크에서 스케이트를 탔었는데, 이 스케이트장도 엄청 인기가 많아요. 알고 보니 입장료가 완전 무료예요. 스케이트 대여료만 내면 되고요!"], ["We made it to Dyker Heights. Certain streets have the biggest and most impressive light displays — but already just the walk there is really nice.", "다이커 하이츠에 도착했어요. 특정 도로에 가장 크고 인상적인 조명 장식이 있다고 해요. 하지만 벌써 걸어가는 길이 너무 좋아요."], ["'Can I get one of the egg nogs and one of the hot chocolates?' This hot chocolate is even better because it's spiked! Cheers everybody! What a magical night in NYC!", "에그노그 하나랑 핫초코 하나 주시겠어요? 이 핫초코는 술이 들어있어서 더 좋아요! 건배, 여러분! 뉴욕에서 정말 마법 같은 밤이에요!"]]}
+var SK='kelly-v1';
+var P={done:{},quizScores:{}};
+var curLesson=null;
+var curTab='script';
+var quizState={};
+var audioURL=null;
+var audioFileName='';
+var audioFiles={};  // n -> File object
+
+function loadAllAudio(inp){
+  var files=Array.prototype.slice.call(inp.files);
+  audioFiles={};
+  files.forEach(function(f){
+    var m=f.name.match(/^(\d+)/);
+    if(m) audioFiles[parseInt(m[1])]=f;
+  });
+  var cnt=Object.keys(audioFiles).length;
+  var btn=document.getElementById('folder-btn');
+  var st=document.getElementById('folder-status');
+  if(btn){
+    btn.innerHTML='✅ 파일 연결됨<input type="file" id="af-multi" accept="audio/*" multiple style="display:none" onchange="loadAllAudio(this)">';
+    btn.classList.add('linked');
+  }
+  if(st) st.textContent=cnt+'개 매칭';
+  toast('✅ '+cnt+'개 오디오 파일 연결됨');
+}
+
+function autoLoadAudio(n){
+  if(!audioFiles[n]) return;
+  var file=audioFiles[n];
+  if(audioURL) URL.revokeObjectURL(audioURL);
+  audioURL=URL.createObjectURL(file);
+  audioFileName=file.name;
+  if(curTab==='audio') renderAudio();
+  var sc=document.getElementById('script-mini-audio');
+  if(sc) sc.innerHTML=audioURL?buildAudioPlayer():'';
+}
+var scriptLang='both';
+var scriptSpeed=1.0;
+var scriptPlaying=-1;
+var scriptIsPlaying=false;
+var scriptStopFlag=false;
+
+function load(){try{var s=localStorage.getItem(SK);if(s)P=JSON.parse(s);}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(P));}catch(e){}}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function speak(text,rate){if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=rate||1.0;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}
+
+function updateHeader(){
+  var done=Object.keys(P.done).filter(function(k){return P.done[k];}).length;
+  var el=document.getElementById('done-count');if(el)el.textContent=done;
+  var bar=document.getElementById('done-bar');if(bar)bar.style.width=Math.round(done/30*100)+'%';
+}
+function buildAudioPlayer(){
+  if(!audioURL)return '';
+  return '<audio controls src="'+audioURL+'" style="width:100%;margin-top:8px;accent-color:var(--navy)"></audio>'+
+    '<div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:4px;text-align:center">▶ '+esc(audioFileName)+'</div>';
+}
+
+// ── LIST ──
+function goList(){
+  document.getElementById('v-list').classList.add('active');
+  document.getElementById('v-lesson').classList.remove('active');
+  renderList();updateHeader();
+}
+function renderList(){
+  var q=(document.getElementById('search').value||'').toLowerCase().trim();
+  var el=document.getElementById('lesson-list');
+  var weeks=[{label:'WEEK 1',lessons:[1,2,3,4,5,6,7,8,9,10]},{label:'WEEK 2',lessons:[11,12,13,14,15,16,17,18,19,20]},{label:'WEEK 3',lessons:[21,22,23,24,25,26,27,28,29,30]}];
+  var html='';
+  weeks.forEach(function(w){
+    var items='';
+    w.lessons.forEach(function(n){
+      var L=LESSONS[n-1];var title=L[1],krtitle=L[2],emoji=L[3];
+      if(q&&!title.toLowerCase().includes(q)&&!krtitle.includes(q))return;
+      var done=!!P.done[n];
+      items+='<div class="lesson-card" onclick="openLesson('+n+')">'+
+        '<div class="lc-num'+(done?' done':'')+'">'+n+'</div>'+
+        '<div class="lc-emoji">'+emoji+'</div>'+
+        '<div class="lc-info"><div class="lc-title">'+esc(title)+'</div><div class="lc-sub">'+esc(krtitle)+' · 단어 '+L[4].length+'개</div></div>'+
+        '<span class="lc-badge '+(done?'done':'todo')+'">'+(done?'완료 ✓':'미완료')+'</span>'+
+        '<span class="lc-arr">›</span></div>';
+    });
+    if(items)html+='<div class="week-section"><div class="week-label">'+w.label+'</div>'+items+'</div>';
+  });
+  if(!html)html='<div style="text-align:center;padding:2rem;color:var(--ink3)">검색 결과 없음</div>';
+  el.innerHTML=html;
+}
+
+// ── LESSON ──
+function openLesson(n){
+  curLesson=n; curTab='script';
+  scriptPlaying=-1; scriptIsPlaying=false; scriptStopFlag=false;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  // reset audio for new lesson
+  if(audioURL){ URL.revokeObjectURL(audioURL); audioURL=null; audioFileName=''; }
+  // auto-load if file is available
+  autoLoadAudio(n);
+  document.getElementById('v-list').classList.remove('active');
+  document.getElementById('v-lesson').classList.add('active');
+  renderLesson();
+  window.scrollTo(0,0);
+}
+
+function renderLesson(){
+  var n=curLesson;
+  var L=LESSONS[n-1];
+  var done=!!P.done[n];
+  var qs=P.quizScores[n];
+  var d=document.getElementById('lesson-detail');
+  d.innerHTML=
+    '<div class="lesson-hdr">'+
+      '<div class="lh-ep">EPISODE '+n+' · '+esc(L[2])+'</div>'+
+      '<div class="lh-title">'+esc(L[1])+'</div>'+
+      '<div class="lh-sub">단어 '+L[4].length+'개 · 퀴즈 '+L[5].length+'문제</div>'+
+      '<div class="lh-emoji">'+L[3]+'</div>'+
+    '</div>'+
+    '<div class="tabs">'+
+      '<button class="tab" data-tab="script" onclick="switchTab(\'script\')">📄 자막</button>'+
+      '<button class="tab" data-tab="audio" onclick="switchTab(\'audio\')">🎵 오디오</button>'+
+      '<button class="tab" data-tab="vocab" onclick="switchTab(\'vocab\')">📖 단어</button>'+
+      '<button class="tab" data-tab="quiz" onclick="switchTab(\'quiz\')">✏️ 퀴즈'+(qs!==undefined?' ('+qs+'%)':'')+'</button>'+
+    '</div>'+
+    '<div id="tab-body"></div>'+
+    '<div class="complete-section">'+
+      '<button class="complete-btn'+(done?' done':'')+'" onclick="toggleDone('+n+')">'+(done?'✓ 완료됨 (클릭하여 해제)':'이 레슨 완료 체크')+'</button>'+
+    '</div>';
+  setActiveTab(curTab);
+  renderTab(curTab);
+}
+
+function setActiveTab(t){
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-tab')===t);
+  });
+}
+function switchTab(t){
+  curTab=t;
+  setActiveTab(t);
+  renderTab(t);
+}
+function renderTab(t){
+  if(t==='script')renderScript();
+  else if(t==='audio')renderAudio();
+  else if(t==='vocab')renderVocab();
+  else if(t==='quiz')renderQuiz();
+}
+
+// ── AUDIO TAB ──
+function renderAudio(){
+  var n=curLesson;
+  var html='<div style="padding:1.2rem 1.4rem">';
+  if(audioURL){
+    html+='<div class="audio-section"><div class="audio-label">레슨 오디오</div>'+
+      '<div style="background:#1a3a5c;border-radius:8px;padding:1rem;">'+buildAudioPlayer()+'</div></div>';
+  } else {
+    html+='<div class="audio-section"><div class="audio-label">레슨 오디오</div>'+
+      '<div class="audio-file-area" onclick="document.getElementById(\'af-inp\').click()">'+
+        '<div class="audio-file-label"><strong>📂 MP3 파일 불러오기</strong>'+n+'__'+esc(LESSONS[n-1][1].replace(/ /g,'_'))+'.mp3<br>클릭하여 로컬 파일 선택</div>'+
+      '</div>'+
+      '<input type="file" id="af-inp" accept="audio/*" style="display:none" onchange="loadAudio(this)">'+
+      '<div class="audio-tip">💡 파일명: '+n+'__'+esc(LESSONS[n-1][1].replace(/ /g,'_'))+'.mp3</div></div>';
+  }
+  if(audioURL){
+    html+='<div style="margin-top:.8rem"><input type="file" id="af-inp" accept="audio/*" style="display:none" onchange="loadAudio(this)">'+
+      '<button class="qbtn" onclick="document.getElementById(\'af-inp\').click()">🔄 다른 파일 선택</button></div>';
+  }
+  html+='</div>';
+  document.getElementById('tab-body').innerHTML=html;
+}
+function loadAudio(inp){
+  var file=inp.files[0];if(!file)return;
+  if(audioURL)URL.revokeObjectURL(audioURL);
+  audioURL=URL.createObjectURL(file);
+  audioFileName=file.name;
+  renderAudio();
+  toast('✅ 오디오 로드됨: '+file.name);
+}
+
+// ── SCRIPT TAB ──
+function renderScript(){
+  var n=curLesson;
+  var lines=SCRIPTS[n]||SCRIPTS[String(n)]||SCRIPTS[""+n];
+  var parts=[];
+  parts.push('<div style="padding:1.2rem 1.4rem">');
+
+  // audio mini-player
+  if(audioURL){
+    parts.push('<div id="script-mini-audio" style="background:#1a3a5c;border-radius:8px;padding:1rem;margin-bottom:1rem;">'+buildAudioPlayer()+'</div>');
+  } else {
+    parts.push('<div id="script-mini-audio" style="background:#f0f3f7;border:1px dashed #dde3ec;border-radius:8px;padding:.6rem 1rem;margin-bottom:1rem;text-align:center;cursor:pointer;font-size:12px;color:#8a9ab0" onclick="switchTab(\'audio\')">📁 오디오 폴더를 연결하면 자동 재생됩니다 — 상단 폴더 버튼을 클릭하세요</div>');
+  }
+
+  // TTS player bar
+  var isPlay=scriptIsPlaying;
+  var pct=lines&&lines.length?Math.round(Math.max(scriptPlaying,0)/lines.length*100):0;
+  var cur=scriptPlaying>=0?(scriptPlaying+1)+'/'+(lines?lines.length:0):'0/'+(lines?lines.length:0);
+  var label=isPlay?'일시정지':(scriptPlaying>=0?'EP'+n+' · '+(scriptPlaying+1)+'번째 문장':'전체 재생 (TTS)');
+  parts.push('<div class="player-bar">');
+  parts.push('<button class="player-btn play" onclick="togglePlay()">'+(isPlay?'⏸':'▶')+'</button>');
+  parts.push('<button class="player-btn stop" onclick="stopPlay()" title="정지">⏹</button>');
+  parts.push('<div class="player-info">');
+  parts.push('<div class="player-title">'+label+'</div>');
+  parts.push('<div class="player-progress"><div class="player-bar-track"><div class="player-bar-fill" style="width:'+pct+'%"></div></div><span class="player-time">'+cur+'</span></div>');
+  parts.push('</div></div>');
+
+  // lang + speed
+  parts.push('<div class="script-controls">');
+  parts.push('<span style="font-size:11px;font-weight:700;color:var(--ink3);letter-spacing:.05em;text-transform:uppercase">자막</span>');
+  var langs=[['en','EN'],['kr','KR'],['both','EN+KR']];
+  langs.forEach(function(lp){
+    parts.push('<button class="script-toggle'+(scriptLang===lp[0]?' active':'')+'" onclick="setScriptLang(\''+lp[0]+'\')">'+lp[1]+'</button>');
+  });
+  parts.push('<span style="flex:1"></span>');
+  [0.5,0.75,1.0,1.25,1.5].forEach(function(s){
+    parts.push('<button class="script-speed'+(scriptSpeed===s?' active':'')+'" onclick="setScriptSpeed('+s+')">'+s+'x</button>');
+  });
+  parts.push('</div>');
+
+  // lines
+  if(!lines||!lines.length){
+    parts.push('<div style="text-align:center;padding:2rem;color:var(--ink3)">자막 준비 중...</div>');
+  } else {
+    lines.forEach(function(line,i){
+      var active=scriptPlaying===i;
+      parts.push('<div class="script-line'+(active?' playing':'')+'" onclick="speakLine('+i+')" id="sl-'+i+'">');
+      parts.push('<div class="sl-num'+(active?' playing':'')+'">'+( i+1)+'</div>');
+      parts.push('<div class="sl-text">');
+      if(scriptLang!=='kr')parts.push('<div class="sl-en">'+esc(line[0])+'</div>');
+      if(scriptLang!=='en')parts.push('<div class="sl-kr">'+esc(line[1])+'</div>');
+      parts.push('</div>');
+      parts.push('<button class="sl-speak" onclick="event.stopPropagation();speakLine('+i+')" title="발음 듣기">🔊</button>');
+      parts.push('</div>');
+    });
+  }
+  parts.push('</div>');
+  document.getElementById('tab-body').innerHTML=parts.join('');
+  if(scriptPlaying>=0){
+    setTimeout(function(){
+      var sl=document.getElementById('sl-'+scriptPlaying);
+      if(sl)sl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },50);
+  }
+}
+
+function setScriptLang(l){scriptLang=l;renderScript();}
+function setScriptSpeed(s){scriptSpeed=s;renderScript();}
+function speakLine(i){
+  var lines=SCRIPTS[String(curLesson)];
+  if(!lines||!lines[i])return;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  scriptPlaying=i;scriptIsPlaying=true;
+  renderScript();
+  var u=new SpeechSynthesisUtterance(lines[i][0]);
+  u.lang='en-US';u.rate=scriptSpeed;
+  u.onend=function(){scriptIsPlaying=false;renderScript();};
+  window.speechSynthesis.speak(u);
+}
+function playAll(){
+  var lines=SCRIPTS[String(curLesson)];if(!lines)return;
+  scriptIsPlaying=true;scriptStopFlag=false;
+  var idx=scriptPlaying>=0?scriptPlaying:0;
+  function next(){
+    if(scriptStopFlag||idx>=lines.length){
+      scriptPlaying=-1;scriptIsPlaying=false;scriptStopFlag=false;
+      if(curTab==='script')renderScript();return;
+    }
+    scriptPlaying=idx;
+    if(curTab==='script')renderScript();
+    var u=new SpeechSynthesisUtterance(lines[idx][0]);
+    u.lang='en-US';u.rate=scriptSpeed;
+    u.onend=function(){idx++;setTimeout(next,350);};
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+function togglePlay(){
+  if(scriptIsPlaying){scriptIsPlaying=false;scriptStopFlag=true;window.speechSynthesis&&window.speechSynthesis.cancel();renderScript();}
+  else{playAll();}
+}
+function stopPlay(){
+  scriptStopFlag=true;scriptIsPlaying=false;scriptPlaying=-1;
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  renderScript();
+}
+
+// ── VOCAB TAB ──
+function renderVocab(){
+  var n=curLesson;var L=LESSONS[n-1];
+  var parts=['<div style="padding:1.2rem 1.4rem">'];
+  L[4].forEach(function(v,i){
+    var word=v[0].replace(/'/g,'');
+    parts.push('<div class="vocab-item" onclick="toggleEx('+i+')">'+
+      '<div class="vi-word">'+esc(v[0])+'</div>'+
+      '<div class="vi-kr">'+esc(v[1])+'</div>'+
+      '<button class="vi-speak" onclick="event.stopPropagation();speak(\''+word+'\','+scriptSpeed+')" title="발음">🔊</button>'+
+    '</div>'+
+    '<div class="vi-ex" id="ex-'+i+'">&ldquo;'+esc(v[2])+'&rdquo;</div>');
+  });
+  parts.push('</div>');
+  document.getElementById('tab-body').innerHTML=parts.join('');
+}
+function toggleEx(i){var ex=document.getElementById('ex-'+i);if(ex)ex.classList.toggle('show');}
+
+// ── QUIZ TAB ──
+function renderQuiz(){
+  var n=curLesson;var L=LESSONS[n-1];var qs=L[5];
+  if(!quizState[n]||quizState[n].done)quizState[n]={idx:0,score:0,done:false,answers:{}};
+  var state=quizState[n];
+  var parts=['<div style="padding:1.2rem 1.4rem">'];
+  if(state.done){
+    var pct=Math.round(state.score/qs.length*100);
+    var stars=pct>=80?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+    var msg=pct>=80?'훌륭합니다! 단어를 잘 기억하고 있어요.':pct>=60?'좋아요! 조금 더 복습해보세요.':'다시 한번 단어를 복습하고 도전해보세요!';
+    parts.push('<div class="quiz-result">'+
+      '<div class="qr-score">'+pct+'%</div>'+
+      '<div class="qr-label">'+state.score+' / '+qs.length+' 정답</div>'+
+      '<div class="qr-stars">'+stars+'</div>'+
+      '<div class="qr-msg">'+msg+'</div>'+
+      '<button class="qbtn primary" onclick="resetQuiz()">다시 풀기</button></div>');
+    P.quizScores[n]=pct;save();
+  } else {
+    var qi=state.idx;var q=qs[qi];
+    var pct2=Math.round(qi/qs.length*100);
+    var answered=state.answers[qi];
+    var inputClass='qc-input'+(answered?(answered.correct?' correct':' wrong'):'');
+    parts.push('<div class="quiz-progress"><div class="qp-bar"><div class="qp-fill" style="width:'+pct2+'%"></div></div><span class="qp-txt">'+qi+' / '+qs.length+'</span></div>');
+    parts.push('<div class="quiz-card">');
+    parts.push('<div class="qc-q">빈칸에 알맞은 단어를 쓰세요</div>');
+    parts.push('<div class="qc-sentence">'+esc(q[0]).replace('___','<em>___</em>')+'</div>');
+    parts.push('<input class="'+inputClass+'" id="q-inp" value="'+(answered?esc(answered.val):'')+'" placeholder="정답 입력..." '+(answered?'disabled':'')+'>');
+    parts.push('<div class="qc-hint">힌트: <strong>'+esc(q[2])+'</strong></div>');
+    parts.push('<div class="qc-btns">');
+    if(answered){
+      parts.push('<button class="qbtn primary" onclick="nextQ()">다음 →</button>');
+      if(!answered.correct)parts.push('<div style="font-size:12px;color:#c0392b;padding:6px 0">정답: <strong>'+esc(q[1])+'</strong></div>');
+    } else {
+      parts.push('<button class="qbtn primary" onclick="checkAnswer()">확인</button>');
+    }
+    parts.push('</div></div>');
+  }
+  parts.push('</div>');
+  document.getElementById('tab-body').innerHTML=parts.join('');
+  if(!quizState[n]||!quizState[n].done){
+    var qi2=quizState[n]?quizState[n].idx:0;
+    if(!quizState[n]||!quizState[n].answers[qi2]){
+      var inp=document.getElementById('q-inp');
+      if(inp){setTimeout(function(){inp.focus();},60);inp.onkeydown=function(e){if(e.keyCode===13)checkAnswer();};}
+    }
+  }
+}
+function checkAnswer(){
+  var n=curLesson;var state=quizState[n];var qi=state.idx;
+  var q=LESSONS[n-1][5][qi];
+  var inp=document.getElementById('q-inp');if(!inp)return;
+  var val=inp.value.trim();
+  var correct=val.toLowerCase()===q[1].toLowerCase();
+  state.answers[qi]={val:val,correct:correct};
+  if(correct)state.score++;
+  renderQuiz();
+}
+function nextQ(){var n=curLesson;var state=quizState[n];state.idx++;if(state.idx>=LESSONS[n-1][5].length)state.done=true;renderQuiz();}
+function resetQuiz(){var n=curLesson;quizState[n]={idx:0,score:0,done:false,answers:{}};renderQuiz();}
+function toggleDone(n){P.done[n]=!P.done[n];save();toast(P.done[n]?'✅ EP'+n+' 완료!':'EP'+n+' 체크 해제');renderLesson();updateHeader();}
+
+// INIT
+load();renderList();updateHeader();
+
+
+function resetQuiz(){var n=curLesson;quizState[n]={idx:0,score:0,done:false,answers:{}};renderQuiz();}
+function toggleDone(n){P.done[n]=!P.done[n];save();toast(P.done[n]?'✅ EP'+n+' 완료!':'EP'+n+' 체크 해제');renderLesson();updateHeader();}
+
+// INIT
+load();renderList();updateHeader();
+
+
+
+
+
+
+</script>
+</body>
+</html>

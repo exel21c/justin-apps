@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Conversation Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0EEE9;--card:#FFFFFF;--card2:#F5F4F0;
+  --ink:#1C1B18;--ink2:#5A5955;--ink3:#9A9990;
+  --border:rgba(0,0,0,0.07);--radius:16px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 20px rgba(0,0,0,0.04);
+}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+#app{max-width:660px;margin:0 auto;background:var(--bg);min-height:100vh}
+
+/* ── NAV ── */
+.nav{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 12px rgba(0,0,0,0.05)}
+.nav-inner{display:flex;align-items:center;padding:0 1rem}
+.nav-brand{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.02em;padding:14px 0;border-right:1px solid var(--border);padding-right:14px;margin-right:4px;white-space:nowrap}
+.nav-tabs{display:flex;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nt{flex:1;min-width:60px;padding:14px 6px;border:none;background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;font-family:inherit;transition:all .15s;white-space:nowrap;position:relative}
+.nt.active{color:var(--ink);border-bottom-color:var(--ink)}
+.nbadge{position:absolute;top:8px;right:2px;background:#EF4444;color:#fff;border-radius:6px;padding:1px 4px;font-size:8px;font-weight:700}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+
+/* ── HOME ── */
+.home-hero{background:var(--ink);color:#fff;padding:1.5rem 1rem 1.2rem;position:relative;overflow:hidden}
+.home-hero::before{content:"💬";position:absolute;right:-10px;bottom:-20px;font-size:110px;opacity:.06}
+.hero-eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.5;margin-bottom:8px;font-weight:600}
+.hero-h1{font-size:26px;font-weight:700;line-height:1.2;margin-bottom:6px}
+.hero-sub{font-size:13px;opacity:.6;line-height:1.6}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:.9rem 1rem;border-bottom:1px solid var(--border)}
+.stat-box{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.65rem .4rem;text-align:center;box-shadow:var(--shadow)}
+.stat-v{font-size:20px;font-weight:700}
+.stat-l{font-size:9px;color:var(--ink3);margin-top:1px;font-weight:500}
+
+/* ── TODAY'S PICK ── */
+.today-card{border-radius:var(--radius);margin:1rem;padding:1.1rem 1.1rem 1rem;color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.today-card::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07);right:-30px;bottom:-30px}
+.today-eyebrow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;font-weight:600;margin-bottom:5px}
+.today-title{font-size:18px;font-weight:700;margin-bottom:4px;line-height:1.2}
+.today-meta{font-size:12px;opacity:.75;margin-bottom:14px}
+.today-btns{display:flex;gap:8px;flex-wrap:wrap}
+.today-btn{padding:7px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap}
+.today-btn:hover{background:rgba(255,255,255,.3)}
+.today-btn.solid{background:rgba(255,255,255,.9);color:var(--ink)}
+.today-btn.solid:hover{background:#fff}
+
+/* ── SECTION CARDS ── */
+.section-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:.4rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem .8rem}
+.topic-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1rem;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);text-align:left;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.topic-card::after{content:"";position:absolute;right:-12px;bottom:-12px;font-size:56px;opacity:.08;line-height:1}
+.topic-card:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,0.1)}
+.tc-emoji{font-size:28px}
+.tc-name{font-size:14px;font-weight:700;color:var(--ink)}
+.tc-meta{font-size:11px;color:var(--ink2)}
+.tc-level{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.05em}
+.tc-bar{height:3px;border-radius:2px;background:var(--card2);overflow:hidden;margin-top:2px}
+.tc-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+
+/* ── TOPIC DETAIL ── */
+.topic-hdr{padding:1rem 1rem .8rem;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.back-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background .15s}
+.back-btn:hover{background:var(--card2)}
+.topic-hdr-info{flex:1}
+.topic-hdr-title{font-size:18px;font-weight:700}
+.topic-hdr-sub{font-size:12px;color:var(--ink2)}
+.dlg-list{padding:.5rem 0}
+.dlg-row{display:flex;align-items:center;gap:12px;padding:13px 1rem;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;text-align:left;width:100%;border-left:none;border-right:none;border-top:none;font-family:inherit}
+.dlg-row:hover{background:#F9F8F5}
+.dlg-num{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.dlg-info{flex:1;min-width:0}
+.dlg-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.dlg-preview{font-size:11px;color:var(--ink3)}
+.dlg-done{font-size:11px;font-weight:700;color:#16A34A;flex-shrink:0}
+
+/* ── CONVERSATION VIEW ── */
+.conv-hdr{background:var(--card);border-bottom:1px solid var(--border)}
+.conv-hdr-top{display:flex;align-items:center;gap:10px;padding:.9rem 1rem .7rem}
+.conv-title{font-size:16px;font-weight:700;flex:1}
+.conv-meta{font-size:11px;color:var(--ink2);padding:0 1rem .8rem;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.pill-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em}
+
+/* ── MODE TABS ── */
+.mode-bar{display:flex;background:var(--card2);margin:0;border-bottom:1px solid var(--border)}
+.mode-tab{flex:1;padding:10px 6px;font-size:11px;font-weight:600;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--ink3);border-bottom:2px solid transparent;transition:all .15s}
+.mode-tab.active{color:var(--ink);border-bottom-color:var(--ink);background:var(--card)}
+
+/* ── DIALOGUE LINES ── */
+.lines-wrap{padding:.8rem 1rem 1.5rem}
+.line-block{margin-bottom:14px;display:flex;flex-direction:column;gap:3px}
+.line-block.A{align-items:flex-start}
+.line-block.B{align-items:flex-end}
+.speaker-tag{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--ink3);margin-bottom:2px;padding:0 4px}
+.bubble{max-width:82%;padding:10px 14px;border-radius:16px;cursor:pointer;transition:transform .1s,box-shadow .15s;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.bubble:hover{transform:scale(1.01);box-shadow:0 2px 10px rgba(0,0,0,0.12)}
+.bubble:active{transform:scale(.98)}
+.bubble.A{background:var(--card);border:1px solid var(--border);border-bottom-left-radius:4px}
+.bubble.B{color:#fff;border-bottom-right-radius:4px}
+.bubble-text{font-size:14px;font-weight:500;line-height:1.5}
+.bubble-ko{font-size:11px;opacity:.65;margin-top:3px;line-height:1.4;display:none}
+.bubble-ko.show{display:block}
+.bubble-icon{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;opacity:0;transition:opacity .15s}
+.bubble.A .bubble-icon{right:-20px}
+.bubble.B .bubble-icon{left:-20px}
+.bubble:hover .bubble-icon{opacity:.5}
+.bubble.speaking{box-shadow:0 0 0 3px rgba(255,255,255,.5) !important}
+.bubble.A.speaking{box-shadow:0 0 0 3px rgba(37,99,235,.3) !important}
+
+/* ── SHADOW MODE ── */
+.shadow-wrap{padding:1rem}
+.shadow-instructions{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--ink2);line-height:1.7}
+.shadow-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;margin-bottom:10px;box-shadow:var(--shadow)}
+.shadow-turn{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink3);margin-bottom:6px}
+.shadow-text{font-size:17px;font-weight:600;line-height:1.5;margin-bottom:10px}
+.shadow-btns{display:flex;gap:8px}
+.sbtn{padding:8px 16px;border-radius:9px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink);transition:all .15s}
+.sbtn:hover{background:var(--card2)}
+.sbtn.primary{border:none;color:#fff}
+.sbtn.primary:hover{opacity:.9}
+.shadow-reveal{font-size:12px;color:var(--ink2);background:var(--card2);border-radius:8px;padding:.6rem .8rem;margin-top:8px;display:none;line-height:1.5}
+.shadow-reveal.show{display:block}
+
+/* ── QUIZ MODE ── */
+.quiz-wrap{padding:1rem}
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;margin-bottom:.8rem;box-shadow:var(--shadow)}
+.qcard-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--ink3);margin-bottom:8px;text-transform:uppercase}
+.qcard-q{font-size:15px;font-weight:600;margin-bottom:12px;line-height:1.5}
+.qcard-q .blank{display:inline-block;border-bottom:2.5px solid;min-width:90px;margin:0 3px;font-size:15px}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qopt{padding:11px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;color:var(--ink);text-align:center;transition:all .15s}
+.qopt:hover:not([disabled]){background:var(--card2);border-color:rgba(0,0,0,.15)}
+.qopt.correct{background:#F0FDF4!important;border-color:#86EFAC!important;color:#16A34A!important;font-weight:700!important}
+.qopt.wrong{background:#FEF2F2!important;border-color:#FCA5A5!important;color:#DC2626!important}
+.qfeedback{font-size:12px;color:var(--ink2);background:var(--card2);border-radius:8px;padding:.6rem .8rem;margin-top:10px;line-height:1.5;display:none}
+.qfeedback.show{display:block}
+.next-btn{width:100%;padding:12px;border-radius:12px;border:none;background:var(--ink);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;transition:opacity .15s;display:none}
+.next-btn.show{display:block}
+.next-btn:hover{opacity:.88}
+.quiz-done{text-align:center;padding:2rem 1rem}
+.qd-score{font-size:52px;font-weight:700;margin-bottom:8px}
+.qd-label{font-size:14px;color:var(--ink2);margin-bottom:4px}
+.qd-xp{font-size:16px;font-weight:700;color:#D97706;margin-bottom:24px}
+
+/* ── VOCAB CARD ── */
+.vocab-wrap{padding:1rem}
+.vcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;box-shadow:var(--shadow)}
+.vcard:hover{background:#F8F7F4}
+.vword{font-size:16px;font-weight:700}
+.vdef{font-size:12px;color:var(--ink2);display:none}
+.vdef.show{display:block}
+.vspeak{font-size:18px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.vspeak:hover{background:var(--card2)}
+
+/* ── PROGRESS VIEW ── */
+.prog-section{padding:1rem}
+.xp-hero{background:var(--ink);color:#fff;border-radius:var(--radius);padding:1.1rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.xp-lv{font-size:10px;opacity:.5;letter-spacing:.1em;font-weight:600;text-transform:uppercase;margin-bottom:4px}
+.xp-val{font-size:26px;font-weight:700;margin-bottom:2px}
+.xp-track{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.xp-fill{height:100%;background:rgba(255,255,255,.8);border-radius:3px;transition:width .6s}
+.xp-sub{font-size:10px;opacity:.45}
+.stat-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.sg2{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:.9rem 1rem;box-shadow:var(--shadow)}
+.sg2-v{font-size:22px;font-weight:700;margin-bottom:2px}
+.sg2-l{font-size:10px;color:var(--ink3)}
+.topic-prog-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.topic-prog-row:last-child{border-bottom:none}
+.tp-label{font-size:13px;font-weight:600;flex:1}
+.tp-count{font-size:12px;color:var(--ink2);white-space:nowrap;margin-right:8px}
+.tp-bar-wrap{width:80px;flex-shrink:0}
+.tp-bar{height:5px;background:var(--card2);border-radius:3px;overflow:hidden}
+.tp-fill{height:100%;border-radius:3px;transition:width .5s}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:14px}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:4px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.bc-b{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:height .5s}
+.bc-l{font-size:8px;color:var(--ink3)}
+.bc-v{font-size:9px;font-weight:600;color:var(--ink2)}
+
+/* ── PLAYER ── */
+.player-bar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:.75rem 1rem;display:flex;align-items:center;gap:10px;box-shadow:0 -4px 20px rgba(0,0,0,0.08)}
+.player-info{flex:1;min-width:0}
+.player-title{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-sub{font-size:10px;color:var(--ink3)}
+.player-btns{display:flex;gap:6px}
+.pbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:background .15s}
+.pbtn:hover{background:var(--card2)}
+.pbtn.play-all{background:var(--ink);border:none;color:#fff}
+.pbtn.play-all:hover{opacity:.88}
+
+/* ── DONE NAV ── */
+.conv-nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-top:1px solid var(--border);background:var(--card)}
+.cnav-btn{padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink);transition:all .15s;display:flex;align-items:center;gap:6px}
+.cnav-btn:hover{background:var(--card2)}
+.cnav-btn.primary{border:none;color:#fff}
+.cnav-btn.primary:hover{opacity:.88}
+
+.empty{text-align:center;padding:2rem;color:var(--ink3);font-size:13px;line-height:1.7}
+
+/* ── SEARCH ── */
+.search-bar{padding:.75rem 1rem;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:53px;z-index:90}
+.search-inner{display:flex;align-items:center;gap:8px;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:0 12px;transition:border-color .15s}
+.search-inner:focus-within{border-color:var(--ink);background:var(--card)}
+.search-icon{font-size:15px;opacity:.4;flex-shrink:0}
+.search-input{flex:1;border:none;background:transparent;font-size:14px;font-family:inherit;color:var(--ink);padding:10px 0;outline:none}
+.search-input::placeholder{color:var(--ink3)}
+.search-clear{font-size:16px;opacity:.4;cursor:pointer;flex-shrink:0;background:none;border:none;padding:0;line-height:1;transition:opacity .15s}
+.search-clear:hover{opacity:.8}
+.search-results{padding:.5rem 0}
+.search-hit-topic{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:.6rem 1rem .3rem}
+.search-hit-row{display:flex;align-items:center;gap:12px;padding:11px 1rem;background:var(--card);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;text-align:left;width:100%;border-left:none;border-right:none;border-top:none;font-family:inherit}
+.search-hit-row:hover{background:#F8F7F4}
+.search-hit-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.search-hit-info{flex:1;min-width:0}
+.search-hit-title{font-size:13px;font-weight:600;color:var(--ink)}
+.search-hit-preview{font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.search-hit-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+mark{background:#FEF08A;border-radius:2px;padding:0 1px}
+</style>
+</head>
+<body>
+<div id="app">
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">Conversation Lab</div>
+    <div class="nav-tabs">
+      <button class="nt active" data-v="home" onclick="go('home')">홈</button>
+      <button class="nt" data-v="topics" onclick="go('topics')">주제</button>
+      <button class="nt" data-v="search" onclick="go('search')">검색</button>
+      <button class="nt" data-v="progress" onclick="go('progress')">현황</button>
+    </div>
+  </div>
+</nav>
+
+<div id="v-home" class="view active"></div>
+<div id="v-topics" class="view"></div>
+<div id="v-topic" class="view"></div>
+<div id="v-conv" class="view"></div>
+<div id="v-search" class="view"></div>
+<div id="v-progress" class="view"></div>
+</div>
+
+<script>
+const TOPICS = {"Daily Life": {"emoji": "☀️", "color": "#2563EB", "level": "Beginner", "dialogues": [{"id": 1, "title": "Where Are You From?", "vocab": ["originally", "hometown", "accent", "miss"], "lines": [["A", "Where are you from?"], ["B", "I'm originally from Korea."], ["A", "How long have you lived here?"], ["B", "About three years now."], ["A", "Do you miss your hometown?"], ["B", "Yes, especially the food!"], ["A", "What food do you miss most?"], ["B", "Korean BBQ. Nothing here compares."], ["A", "I've never tried Korean BBQ."], ["B", "You should. I'll take you sometime."]]}, {"id": 2, "title": "Morning Routine", "vocab": ["alarm", "snooze", "rush", "commute"], "lines": [["A", "What time do you wake up?"], ["B", "I set my alarm for 6:30."], ["A", "Do you hit the snooze button?"], ["B", "Every single morning!"], ["A", "How long is your commute?"], ["B", "About 45 minutes by subway."], ["A", "That's pretty long."], ["B", "I use the time to study English."], ["A", "That's a great idea."], ["B", "I've learned a lot on the subway."]]}, {"id": 3, "title": "Weekend Plans", "vocab": ["plans", "hiking", "catch up", "weather permitting"], "lines": [["A", "Do you have any plans this weekend?"], ["B", "I'm thinking about going hiking."], ["A", "Where do you usually hike?"], ["B", "There's a great trail near the city."], ["A", "How long is the trail?"], ["B", "About five kilometers."], ["A", "That sounds like fun."], ["B", "You should join us!"], ["A", "I'd love to. Weather permitting."], ["B", "The forecast looks great!"]]}, {"id": 4, "title": "A New Neighbor", "vocab": ["neighbor", "welcome", "settle in", "neighborhood"], "lines": [["A", "Hi! I just moved in next door."], ["B", "Welcome to the building!"], ["A", "Thank you. My name is Jenny."], ["B", "Nice to meet you. I'm Tom."], ["A", "How long have you lived here?"], ["B", "Almost two years now."], ["A", "Do you like the neighborhood?"], ["B", "I love it. Very quiet and friendly."], ["A", "Good to know. I was worried."], ["B", "Don't worry. You'll settle in quickly."]]}, {"id": 5, "title": "Talking About the Weather", "vocab": ["forecast", "humidity", "chilly", "clear up"], "lines": [["A", "It's so hot today!"], ["B", "I know. The humidity is terrible."], ["A", "What's the forecast for tomorrow?"], ["B", "It might rain in the afternoon."], ["A", "Will it clear up by the evening?"], ["B", "The app says partly cloudy."], ["A", "I was hoping for sunshine."], ["B", "Maybe Thursday will be better."], ["A", "I'll keep my umbrella handy."], ["B", "Good idea. Better safe than sorry."]]}, {"id": 6, "title": "At the Post Office", "vocab": ["package", "tracking number", "priority", "customs"], "lines": [["A", "I need to send this package to Korea."], ["B", "How would you like to send it?"], ["A", "What are the options?"], ["B", "Standard takes 2 weeks. Priority is 5 days."], ["A", "How much does priority cost?"], ["B", "About $35 for that size."], ["A", "That's fine. Priority please."], ["B", "Does it contain anything fragile?"], ["A", "Just some clothes and snacks."], ["B", "Great. Here's your tracking number."]]}]}, "Eating Out": {"emoji": "🍽️", "color": "#DC2626", "level": "Beginner", "dialogues": [{"id": 1, "title": "Making a Reservation", "vocab": ["reservation", "party", "availability", "confirm"], "lines": [["A", "Hello, I'd like to make a reservation."], ["B", "Of course! For how many people?"], ["A", "A party of four, please."], ["B", "And what date and time?"], ["A", "This Saturday at 7 p.m."], ["B", "Let me check availability."], ["A", "Is there outdoor seating?"], ["B", "Yes, we have a lovely patio."], ["A", "Perfect. We'd prefer outside."], ["B", "Done! Name for the reservation?"]]}, {"id": 2, "title": "Ordering Food", "vocab": ["menu", "special", "medium-rare", "dressing"], "lines": [["A", "Are you ready to order?"], ["B", "Almost. What's the special today?"], ["A", "Grilled salmon with roasted vegetables."], ["B", "That sounds delicious. I'll have that."], ["A", "How would you like the salmon cooked?"], ["B", "Medium, please."], ["A", "And for your salad — what dressing?"], ["B", "Balsamic vinaigrette, please."], ["A", "Excellent choice. Anything to drink?"], ["B", "Just sparkling water, thank you."]]}, {"id": 3, "title": "Splitting the Bill", "vocab": ["bill", "split", "tip", "cash", "credit card"], "lines": [["A", "Could we have the bill, please?"], ["B", "Of course. All together or separately?"], ["A", "Can we split it three ways?"], ["B", "Absolutely. No problem at all."], ["A", "Is service included?"], ["B", "No, service is not included."], ["A", "What tip do you usually leave?"], ["B", "Around 20% is standard here."], ["A", "OK. I'll pay my part by card."], ["B", "We accept all major credit cards."]]}, {"id": 4, "title": "A Complaint", "vocab": ["undercooked", "apologize", "replace", "manager"], "lines": [["A", "Excuse me. There's a problem with my steak."], ["B", "I'm sorry to hear that. What's wrong?"], ["A", "It's undercooked. I ordered medium-well."], ["B", "I apologize. I'll take it back right away."], ["A", "Thank you. I appreciate it."], ["B", "Can I get you anything while you wait?"], ["A", "A glass of water would be great."], ["B", "Of course. I'm so sorry for the trouble."], ["A", "These things happen."], ["B", "Your meal will be on the house tonight."]]}, {"id": 5, "title": "At a Café", "vocab": ["to-go", "dairy-free", "oat milk", "loyalty card"], "lines": [["A", "Welcome! What can I get for you?"], ["B", "I'll have a large latte, please."], ["A", "For here or to go?"], ["B", "To go, please."], ["A", "What kind of milk?"], ["B", "Oat milk, if you have it."], ["A", "We do! Any syrups today?"], ["B", "One pump of vanilla."], ["A", "Do you have a loyalty card?"], ["B", "Yes! This is my eighth visit."]]}, {"id": 6, "title": "At a Specialty Coffee Shop", "vocab": ["single origin", "pour over", "espresso ratio", "tasting notes"], "lines": [["A", "Welcome! Have you been here before?"], ["B", "First time! What do you recommend?"], ["A", "Our Ethiopian single origin pour over is incredible right now."], ["B", "What does it taste like?"], ["A", "Blueberry and jasmine notes. Very bright and floral."], ["B", "That sounds amazing. I'll try it."], ["A", "Hot or iced?"], ["B", "Hot, please. Does it come with milk?"], ["A", "We recommend it black to taste the full profile, but we have oat milk."], ["B", "I'll try it black first. If it's too strong I'll add some."]]}, {"id": 7, "title": "Decoding a Coffee Menu", "vocab": ["macchiato", "flat white", "cortado", "origin"], "lines": [["A", "What's the difference between a latte and a flat white?"], ["B", "A flat white uses less milk and a ristretto shot — it's stronger."], ["A", "What about a cortado?"], ["B", "Equal parts espresso and steamed milk. No foam."], ["A", "I usually get a macchiato. Is that similar?"], ["B", "A traditional macchiato is just espresso with a dot of foam."], ["A", "But the Starbucks version is very different, right?"], ["B", "Very! Theirs is much larger and sweeter."], ["A", "OK — I'll try the flat white."], ["B", "Great choice. Single or double shot?"]]}]}, "Shopping": {"emoji": "🛍️", "color": "#7C3AED", "level": "Beginner", "dialogues": [{"id": 1, "title": "Finding a Size", "vocab": ["fitting room", "size", "exchange", "receipt"], "lines": [["A", "Excuse me. Do you have this in a medium?"], ["B", "Let me check the back for you."], ["A", "I also need to try it on first."], ["B", "The fitting rooms are on your right."], ["A", "How many items can I take in?"], ["B", "Up to six at a time."], ["A", "Great. I'll take these three."], ["B", "Here's your fitting room key."], ["A", "What's your return policy?"], ["B", "30 days with a receipt."]]}, {"id": 2, "title": "Asking About a Sale", "vocab": ["discount", "clearance", "percent off", "original price"], "lines": [["A", "Is this jacket on sale?"], ["B", "Yes! It's 30% off this week."], ["A", "What's the original price?"], ["B", "It was $120. Now it's $84."], ["A", "That's a great deal."], ["B", "We also have a clearance rack in the back."], ["A", "Oh really? What's back there?"], ["B", "Up to 70% off last season's items."], ["A", "I'll definitely take a look."], ["B", "Let me know if you need any help!"]]}, {"id": 3, "title": "Online Shopping Problem", "vocab": ["tracking", "delayed", "refund", "customer service"], "lines": [["A", "I ordered a package two weeks ago."], ["B", "I'm sorry. May I have your order number?"], ["A", "It's 48291-B."], ["B", "I see it here. There was a shipping delay."], ["A", "When will it arrive?"], ["B", "We expect it within 3 more days."], ["A", "That's too long. I need it now."], ["B", "I can offer you a partial refund."], ["A", "How much of a refund?"], ["B", "We'll refund the shipping cost."]]}]}, "Health": {"emoji": "🏥", "color": "#16A34A", "level": "Intermediate", "dialogues": [{"id": 1, "title": "At the Doctor's", "vocab": ["symptoms", "prescription", "diagnose", "follow-up"], "lines": [["A", "What seems to be the problem today?"], ["B", "I've had a sore throat for three days."], ["A", "Any fever or chills?"], ["B", "A slight fever. About 38 degrees."], ["A", "Let me take a look. Open wide."], ["B", "Is it serious?"], ["A", "It looks like a mild infection."], ["B", "Do I need antibiotics?"], ["A", "I'll prescribe a short course."], ["B", "How long until I feel better?"]]}, {"id": 2, "title": "Joining a Gym", "vocab": ["membership", "trial", "equipment", "personal trainer"], "lines": [["A", "I'm thinking about joining a gym."], ["B", "Great! We have a free trial this week."], ["A", "What's included in the membership?"], ["B", "Full access to all equipment and classes."], ["A", "Are personal trainers extra?"], ["B", "Yes, $50 per session."], ["A", "Is there a joining fee?"], ["B", "We're waiving it this month only."], ["A", "How much is the monthly fee?"], ["B", "$35 a month with a 12-month contract."]]}, {"id": 3, "title": "Healthy Habits", "vocab": ["balanced diet", "moderate", "consistent", "portion size"], "lines": [["A", "How do you stay so healthy?"], ["B", "Honestly? Just consistent habits."], ["A", "Like what?"], ["B", "I walk 30 minutes every day."], ["A", "What about your diet?"], ["B", "I try to eat balanced meals."], ["A", "Do you count calories?"], ["B", "No, I just watch my portion sizes."], ["A", "That sounds manageable."], ["B", "Small changes really add up."]]}]}, "Work & Career": {"emoji": "💼", "color": "#B45309", "level": "Intermediate", "dialogues": [{"id": 1, "title": "A Job Interview", "vocab": ["strengths", "weakness", "motivated", "contribute"], "lines": [["A", "Tell me a little about yourself."], ["B", "I have 5 years in logistics and supply chain."], ["A", "Why do you want this position?"], ["B", "I'm passionate about international trade."], ["A", "What's your biggest strength?"], ["B", "I'm very detail-oriented under pressure."], ["A", "And your biggest weakness?"], ["B", "I sometimes take on too much at once."], ["A", "How are you working on that?"], ["B", "I've been learning to delegate more."]]}, {"id": 2, "title": "A Performance Review", "vocab": ["feedback", "target", "exceed", "promotion"], "lines": [["A", "Thanks for coming in. Let's talk about this quarter."], ["B", "Of course. I'm eager to hear your feedback."], ["A", "You exceeded your targets by 15%."], ["B", "Thank you. The team worked really hard."], ["A", "There's one area for improvement."], ["B", "Please be honest. I want to grow."], ["A", "Communication with other departments could be better."], ["B", "I agree. I'll make that a priority."], ["A", "Overall it's a very strong review."], ["B", "Does that mean I'm in line for a promotion?"]]}, {"id": 3, "title": "Working from Home", "vocab": ["remote", "distraction", "productivity", "boundaries"], "lines": [["A", "How do you find working from home?"], ["B", "I love the flexibility, but it's hard to focus."], ["A", "What's your biggest distraction?"], ["B", "My phone, definitely."], ["A", "Have you tried the Pomodoro technique?"], ["B", "What's that?"], ["A", "25 minutes of work, then a 5-minute break."], ["B", "I've heard of it but never tried it."], ["A", "It really helps with productivity."], ["B", "I'll give it a shot tomorrow."]]}, {"id": 4, "title": "A Work Email", "vocab": ["attached", "deadline", "follow up", "cc"], "lines": [["A", "Did you get my email from this morning?"], ["B", "I haven't checked yet. What's it about?"], ["A", "I attached the proposal for the client."], ["B", "Is there a deadline for feedback?"], ["A", "I need comments by Friday."], ["B", "I'll review it this afternoon."], ["A", "Should I cc the manager?"], ["B", "Yes, copy her on all client-related emails."], ["A", "Good to know. Thanks."], ["B", "I'll follow up with her directly too."]]}]}, "Travel": {"emoji": "✈️", "color": "#0891B2", "level": "Intermediate", "dialogues": [{"id": 1, "title": "At the Airport", "vocab": ["check-in", "carry-on", "boarding pass", "gate"], "lines": [["A", "I'm checking in for the 3 p.m. flight to London."], ["B", "May I see your passport, please?"], ["A", "Here you go."], ["B", "Do you have any bags to check?"], ["A", "Just this one suitcase."], ["B", "Any carry-on luggage?"], ["A", "Yes, a backpack under the seat."], ["B", "Would you prefer a window or aisle seat?"], ["A", "Window, please."], ["B", "You're all set. Your gate is B14."]]}, {"id": 2, "title": "Hotel Check-in", "vocab": ["reservation", "floor", "amenities", "checkout"], "lines": [["A", "Good evening. I have a reservation."], ["B", "Your name, please?"], ["A", "Kim, Justin. K-I-M."], ["B", "I see it here. A king room for 3 nights."], ["A", "That's correct."], ["B", "What floor would you prefer?"], ["A", "Higher up if possible. I like the view."], ["B", "I'll put you on the 18th floor."], ["A", "Perfect. What time is checkout?"], ["B", "Noon, but we can arrange a late checkout."]]}, {"id": 3, "title": "Getting Lost", "vocab": ["directions", "landmark", "block", "intersection"], "lines": [["A", "Excuse me. I think I'm a bit lost."], ["B", "Where are you trying to get to?"], ["A", "The natural history museum."], ["B", "You're pretty close! Go straight ahead."], ["A", "For how long?"], ["B", "About two blocks, then turn left."], ["A", "Is there a landmark I should look for?"], ["B", "Yes, there's a big red fountain."], ["A", "After the fountain?"], ["B", "It's the large building on the right."]]}]}, "Small Talk": {"emoji": "💬", "color": "#DB2777", "level": "Beginner", "dialogues": [{"id": 1, "title": "Meeting Someone New", "vocab": ["occupation", "originally", "spare time", "coincidence"], "lines": [["A", "I don't think we've met. I'm Sarah."], ["B", "Hi Sarah! I'm David. Nice to meet you."], ["A", "Are you a friend of Mike's?"], ["B", "We went to university together."], ["A", "What do you do for work, David?"], ["B", "I work in finance. What about you?"], ["A", "I'm a graphic designer."], ["B", "Oh interesting! Do you enjoy it?"], ["A", "Most days! It can be stressful though."], ["B", "Same with finance. We should grab coffee sometime."]]}, {"id": 2, "title": "Talking About Hobbies", "vocab": ["pastime", "lately", "pick up", "beginner"], "lines": [["A", "What do you like to do in your free time?"], ["B", "I've been getting into photography lately."], ["A", "That's cool. What kind of photos?"], ["B", "Mostly street photography and portraits."], ["A", "How long have you been doing it?"], ["B", "Only about six months. I'm still learning."], ["A", "Do you have a good camera?"], ["B", "I started with just my phone."], ["A", "The best camera is the one you have!"], ["B", "Exactly. That's what everyone says."]]}, {"id": 3, "title": "Talking About Movies", "vocab": ["plot", "recommend", "sequel", "overrated"], "lines": [["A", "Have you seen any good films recently?"], ["B", "Yes! I watched a great thriller last night."], ["A", "Oh? What was it called?"], ["B", "The Silent Hour. Have you seen it?"], ["A", "Not yet. Is it good?"], ["B", "The plot is incredible. Very suspenseful."], ["A", "Is it in English?"], ["B", "It's a French film with subtitles."], ["A", "I don't mind subtitles. I'll watch it."], ["B", "You won't regret it. I promise."]]}, {"id": 4, "title": "Talking About Food", "vocab": ["cuisine", "spicy", "try out", "comfort food"], "lines": [["A", "What's your favorite type of food?"], ["B", "Honestly, I could eat Korean food every day."], ["A", "What do you like about it?"], ["B", "The flavors are so bold and complex."], ["A", "Do you like spicy food?"], ["B", "I love it! The spicier the better."], ["A", "Have you tried authentic kimchi?"], ["B", "Many times! I even make it at home."], ["A", "You make your own kimchi?"], ["B", "It's easier than people think."]]}]}, "Technology": {"emoji": "💻", "color": "#374151", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Smartphone Problems", "vocab": ["update", "storage", "backup", "factory reset"], "lines": [["A", "My phone keeps freezing. Any ideas?"], ["B", "When did you last update the software?"], ["A", "I'm not sure. Maybe a year ago."], ["B", "That could be the problem."], ["A", "How do I update it?"], ["B", "Go to Settings, then General, then Software Update."], ["A", "It says I'm out of storage."], ["B", "You'll need to delete some files first."], ["A", "What if that doesn't help?"], ["B", "Last resort is a factory reset."]]}, {"id": 2, "title": "Learning Online", "vocab": ["platform", "subscription", "certificate", "self-paced"], "lines": [["A", "I want to learn coding. Where do I start?"], ["B", "Have you tried any online platforms?"], ["A", "Like what?"], ["B", "Coursera, Udemy, or freeCodeCamp."], ["A", "Are they expensive?"], ["B", "freeCodeCamp is completely free."], ["A", "Do you get a certificate?"], ["B", "Yes, after you finish the projects."], ["A", "Is it self-paced?"], ["B", "Yes, you go at your own speed."]]}]}, "School & College": {"emoji": "🎓", "color": "#2563EB", "level": "Beginner", "dialogues": [{"id": 1, "title": "First Day of Class", "vocab": ["syllabus", "attendance", "credit", "semester"], "lines": [["A", "Is this seat taken?"], ["B", "No, go ahead!"], ["A", "Thanks. Is this Professor Kim's class?"], ["B", "Yes. Did you get the syllabus?"], ["A", "Not yet. Is it on the class website?"], ["B", "Yes, he posted it this morning."], ["A", "How many credits is this course?"], ["B", "Three credits. It meets twice a week."], ["A", "Is attendance mandatory?"], ["B", "Yes. More than three absences and you fail."]]}, {"id": 2, "title": "Study Group", "vocab": ["deadline", "outline", "midterm", "campus library"], "lines": [["A", "Are you free to study tonight?"], ["B", "I have work until 7. After that, yes."], ["A", "The midterm is on Thursday."], ["B", "I know. I haven't even started the outline."], ["A", "Should we meet at the campus library?"], ["B", "Good idea. The third floor is usually quiet."], ["A", "Do you understand Chapter 4?"], ["B", "Not really. It's confusing."], ["A", "I'll explain what I know."], ["B", "That would be a huge help. Thanks."]]}, {"id": 3, "title": "Talking to a Professor", "vocab": ["office hours", "grade", "assignment", "extension"], "lines": [["A", "Professor, do you have a minute?"], ["B", "Of course. Come in and sit down."], ["A", "I wanted to ask about my last assignment."], ["B", "You got a C+. The analysis was too brief."], ["A", "I thought I covered all the main points."], ["B", "You needed more supporting evidence."], ["A", "Is there anything I can do to improve?"], ["B", "Rewrite it and I'll consider the new grade."], ["A", "Can I have until Friday?"], ["B", "That's fine. Email it to me by 5 p.m."]]}, {"id": 4, "title": "Transferring Credits", "vocab": ["transcript", "transfer", "equivalent", "registrar"], "lines": [["A", "I'm transferring from another university."], ["B", "Welcome! How can I help you today?"], ["A", "I need to know if my credits will transfer."], ["B", "Do you have your official transcript?"], ["A", "Yes, I have it right here."], ["B", "Let me check which courses are equivalent."], ["A", "I'm worried about my science credits."], ["B", "Those usually transfer without any problem."], ["A", "What about the ones that don't transfer?"], ["B", "You'd need to retake those here."]]}, {"id": 5, "title": "At the Library", "vocab": ["due date", "overdue", "reserve", "research database"], "lines": [["A", "Excuse me, how do I find academic journals?"], ["B", "You can access them through our online database."], ["A", "Do I need a student ID?"], ["B", "Yes, log in with your student number."], ["A", "Can I check out physical books too?"], ["B", "Up to ten books for two weeks."], ["A", "What happens if I return them late?"], ["B", "There's a small fine per day."], ["A", "Can I renew them online?"], ["B", "Yes, up to three times unless someone reserved it."]]}, {"id": 6, "title": "Campus Life", "vocab": ["dormitory", "roommate", "meal plan", "orientation"], "lines": [["A", "How are you finding campus life?"], ["B", "It's great but my roommate is loud."], ["A", "Have you talked to him about it?"], ["B", "Not yet. I don't want to cause tension."], ["A", "You should say something soon."], ["B", "You're right. How do I bring it up?"], ["A", "Be direct but friendly. Use 'I feel' statements."], ["B", "Like 'I feel tired when I can't sleep'?"], ["A", "Exactly. Keep it about you, not his fault."], ["B", "OK. I'll try tonight after dinner."]]}]}, "Banking & Finance": {"emoji": "🏦", "color": "#374151", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Opening an Account", "vocab": ["checking account", "minimum balance", "direct deposit", "overdraft"], "lines": [["A", "I'd like to open a checking account."], ["B", "Of course. Do you have your ID?"], ["A", "Here's my passport and utility bill."], ["B", "Perfect. Is there a minimum balance?"], ["A", "No minimum for our basic account."], ["B", "Great. Can I set up direct deposit?"], ["A", "Yes, here's our routing number."], ["B", "What happens if I overdraft?"], ["A", "There's a $35 fee per overdraft."], ["B", "Can I link a savings account as backup?"]]}, {"id": 2, "title": "Disputing a Charge", "vocab": ["unauthorized", "dispute", "statement", "fraudulent"], "lines": [["A", "I'd like to report an unauthorized charge."], ["B", "I'm sorry to hear that. What's the amount?"], ["A", "$189 to a store I've never shopped at."], ["B", "When did this appear on your statement?"], ["A", "Three days ago. I noticed it this morning."], ["B", "I'll flag this as potentially fraudulent."], ["A", "Will I get my money back?"], ["B", "If confirmed, yes — usually within 5 business days."], ["A", "Should I cancel my card?"], ["B", "I recommend it. I'll issue a new one today."]]}, {"id": 3, "title": "Applying for a Loan", "vocab": ["credit score", "collateral", "interest rate", "repayment"], "lines": [["A", "I'm interested in a personal loan."], ["B", "What amount did you have in mind?"], ["A", "Around $10,000 for home improvements."], ["B", "Do you know your current credit score?"], ["A", "It's about 720. Is that good?"], ["B", "That's solid. You'll qualify for a good rate."], ["A", "What's the current interest rate?"], ["B", "Around 8% for a 3-year term."], ["A", "What documents do I need?"], ["B", "Pay stubs, tax returns, and a bank statement."]]}, {"id": 4, "title": "Using the ATM", "vocab": ["PIN", "withdrawal limit", "transaction", "balance inquiry"], "lines": [["A", "Can I use any ATM with this card?"], ["B", "Yes, but there's a fee for out-of-network ATMs."], ["A", "How much is the fee?"], ["B", "Usually $3 per transaction."], ["A", "Is there a daily withdrawal limit?"], ["B", "$500 per day for standard accounts."], ["A", "What if I need more than that?"], ["B", "You can call us to request a temporary increase."], ["A", "Can I check my balance at the ATM?"], ["B", "Yes, balance inquiries are always free."]]}]}, "Driving & Transportation": {"emoji": "🚗", "color": "#059669", "level": "Beginner", "dialogues": [{"id": 1, "title": "Getting a Driver's License", "vocab": ["written test", "road test", "parallel parking", "DMV"], "lines": [["A", "I need to get my driver's license."], ["B", "Have you studied for the written test?"], ["A", "I've been reading the manual online."], ["B", "The multiple choice part is pretty easy."], ["A", "What about the road test?"], ["B", "Parallel parking is the hardest part."], ["A", "I've been practicing in an empty lot."], ["B", "That's the best way to learn."], ["A", "How long does the whole process take?"], ["B", "About two hours if there's no line."]]}, {"id": 2, "title": "At the Gas Station", "vocab": ["unleaded", "fill up", "gas cap", "mileage"], "lines": [["A", "Do you know where the nearest gas station is?"], ["B", "There's one two blocks north."], ["A", "Is it full-service or self-service?"], ["B", "Self-service. It's pretty straightforward."], ["A", "What grade of gas should I use?"], ["B", "Check your owner's manual. Usually regular unleaded."], ["A", "How do I start the pump?"], ["B", "Insert your card, select your grade, and lift the nozzle."], ["A", "Do I pay before or after?"], ["B", "You authorize before, then it charges the exact amount."]]}, {"id": 3, "title": "Getting Pulled Over", "vocab": ["registration", "insurance", "officer", "violation"], "lines": [["A", "I see the lights flashing. What do I do?"], ["B", "Pull over safely to the right."], ["A", "Should I get my documents ready?"], ["B", "Wait until the officer asks. Keep hands visible."], ["A", "Good morning, officer."], ["B", "Good morning. Do you know why I stopped you?"], ["A", "I'm not sure. Was I speeding?"], ["B", "You were doing 45 in a 30 zone."], ["A", "I'm very sorry. I didn't notice the sign."], ["B", "License, registration, and proof of insurance please."]]}, {"id": 4, "title": "Taking the Bus", "vocab": ["route", "transfer", "bus pass", "schedule"], "lines": [["A", "Excuse me, does this bus go downtown?"], ["B", "No, you need the number 12."], ["A", "Where can I catch that?"], ["B", "One block east, across the street."], ["A", "How often does it run?"], ["B", "Every 15 minutes during rush hour."], ["A", "Can I use my bus pass?"], ["B", "Yes, all city buses accept it."], ["A", "Do I need to transfer?"], ["B", "No, it goes straight downtown. About 20 minutes."]]}, {"id": 5, "title": "Car Trouble", "vocab": ["flat tire", "spare tire", "tow truck", "roadside assistance"], "lines": [["A", "Oh no. I think I have a flat tire."], ["B", "Pull over slowly. Don't brake hard."], ["A", "Do you have a spare?"], ["B", "In the trunk, but I don't know how to change it."], ["A", "Do you have roadside assistance?"], ["B", "I think so. Let me check my insurance card."], ["A", "Call them first. It's safer than doing it yourself."], ["B", "Good idea. How long do they usually take?"], ["A", "Usually 30 to 45 minutes."], ["B", "I'll call now. Thank you so much."]]}]}, "Dating & Social Life": {"emoji": "❤️", "color": "#DB2777", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Asking Someone Out", "vocab": ["ask out", "coffee date", "nervous", "casual"], "lines": [["A", "Hey, I've been meaning to ask you something."], ["B", "Sure, what's up?"], ["A", "Would you like to get coffee sometime?"], ["B", "Like, just the two of us?"], ["A", "Yes, if that's OK with you."], ["B", "That sounds really nice actually."], ["A", "How about this Saturday morning?"], ["B", "Saturday works. What time?"], ["A", "10 a.m.? I know a great place downtown."], ["B", "Perfect. I'll see you then!"]]}, {"id": 2, "title": "A First Date", "vocab": ["connection", "nervous", "in common", "awkward"], "lines": [["A", "I'm so glad you suggested this place."], ["B", "I love the atmosphere here."], ["A", "So, what do you do for fun?"], ["B", "I hike a lot and I love cooking."], ["A", "I hike too! Which trails do you like?"], ["B", "The one along the river is my favorite."], ["A", "I've been there! It's beautiful."], ["B", "Maybe we could go together sometime."], ["A", "I'd really like that."], ["B", "Me too. I feel like we have a lot in common."]]}, {"id": 3, "title": "Meeting a Friend's Partner", "vocab": ["first impression", "make an effort", "hit it off", "nervous"], "lines": [["A", "I'm so excited for you to meet Tom."], ["B", "I'm a little nervous honestly."], ["A", "Don't be! He's so easy to talk to."], ["B", "What should I talk to him about?"], ["A", "He loves football and Korean food."], ["B", "Oh! I know a lot about both of those."], ["A", "Perfect. You'll hit it off for sure."], ["B", "I hope so. You two seem really happy."], ["A", "We are. He's really special."], ["B", "I can tell. You're glowing!"]]}, {"id": 4, "title": "A Misunderstanding", "vocab": ["miscommunication", "apologize", "overreact", "perspective"], "lines": [["A", "Are you upset with me?"], ["B", "A little. You canceled our plans again."], ["A", "I had a work emergency. I'm really sorry."], ["B", "You could have at least texted."], ["A", "You're right. That was inconsiderate."], ["B", "I just felt like I wasn't a priority."], ["A", "That's not how I feel at all. You are."], ["B", "I know. I think I overreacted a bit."], ["A", "No, your feelings are valid."], ["B", "Can we just start over?"]]}]}, "Housing & Apartments": {"emoji": "🏠", "color": "#7C3AED", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Renting an Apartment", "vocab": ["lease", "security deposit", "utilities", "landlord"], "lines": [["A", "I'm interested in the one-bedroom apartment."], ["B", "It's available from the first of next month."], ["A", "What's the monthly rent?"], ["B", "$1,200, not including utilities."], ["A", "Is there a security deposit?"], ["B", "One month's rent upfront."], ["A", "How long is the lease?"], ["B", "12 months minimum."], ["A", "Is there parking included?"], ["B", "One assigned space in the underground lot."]]}, {"id": 2, "title": "Reporting a Maintenance Issue", "vocab": ["maintenance", "leaking", "repair", "urgent"], "lines": [["A", "Hello, I need to report a maintenance issue."], ["B", "Of course. What's the problem?"], ["A", "My kitchen faucet has been leaking for two days."], ["B", "Is it a slow drip or a significant leak?"], ["A", "Water is pooling under the sink."], ["B", "That's urgent. Can someone come today?"], ["A", "I can send someone this afternoon."], ["B", "That would be great."], ["A", "Between 2 and 4 p.m. — will you be home?"], ["B", "Yes, I work from home. That's fine."]]}, {"id": 3, "title": "Moving Out", "vocab": ["notice", "walkthrough", "deductions", "move-out date"], "lines": [["A", "I'd like to give notice that I'm moving out."], ["B", "How much notice does your lease require?"], ["A", "30 days. I'm giving it now for next month."], ["B", "We'll need to schedule a walkthrough."], ["A", "When do you usually do that?"], ["B", "A week before your move-out date."], ["A", "Will I get my security deposit back?"], ["B", "Within 21 days after you return the keys."], ["A", "Are there any standard deductions?"], ["B", "Only if there's damage beyond normal wear."]]}, {"id": 4, "title": "Noisy Neighbors", "vocab": ["complaint", "noise ordinance", "reasonable hours", "resolution"], "lines": [["A", "I need to talk to you about something."], ["B", "Sure, is everything OK?"], ["A", "Your music is very loud at night."], ["B", "I'm so sorry. I didn't realize."], ["A", "It's been going on most weekends."], ["B", "I usually have people over on Saturdays."], ["A", "After midnight it becomes difficult to sleep."], ["B", "I completely understand. I'll turn it down."], ["A", "Thank you. I really appreciate it."], ["B", "Sorry for the trouble. Won't happen again."]]}]}, "Employment & Jobs": {"emoji": "💼", "color": "#B45309", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Applying for a Job", "vocab": ["resume", "cover letter", "position", "qualifications"], "lines": [["A", "I'd like to apply for the sales position."], ["B", "Have you submitted your resume online?"], ["A", "Yes, I uploaded it this morning."], ["B", "Did you include a cover letter?"], ["A", "Yes, I tailored it to your company."], ["B", "Great. We'll review it within a week."], ["A", "Is there anything else you need?"], ["B", "References would be helpful."], ["A", "I have three professional references ready."], ["B", "Perfect. We'll be in touch soon."]]}, {"id": 2, "title": "Calling in Sick", "vocab": ["sick day", "symptoms", "cover", "workload"], "lines": [["A", "Hi, this is Jenny. I'm not feeling well today."], ["B", "I'm sorry to hear that. What's wrong?"], ["A", "I have a fever and a sore throat."], ["B", "You should definitely stay home."], ["A", "I'm worried about the deadline today."], ["B", "Don't worry. I'll cover your client calls."], ["A", "Are you sure? I don't want to burden you."], ["B", "Not at all. Rest and get better."], ["A", "Thank you so much. I'll check email if needed."], ["B", "Please don't. Just rest. See you tomorrow."]]}, {"id": 3, "title": "Asking for a Raise", "vocab": ["salary", "market rate", "performance", "negotiate"], "lines": [["A", "I was hoping we could discuss my salary."], ["B", "Of course. Have a seat."], ["A", "I've been here two years with strong reviews."], ["B", "Yes, your performance has been excellent."], ["A", "I've researched the market rate for my role."], ["B", "What figure did you have in mind?"], ["A", "I'm currently at $55,000. I was hoping for $62,000."], ["B", "That's a significant jump. Let me think about it."], ["A", "I understand. I believe I've earned it."], ["B", "Let me discuss with HR and get back to you by Friday."]]}, {"id": 4, "title": "Resigning Professionally", "vocab": ["two weeks notice", "transition", "grateful", "opportunity"], "lines": [["A", "Do you have a moment? I have something to share."], ["B", "Of course. Close the door."], ["A", "I've decided to move on to another opportunity."], ["B", "I see. I appreciate you telling me directly."], ["A", "I'm giving two weeks' notice as agreed."], ["B", "That's very professional. Thank you."], ["A", "I want to make the transition as smooth as possible."], ["B", "We'll work together on the handover."], ["A", "I'm truly grateful for everything I've learned here."], ["B", "We'll miss you. Best of luck."]]}, {"id": 5, "title": "Dealing with Unemployment", "vocab": ["unemployment benefits", "file a claim", "layoff", "job search"], "lines": [["A", "I was laid off last week. What are my options?"], ["B", "I'm sorry. Have you filed for unemployment?"], ["A", "Not yet. How do I do that?"], ["B", "You file a claim online at the state website."], ["A", "How much will I receive?"], ["B", "Usually around 60% of your previous salary."], ["A", "For how long?"], ["B", "Up to 26 weeks in most states."], ["A", "Should I also start job searching immediately?"], ["B", "Yes. Most people find something within 3 months."]]}]}, "At a Restaurant": {"emoji": "🍽️", "color": "#DC2626", "level": "Beginner", "dialogues": [{"id": 1, "title": "Getting a Table", "vocab": ["reservation", "wait time", "seating", "host"], "lines": [["A", "Good evening! Do you have a reservation?"], ["B", "No, we don't. Is that OK?"], ["A", "Of course! Party of how many?"], ["B", "Just two people."], ["A", "It'll be about a 15-minute wait."], ["B", "That's fine. Can we wait at the bar?"], ["A", "Absolutely. Can I get your name?"], ["B", "Kim. K-I-M."], ["A", "Perfect. We'll come find you when your table is ready."], ["B", "Thank you so much."]]}, {"id": 2, "title": "The Menu", "vocab": ["special", "dietary restriction", "gluten-free", "vegan"], "lines": [["A", "Are you ready to hear the specials tonight?"], ["B", "Yes, please!"], ["A", "We have pan-seared halibut and a mushroom risotto."], ["B", "The risotto sounds wonderful."], ["A", "It's one of our most popular dishes."], ["B", "Is it vegan?"], ["A", "It contains parmesan cheese, but we can omit it."], ["B", "That would be great."], ["A", "Any other dietary restrictions?"], ["B", "No gluten please. I have an intolerance."]]}, {"id": 3, "title": "Sending Food Back", "vocab": ["undercooked", "allergic", "substitute", "chef"], "lines": [["A", "Excuse me, I'm sorry to bother you."], ["B", "Not at all! Is everything OK?"], ["A", "My pasta seems to have bacon in it."], ["B", "Oh no. Did you mention you're vegetarian?"], ["A", "I said no meat when I ordered."], ["B", "I'm so sorry. Let me take it back to the kitchen."], ["A", "Is it possible to get a different dish?"], ["B", "Absolutely. What would you like instead?"], ["A", "The mushroom dish would be great."], ["B", "I'll put that in right away, and your meal is on us."]]}, {"id": 4, "title": "Tipping and Paying", "vocab": ["bill", "gratuity", "split", "cash back"], "lines": [["A", "We're ready for the check whenever you are."], ["B", "Of course! Did you want it together or separate?"], ["A", "Together please. We'll split it."], ["B", "Here you go. Take your time."], ["A", "Is gratuity included?"], ["B", "No, it's not included for parties under six."], ["A", "What's a standard tip here?"], ["B", "Most guests leave 18 to 20 percent."], ["A", "OK. Can we pay part cash, part card?"], ["B", "No problem at all. Just let me know the split."]]}]}, "Sports & Fitness": {"emoji": "⚽", "color": "#0891B2", "level": "Beginner", "dialogues": [{"id": 1, "title": "Joining a Sports Team", "vocab": ["tryout", "practice schedule", "position", "commitment"], "lines": [["A", "I heard the soccer team is looking for players."], ["B", "Yes! Tryouts are next Saturday."], ["A", "What do I need to bring?"], ["B", "Cleats, shin guards, and plenty of water."], ["A", "What positions are you looking to fill?"], ["B", "We need a midfielder and a goalkeeper."], ["A", "I usually play midfield."], ["B", "Perfect. Have you played at this level before?"], ["A", "I played in college for two years."], ["B", "That's great experience. We'll see you Saturday."]]}, {"id": 2, "title": "Watching a Game", "vocab": ["halftime", "overtime", "foul", "penalty kick"], "lines": [["A", "This game is so intense!"], ["B", "I know! It's been 0-0 since the first half."], ["A", "Did you see that foul?"], ["B", "That should have been a red card."], ["A", "The referee is having a tough game."], ["B", "Both teams are playing so defensively."], ["A", "If it goes to overtime, I might not last!"], ["B", "The winner gets a spot in the finals."], ["A", "That explains the tension."], ["B", "I can't watch! Someone score already!"]]}, {"id": 3, "title": "At the Gym", "vocab": ["warm-up", "personal trainer", "reps", "cool down"], "lines": [["A", "Is this machine taken?"], ["B", "No, go ahead. I just finished."], ["A", "How many sets do you usually do?"], ["B", "Three sets of twelve for upper body."], ["A", "Do you work with a trainer?"], ["B", "I did at first. Now I go solo."], ["A", "I'm thinking about getting one."], ["B", "It's worth it for the first few months."], ["A", "Did it make a big difference?"], ["B", "Absolutely. I learned proper form and avoided injury."]]}]}, "Nature & Environment": {"emoji": "🌿", "color": "#16A34A", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Going Hiking", "vocab": ["trail", "elevation", "gear", "wildlife"], "lines": [["A", "Have you ever hiked the mountain trail?"], ["B", "Once, last spring. It was stunning."], ["A", "Is it difficult?"], ["B", "Moderate. The elevation gain is about 1,200 feet."], ["A", "What gear do you recommend?"], ["B", "Good boots, trekking poles, and layers."], ["A", "What about wildlife?"], ["B", "There are deer and sometimes black bears."], ["A", "Should I bring bear spray?"], ["B", "It's a good precaution. Better safe than sorry."]]}, {"id": 2, "title": "Climate and Weather", "vocab": ["climate change", "carbon footprint", "drought", "renewable energy"], "lines": [["A", "This summer has been the hottest I remember."], ["B", "It's part of a long-term warming trend."], ["A", "Do you think climate change is real?"], ["B", "The science is very clear that it is."], ["A", "What can regular people do about it?"], ["B", "Reduce energy use, eat less meat, take transit."], ["A", "Does one person really make a difference?"], ["B", "Collectively, yes. Every action adds up."], ["A", "I've been thinking about getting solar panels."], ["B", "That would make a significant difference."]]}, {"id": 3, "title": "Recycling and Sustainability", "vocab": ["recycle", "compost", "single-use", "biodegradable"], "lines": [["A", "What goes in the green bin again?"], ["B", "Food scraps, cardboard, garden waste."], ["A", "Can I put pizza boxes in there?"], ["B", "Only if they're not too greasy."], ["A", "What about plastic bottles?"], ["B", "Those go in the blue recycling bin."], ["A", "I always mix those up."], ["B", "Just remember: green for organic, blue for recyclables."], ["A", "What can I do to reduce my waste overall?"], ["B", "Bring reusable bags and avoid single-use plastics."]]}]}, "Socializing & Making Friends": {"emoji": "🤝", "color": "#BE185D", "level": "Beginner", "dialogues": [{"id": 1, "title": "At a Party", "vocab": ["introduce", "mutual friend", "in common", "mingling"], "lines": [["A", "Hi! I don't think we've met. I'm Alex."], ["B", "Nice to meet you! I'm Mia."], ["A", "How do you know the host?"], ["B", "We went to the same high school."], ["A", "What a small world! What do you do?"], ["B", "I'm a nurse. And you?"], ["A", "I work in marketing."], ["B", "Oh interesting! Do you enjoy it?"], ["A", "Most days! Do you live nearby?"], ["B", "About 10 minutes away. You?"]]}, {"id": 2, "title": "Keeping in Touch", "vocab": ["catch up", "stay in touch", "social media", "check in"], "lines": [["A", "I can't believe it's been two years!"], ["B", "I know! You look exactly the same."], ["A", "How have you been?"], ["B", "Really well! I changed jobs last year."], ["A", "Oh? Where are you working now?"], ["B", "A tech startup downtown. It's exciting."], ["A", "We need to catch up properly."], ["B", "Yes! Let's make plans this time."], ["A", "How about dinner next week?"], ["B", "I'm in. Just text me the details."]]}, {"id": 3, "title": "Making Plans", "vocab": ["available", "check calendar", "confirm", "cancel"], "lines": [["A", "Are you free this weekend?"], ["B", "Saturday I'm busy. Sunday should be OK."], ["A", "Shall we go to that new Korean BBQ place?"], ["B", "I've been wanting to try that!"], ["A", "Sunday at 7 p.m.?"], ["B", "Let me check my calendar… Yes, that works!"], ["A", "Should I make a reservation?"], ["B", "Probably a good idea. It's popular."], ["A", "I'll book it now and send you the details."], ["B", "Perfect. Looking forward to it!"]]}]}, "Health & Medical": {"emoji": "🏥", "color": "#DC2626", "level": "Intermediate", "dialogues": [{"id": 1, "title": "At the Pharmacy", "vocab": ["prescription", "dosage", "side effects", "refill"], "lines": [["A", "I'd like to pick up a prescription."], ["B", "Last name and date of birth, please?"], ["A", "Kim, Justin. April 15th."], ["B", "I see two prescriptions here. Which one?"], ["A", "The antibiotic from Dr. Park."], ["B", "Got it. Take one tablet twice daily."], ["A", "With food or without?"], ["B", "With food to avoid stomach upset."], ["A", "Are there any side effects?"], ["B", "Some people experience nausea. Drink plenty of water."]]}, {"id": 2, "title": "Making a Doctor's Appointment", "vocab": ["availability", "symptoms", "urgent care", "referral"], "lines": [["A", "Hello, I'd like to schedule an appointment."], ["B", "Is this for a new patient or existing?"], ["A", "Existing. I've been coming here for two years."], ["B", "What's the reason for your visit?"], ["A", "I've had a persistent cough for two weeks."], ["B", "Is it worse at night or during the day?"], ["A", "Mostly at night. It's disrupting my sleep."], ["B", "Dr. Kim has availability Thursday at 10 a.m."], ["A", "That works perfectly."], ["B", "We'll send a reminder the day before."]]}, {"id": 3, "title": "Health Insurance", "vocab": ["deductible", "copay", "coverage", "claim"], "lines": [["A", "I need to understand my health insurance better."], ["B", "Of course. What's your main question?"], ["A", "What's a deductible exactly?"], ["B", "It's the amount you pay before insurance kicks in."], ["A", "So mine is $1,000?"], ["B", "Yes. After that, you pay a copay per visit."], ["A", "What's my copay for a specialist?"], ["B", "$40 per specialist visit."], ["A", "Is this hospital in my network?"], ["B", "Yes, all of our contracted hospitals are covered at 80%."]]}, {"id": 4, "title": "Mental Health Check-in", "vocab": ["therapy", "anxiety", "burnout", "self-care"], "lines": [["A", "Have you been feeling OK lately?"], ["B", "Honestly? A bit burned out."], ["A", "What's been going on?"], ["B", "Work has been relentless for three months."], ["A", "Have you considered talking to someone?"], ["B", "Like a therapist? I've thought about it."], ["A", "It doesn't mean something is wrong with you."], ["B", "I know, but there's still a stigma."], ["A", "More people do it than you think."], ["B", "Maybe I'll look into it. Thank you for asking."]]}]}, "Travel & Hotels": {"emoji": "✈️", "color": "#2563EB", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Booking a Flight", "vocab": ["itinerary", "layover", "direct flight", "carry-on"], "lines": [["A", "I need to fly to New York next week."], ["B", "Are you flexible on dates?"], ["A", "I need to arrive by Thursday evening."], ["B", "There's a direct flight Wednesday at 6 p.m."], ["A", "How long is the flight?"], ["B", "About 5 hours from Los Angeles."], ["A", "Is there a cheaper option with a layover?"], ["B", "Yes, $180 less with a stop in Dallas."], ["A", "How long is the layover?"], ["B", "2 hours. Should be enough time."]]}, {"id": 2, "title": "Hotel Amenities", "vocab": ["concierge", "valet", "room service", "checkout time"], "lines": [["A", "Good morning! I have some questions about the hotel."], ["B", "Of course. How can I help?"], ["A", "Do you have a gym and pool?"], ["B", "Yes, both are open 24 hours."], ["A", "Is breakfast included?"], ["B", "Buffet breakfast is included for your room type."], ["A", "What time is checkout?"], ["B", "Standard checkout is 11 a.m."], ["A", "Is late checkout possible?"], ["B", "We can extend to 2 p.m. for a small fee."]]}, {"id": 3, "title": "At Customs & Immigration", "vocab": ["declaration form", "customs", "purpose of visit", "duration"], "lines": [["A", "May I see your passport and declaration form?"], ["B", "Here you go."], ["A", "What is the purpose of your visit?"], ["B", "Tourism. I'm here for two weeks."], ["A", "Where will you be staying?"], ["B", "At the Hilton in Manhattan."], ["A", "Are you carrying any food or plant products?"], ["B", "I have some packaged Korean snacks."], ["A", "Please open your bag for a quick check."], ["B", "Of course. No problem at all."]]}, {"id": 4, "title": "Exchanging Currency", "vocab": ["exchange rate", "commission fee", "local currency", "ATM"], "lines": [["A", "I'd like to exchange some US dollars."], ["B", "How much would you like to exchange?"], ["A", "About $500 worth."], ["B", "Today's rate is 1,320 won per dollar."], ["A", "Is there a commission fee?"], ["B", "No fee for amounts over $200."], ["A", "So I'll receive about 660,000 won?"], ["B", "Exactly right."], ["A", "Should I take it all now or use ATMs?"], ["B", "ATMs here give very competitive rates too."]]}]}, "Buying & Selling a Car": {"emoji": "🚘", "color": "#374151", "level": "Intermediate", "dialogues": [{"id": 1, "title": "At the Car Dealership", "vocab": ["trade-in", "financing", "test drive", "negotiation"], "lines": [["A", "I'm interested in the blue sedan in the window."], ["B", "Great choice! Would you like a test drive?"], ["A", "Absolutely. What's the sticker price?"], ["B", "$28,500. But we're flexible."], ["A", "I have a car to trade in."], ["B", "We'd be happy to appraise it."], ["A", "And I'll need financing."], ["B", "We have 0% APR for 36 months right now."], ["A", "That's very competitive."], ["B", "Let's start with the test drive!"]]}, {"id": 2, "title": "Buying a Used Car", "vocab": ["mileage", "vehicle history", "inspection", "private seller"], "lines": [["A", "I'm looking at the 2019 Honda Accord you listed."], ["B", "Yes, it's in great condition."], ["A", "How many miles are on it?"], ["B", "About 42,000. Mostly highway driving."], ["A", "Has it ever been in an accident?"], ["B", "Never. Clean vehicle history report."], ["A", "Can I have it inspected by my mechanic?"], ["B", "Of course. I have nothing to hide."], ["A", "And is the price negotiable?"], ["B", "I can come down a little. Make me an offer."]]}]}, "Renting & Buying a Home": {"emoji": "🏡", "color": "#7C3AED", "level": "Advanced", "dialogues": [{"id": 1, "title": "Viewing a House", "vocab": ["square footage", "open house", "listing price", "neighborhood"], "lines": [["A", "Welcome to the open house!"], ["B", "Thank you. How long has it been on the market?"], ["A", "Just 5 days. We've had a lot of interest."], ["B", "What's the listing price?"], ["A", "$585,000, which is competitive for this area."], ["B", "How many square feet is it?"], ["A", "2,100, plus a 400 square foot basement."], ["B", "Are the schools in this area good?"], ["A", "Excellent. It's one of the top districts."], ["B", "I'd like to schedule a second visit if possible."]]}, {"id": 2, "title": "Making an Offer", "vocab": ["offer price", "contingency", "closing costs", "appraisal"], "lines": [["A", "We'd like to make an offer on the house."], ["B", "Wonderful! What figure are you thinking?"], ["A", "We're offering $575,000."], ["B", "The sellers were hoping for closer to the asking price."], ["A", "We can go to $580,000 with quick close."], ["B", "That might work. Any contingencies?"], ["A", "Just a standard inspection and mortgage approval."], ["B", "No problem with those."], ["A", "We can close in 30 days."], ["B", "I'll present the offer this evening."]]}]}, "Crime & Safety": {"emoji": "🚨", "color": "#DC2626", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Reporting a Theft", "vocab": ["stolen", "file a report", "description", "serial number"], "lines": [["A", "I need to report a theft."], ["B", "Of course. What was stolen?"], ["A", "My laptop and wallet from my car."], ["B", "When did this happen?"], ["A", "Sometime between 8 a.m. and noon today."], ["B", "Did you leave anything visible in the car?"], ["A", "My laptop bag was on the back seat."], ["B", "Unfortunately that's a common target."], ["A", "Do I need to file a report for insurance?"], ["B", "Yes. I'll take your statement now."]]}, {"id": 2, "title": "Neighborhood Safety", "vocab": ["neighborhood watch", "suspicious", "alert", "precaution"], "lines": [["A", "Have you heard about the break-ins on our street?"], ["B", "Yes! Three houses last month."], ["A", "Should we start a neighborhood watch?"], ["B", "That's a great idea. I'll contact the others."], ["A", "What precautions are you taking?"], ["B", "I installed security cameras and a new deadbolt."], ["A", "I'm thinking about a motion-sensor light."], ["B", "Those are very effective as a deterrent."], ["A", "Let's organize a meeting with neighbors."], ["B", "I'll set up a group chat tonight."]]}]}, "Voting & Civic Life": {"emoji": "🗳️", "color": "#374151", "level": "Intermediate", "dialogues": [{"id": 1, "title": "Voter Registration", "vocab": ["register", "polling station", "ballot", "deadline"], "lines": [["A", "I want to vote in the upcoming election."], ["B", "Have you registered yet?"], ["A", "Not yet. How do I do that?"], ["B", "You can register online at the state website."], ["A", "Is there a deadline?"], ["B", "Usually 15 days before the election."], ["A", "What ID do I need?"], ["B", "Driver's license or state ID number."], ["A", "Where do I go to vote?"], ["B", "You'll be assigned to your local polling station."]]}, {"id": 2, "title": "Understanding the Ballot", "vocab": ["candidate", "proposition", "abstain", "polling hours"], "lines": [["A", "There are so many things on this ballot."], ["B", "It can be overwhelming at first."], ["A", "What are these propositions?"], ["B", "Local measures people vote yes or no on."], ["A", "How do I find out what they mean?"], ["B", "The voter guide explains each one in plain language."], ["A", "Is there a version in Korean?"], ["B", "Yes, most counties provide translated guides."], ["A", "Can I bring notes into the voting booth?"], ["B", "Yes, you can bring a marked sample ballot."]]}]}, "Everyday Phone Calls": {"emoji": "📞", "color": "#059669", "level": "Beginner", "dialogues": [{"id": 1, "title": "Making an Appointment", "vocab": ["availability", "confirm", "reschedule", "callback"], "lines": [["A", "Good morning, Dr. Lee's office."], ["B", "Hi, I'd like to make an appointment."], ["A", "Is this for a new or existing patient?"], ["B", "Existing. My name is Justin Kim."], ["A", "What's the reason for your visit?"], ["B", "Just a routine checkup."], ["A", "We have Tuesday at 2 p.m. or Thursday at 10 a.m."], ["B", "Thursday at 10 works perfectly."], ["A", "We'll send a confirmation text."], ["B", "Thank you. See you Thursday."]]}, {"id": 2, "title": "Calling Customer Service", "vocab": ["account number", "hold time", "escalate", "resolve"], "lines": [["A", "Thank you for calling. How can I help?"], ["B", "I have a billing issue on my account."], ["A", "Can I get your account number?"], ["B", "It's 7724-8810-K."], ["A", "I see a $45 charge from last month. Is that the one?"], ["B", "Yes. I canceled that service before the billing date."], ["A", "I can see the cancellation was processed."], ["B", "So why was I still charged?"], ["A", "It looks like a system error. I'll reverse it now."], ["B", "How long will the refund take?"]]}, {"id": 3, "title": "Ordering Food by Phone", "vocab": ["delivery address", "estimated time", "cash on delivery", "minimum order"], "lines": [["A", "Thank you for calling Pizza Palace!"], ["B", "Hi, I'd like to place a delivery order."], ["A", "What's your delivery address?"], ["B", "220 Oak Street, Apartment 4B."], ["A", "Your total is $32. Is that OK?"], ["B", "Yes. What's the estimated delivery time?"], ["A", "About 35 to 40 minutes."], ["B", "Perfect. Can I pay by card over the phone?"], ["A", "Absolutely. What's the card number?"], ["B", "It's 4111 1111 1111 1111."]]}, {"id": 4, "title": "Dealing with a Complaint", "vocab": ["unsatisfied", "manager", "escalate", "compensation"], "lines": [["A", "I'd like to speak with a manager please."], ["B", "Of course. May I ask what this is regarding?"], ["A", "I've had three service issues in two months."], ["B", "I understand your frustration."], ["A", "I've been a customer for five years."], ["B", "I really do appreciate your loyalty."], ["A", "I want this resolved today."], ["B", "Let me pull up your account."], ["A", "I expect some form of compensation."], ["B", "I'll see what I can do for you today."]]}]}, "Food & Cooking": {"emoji": "🍳", "color": "#D97706", "level": "Beginner", "dialogues": [{"id": 1, "title": "At the Grocery Store", "vocab": ["organic", "expiration date", "produce", "aisle"], "lines": [["A", "Excuse me, where are the eggs?"], ["B", "Aisle 4, next to the dairy section."], ["A", "Thank you. Is this organic milk?"], ["B", "Yes, it says organic on the label."], ["A", "Is there a difference in taste?"], ["B", "Some people prefer it. It's also creamier."], ["A", "I'll try it. What about these apples?"], ["B", "Those are from Washington. Very sweet."], ["A", "And the expiration date on this bread?"], ["B", "Check the back — usually top right corner."]]}, {"id": 2, "title": "Learning to Cook", "vocab": ["recipe", "simmer", "dice", "season"], "lines": [["A", "I want to learn how to make soup."], ["B", "It's easier than you think!"], ["A", "What do I need?"], ["B", "Onion, garlic, vegetables, and broth."], ["A", "How do I start?"], ["B", "Dice the onion and garlic, then sauté in oil."], ["A", "For how long?"], ["B", "Until they're soft and golden. About 5 minutes."], ["A", "Then add the vegetables?"], ["B", "Yes, then the broth. Simmer for 20 minutes."]]}, {"id": 3, "title": "Food Allergies", "vocab": ["allergy", "contains", "nut-free", "anaphylaxis"], "lines": [["A", "Does this dish contain any nuts?"], ["B", "The sauce has peanuts. Is that an issue?"], ["A", "Yes, I have a serious peanut allergy."], ["B", "I can make it without the sauce entirely."], ["A", "That would be great. And is the kitchen nut-free?"], ["B", "We can't guarantee a nut-free environment."], ["A", "I carry an EpiPen just in case."], ["B", "I'll let the chef know about your allergy."], ["A", "Thank you for being so careful."], ["B", "Your safety is our priority."]]}, {"id": 4, "title": "Ordering at Starbucks", "vocab": ["size", "customize", "non-dairy", "cold foam", "shots"], "lines": [["A", "Hi! What can I get started for you?"], ["B", "Can I get a grande iced brown sugar oat milk shaken espresso?"], ["A", "Of course! Any modifications?"], ["B", "Extra shot of espresso, please."], ["A", "Sure! Light ice or regular ice?"], ["B", "Light ice. Oh, and can I add sweet cream cold foam on top?"], ["A", "Absolutely. That'll be $7.45."], ["B", "Can I also get a name on the cup? It's Justin."], ["A", "Got it! Your drink will be ready at the end of the bar."], ["B", "Thank you! Can I order a cake pop too?"]]}, {"id": 5, "title": "Ordering at Subway", "vocab": ["footlong", "toasted", "toppings", "sauce", "protein"], "lines": [["A", "Welcome to Subway! What can I get for you?"], ["B", "I'll have a footlong Italian BMT, please."], ["A", "What bread would you like?"], ["B", "Honey oat, please. Can you toast it?"], ["A", "Sure! What cheese?"], ["B", "Provolone."], ["A", "Now for your veggies — what would you like?"], ["B", "Lettuce, tomatoes, cucumbers, and jalapeños."], ["A", "Any sauces?"], ["B", "Chipotle mayo and a little bit of honey mustard, please."]]}, {"id": 6, "title": "Ordering at Chipotle", "vocab": ["burrito bowl", "protein", "base", "salsa", "guacamole"], "lines": [["A", "Hi! What are you having today?"], ["B", "I'll do a burrito bowl, please."], ["A", "What base would you like — rice, lettuce, or both?"], ["B", "Half white rice, half lettuce."], ["A", "Which protein?"], ["B", "Chicken, please."], ["A", "Black beans or pinto?"], ["B", "Black beans."], ["A", "What salsas? We have mild, medium, hot, and corn."], ["B", "Medium and corn salsa. And yes to guacamole — I know it's extra!"]]}, {"id": 7, "title": "Customizing Your Order", "vocab": ["allergy", "dairy-free", "swap", "extra charge", "hold"], "lines": [["A", "Hi, I have a few special requests. Is that OK?"], ["B", "Of course! We do our best to accommodate everyone."], ["A", "I'm lactose intolerant, so no dairy at all."], ["B", "Got it. I'll hold the cheese and swap to oat milk."], ["A", "Can I also get the sauce on the side?"], ["B", "Absolutely. Any allergies I should flag for the kitchen?"], ["A", "No tree nuts either, please."], ["B", "I'll mark that on your ticket right now."], ["A", "Thank you so much. People don't always take it seriously."], ["B", "Your health comes first. We take all allergies seriously here."]]}, {"id": 8, "title": "At a Food Truck", "vocab": ["cash only", "wait time", "special", "sold out"], "lines": [["A", "Hi! Is this the Korean BBQ taco truck?"], ["B", "That's us! What can I get you?"], ["A", "What's your most popular item?"], ["B", "The bulgogi beef tacos. Three for $12."], ["A", "I'll get three of those. Any specials today?"], ["B", "We have a spicy pork bowl as our Friday special."], ["A", "Ooh, I'll add that too. Is it very spicy?"], ["B", "Medium heat. We can make it mild if you prefer."], ["A", "Medium is fine. Do you take card?"], ["B", "Card and mobile pay. Cash also gets you 10% off!"]]}, {"id": 9, "title": "Drive-Through", "vocab": ["combo meal", "upsize", "window", "pull forward"], "lines": [["A", "Welcome! Can I take your order?"], ["B", "Can I get a number two combo, please?"], ["A", "What size would you like?"], ["B", "Medium. Can I upsize the drink for a dollar?"], ["A", "Yes! What drink?"], ["B", "Lemonade, please. No ice."], ["A", "And your sauce for the nuggets?"], ["B", "BBQ and one sweet and sour, please."], ["A", "Your total is $9.87. Please pull forward to the first window."], ["B", "Thanks! Can I also get a large fry added on?"]]}]}, "Fast Food & Casual Dining": {"emoji": "🍔", "color": "#DC2626", "level": "Beginner", "dialogues": [{"id": 1, "title": "McDonald's Drive-Through", "vocab": ["value meal", "no pickles", "extra sauce", "McFlurry"], "lines": [["A", "Welcome to McDonald's! Can I take your order?"], ["B", "Can I get a Big Mac meal — medium size?"], ["A", "Sure! What drink would you like?"], ["B", "Coke Zero, please. No ice."], ["A", "Would you like to add apple slices or fries?"], ["B", "Fries. And can I get no pickles on the Big Mac?"], ["A", "Of course. Extra sauce?"], ["B", "Yes, extra special sauce please!"], ["A", "Anything else? We have McFlurries today for $2."], ["B", "Oh, I'll take an Oreo McFlurry. My total?"]]}, {"id": 2, "title": "Ordering at Chick-fil-A", "vocab": ["spicy deluxe", "waffle fries", "lemonade", "my pleasure"], "lines": [["A", "Hi there! What can I get for you today?"], ["B", "I'll have the spicy deluxe chicken sandwich combo."], ["A", "Waffle fries or a side salad?"], ["B", "Waffle fries, please."], ["A", "What to drink?"], ["B", "Large lemonade — half sweet, half unsweet."], ["A", "Great choice! Any sauces?"], ["B", "Chick-fil-A sauce and polynesian, please."], ["A", "My pleasure! Will that be all?"], ["B", "Actually, can I add a cookies and cream milkshake?"]]}, {"id": 3, "title": "Ordering at Chipotle Online", "vocab": ["mobile order", "pickup time", "bowl", "double protein"], "lines": [["A", "Your Chipotle mobile order is ready!"], ["B", "Oh great! I have a pickup for Kim."], ["A", "Here it is — one burrito bowl and one salad?"], ["B", "Yes. I actually ordered double chicken on the bowl."], ["A", "Let me check — yes, it's marked double protein."], ["B", "Perfect. Did the guacamole come separate?"], ["A", "It's in the bag on the side."], ["B", "And extra chips?"], ["A", "That's in there too — the big bag."], ["B", "Wonderful, thank you so much!"]]}, {"id": 4, "title": "Ordering at Subway (Full Customization)", "vocab": ["six-inch", "wheat", "double meat", "wrap"], "lines": [["A", "Hi! Six-inch or footlong today?"], ["B", "Footlong, please. Can I do half tuna, half turkey?"], ["A", "Absolutely! What bread?"], ["B", "Italian herbs and cheese, please. Toasted."], ["A", "What cheese for the turkey side?"], ["B", "American. And provolone for the tuna side."], ["A", "Smart! Now veggies?"], ["B", "Everything except olives and banana peppers."], ["A", "Sauces?"], ["B", "Ranch on the turkey side, mayo on the tuna side."]]}, {"id": 5, "title": "At a Korean BBQ Restaurant", "vocab": ["marinated", "grill", "banchan", "ssam"], "lines": [["A", "Have you been to Korean BBQ before?"], ["B", "Once, but I didn't really know what I was doing."], ["A", "I'll show you. We order the meat and grill it ourselves."], ["B", "These little side dishes are amazing. What are they?"], ["A", "They're called banchan. Eat as much as you want — they're free."], ["B", "Really? The kimchi is so good."], ["A", "The bulgogi is ready! Let me show you how to make ssam."], ["B", "Is that the lettuce wrap?"], ["A", "Yes — meat, rice, a little soybean paste, all wrapped in lettuce."], ["B", "One bite? How is that even possible!"]]}, {"id": 6, "title": "At Starbucks — Mobile Order Pickup", "vocab": ["mobile order", "customization", "cold brew", "vanilla sweet cream"], "lines": [["A", "Hi, I placed a mobile order for Justin."], ["B", "Let me check — venti cold brew with vanilla sweet cream?"], ["A", "Yes! And I added extra cold foam."], ["B", "It's being made now. About two minutes."], ["A", "Thank you. I also have a food item — the egg bites?"], ["B", "That's being warmed up right now."], ["A", "Perfect. Can I get a sleeve for the cup?"], ["B", "Of course! Here — I'll put one on."], ["A", "Thank you. By the way, my cold brew seems a little light today."], ["B", "I can have them re-make it. No problem at all!"]]}, {"id": 7, "title": "Asking About Ingredients", "vocab": ["contains", "gluten", "soy", "cross-contamination"], "lines": [["A", "Excuse me, does the teriyaki sauce contain gluten?"], ["B", "It does have soy sauce, which contains wheat."], ["A", "Are there any gluten-free sauces?"], ["B", "Yes — our sriracha and our olive oil and herbs option."], ["A", "What about cross-contamination in the kitchen?"], ["B", "We use shared equipment, so we can't guarantee zero contact."], ["A", "I'm celiac, so that's a concern for me."], ["B", "In that case, I'd honestly recommend caution with our menu."], ["A", "I appreciate your honesty."], ["B", "Your health matters more than the sale."]]}]}};
+
+// ── STATE ──
+const STORE = "ecl-v2";
+let P = {xp:0,streak:0,lastDay:null,done:{},quizScores:{},xpHistory:{}};
+let CV = "home";
+let CUR_TOPIC = null;
+let CUR_DLG = null;
+let CUR_MODE = "read"; // read | shadow | quiz | vocab
+let QUIZ_STATE = null;
+let KO_VISIBLE = {}; // lineIdx → bool
+let enVoice = null;
+
+function loadP(){try{const r=localStorage.getItem(STORE);if(r)P=JSON.parse(r);}catch(e){}}
+function saveP(){try{localStorage.setItem(STORE,JSON.stringify(P));}catch(e){}}
+const today = ()=>new Date().toISOString().slice(0,10);
+function updateStreak(){const t=today();if(P.lastDay===t)return;const y=new Date(Date.now()-86400000).toISOString().slice(0,10);P.streak=P.lastDay===y?(P.streak||0)+1:1;P.lastDay=t;}
+function markDone(topic,id){if(!P.done[topic])P.done[topic]={};P.done[topic][id]=true;updateStreak();P.xp+=20;const t=today();P.xpHistory[t]=(P.xpHistory[t]||0)+20;saveP();}
+function isDone(topic,id){return !!(P.done[topic]&&P.done[topic][id]);}
+function topicDoneCount(topicKey){const d=P.done[topicKey]||{};return Object.keys(d).length;}
+function topicTotal(topicKey){return TOPICS[topicKey].dialogues.length;}
+function totalDone(){return Object.values(P.done).reduce((s,v)=>s+Object.keys(v).length,0);}
+
+// ── VOICES ──
+function initVoices(){
+  if(!window.speechSynthesis)return;
+  function load(){const vs=window.speechSynthesis.getVoices();enVoice=vs.find(v=>v.lang==='en-US')||vs.find(v=>v.lang.startsWith('en'))||vs[0]||null;}
+  load();window.speechSynthesis.addEventListener('voiceschanged',load);
+}
+function speak(text, bubble){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  if(enVoice)u.voice=enVoice;u.lang='en-US';u.rate=0.88;
+  if(bubble){bubble.classList.add('speaking');u.onend=()=>bubble.classList.remove('speaking');}
+  window.speechSynthesis.speak(u);
+}
+function playAll(){
+  if(!CUR_DLG||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  let delay=0;
+  CUR_DLG.lines.forEach(([sp,text],i)=>{
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      if(enVoice)u.voice=enVoice;u.lang='en-US';
+      u.rate=sp==='A'?0.9:0.85;
+      const el=document.getElementById('bubble-'+i);
+      if(el){el.classList.add('speaking');u.onend=()=>el.classList.remove('speaking');}
+      window.speechSynthesis.speak(u);
+    },delay);
+    delay+=2200;
+  });
+}
+
+// ── NAVIGATION ──
+function go(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.toggle('active',t.dataset.v===name));
+  CV=name;document.getElementById('v-'+name).classList.add('active');render();
+}
+function openTopic(key){
+  CUR_TOPIC=key;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  CV='topic';document.getElementById('v-topic').classList.add('active');
+  renderTopic();
+}
+function openConv(topicKey, dlgId){
+  CUR_TOPIC=topicKey;
+  CUR_DLG=TOPICS[topicKey].dialogues.find(d=>d.id===dlgId);
+  CUR_MODE='read';KO_VISIBLE={};QUIZ_STATE=null;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  CV='conv';document.getElementById('v-conv').classList.add('active');
+  renderConv();
+}
+function render(){
+  if(CV==='home')renderHome();
+  if(CV==='topics')renderTopics();
+  if(CV==='topic')renderTopic();
+  if(CV==='conv')renderConv();
+  if(CV==='progress')renderProgress();
+  if(CV==='search')renderSearch();
+}
+
+// ── HOME ──
+function renderHome(){
+  const el=document.getElementById('v-home');
+  const total=Object.values(TOPICS).reduce((s,t)=>s+t.dialogues.length,0);
+  const done=totalDone();
+  const acc=Object.values(P.quizScores).length?Math.round(Object.values(P.quizScores).reduce((a,b)=>a+b,0)/Object.values(P.quizScores).length):0;
+  const xpLv=Math.floor(P.xp/100)+1;
+  const xpC=P.xp%100;
+
+  // Find next undone dialogue
+  let nextTopic=null,nextDlg=null;
+  outer:for(const [key,topic] of Object.entries(TOPICS)){
+    for(const d of topic.dialogues){
+      if(!isDone(key,d.id)){nextTopic=key;nextDlg=d;break outer;}
+    }
+  }
+
+  const searchBar = `<div style="padding:.5rem 1rem .2rem">
+    <button onclick="go('search')" style="width:100%;display:flex;align-items:center;gap:8px;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;cursor:pointer;font-family:inherit;text-align:left;transition:border-color .15s;color:var(--ink3);font-size:13px">
+      <span>🔍</span><span>주제나 대화를 검색하세요...</span>
+    </button>
+  </div>`;
+
+  const todayCard = nextDlg ? `
+<div class="today-card" style="background:linear-gradient(135deg,${TOPICS[nextTopic].color},${TOPICS[nextTopic].color}CC)">
+  <div class="today-eyebrow">다음 대화</div>
+  <div class="today-title">${nextDlg.title}</div>
+  <div class="today-meta">${TOPICS[nextTopic].emoji} ${nextTopic} · ${nextDlg.lines.length}줄 대화</div>
+  <div class="today-btns">
+    <button class="today-btn solid" onclick="openConv('${nextTopic}',${nextDlg.id})">대화 시작 →</button>
+    <button class="today-btn" onclick="openTopic('${nextTopic}')">주제 보기</button>
+  </div>
+</div>` : `<div class="today-card" style="background:linear-gradient(135deg,#16A34A,#15803D)">
+  <div class="today-eyebrow">학습 완료</div>
+  <div class="today-title">모든 대화를 마쳤어요! 🎉</div>
+  <div class="today-meta">복습하려면 주제 탭을 눌러요</div>
+</div>`;
+
+  el.innerHTML=`
+<div class="home-hero">
+  <div class="hero-eyebrow">English Conversation Lab</div>
+  <h1 class="hero-h1">매일 대화로<br>영어 실력을 키워요</h1>
+  <p class="hero-sub">26개 주제 · 94개 대화 · 940줄 · 4가지 학습 모드</p>
+</div>
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-v">${P.streak||0}</div><div class="stat-l">🔥 연속</div></div>
+  <div class="stat-box"><div class="stat-v">${done}</div><div class="stat-l">완료</div></div>
+  <div class="stat-box"><div class="stat-v">${acc?acc+'%':'—'}</div><div class="stat-l">퀴즈 정답률</div></div>
+  <div class="stat-box"><div class="stat-v">${P.xp}</div><div class="stat-l">XP</div></div>
+</div>
+${searchBar}
+${todayCard}
+<div class="section-label"><span>주제별 진행률</span><span style="font-size:12px;font-weight:500;color:var(--ink2)">${done}/${total} 완료</span></div>
+<div style="padding:0 1rem .5rem">
+  ${Object.entries(TOPICS).map(([key,t])=>{
+    const dc=topicDoneCount(key);const tt=topicTotal(key);const pct=Math.round(dc/tt*100);
+    return`<div class="topic-prog-row" style="cursor:pointer" onclick="openTopic('${key}')">
+      <span style="font-size:20px">${t.emoji}</span>
+      <span class="tp-label">${key}</span>
+      <span class="tp-count">${dc}/${tt}</span>
+      <div class="tp-bar-wrap"><div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${t.color}"></div></div></div>
+    </div>`;
+  }).join('')}
+</div>
+<div style="padding:0 1rem 1.5rem">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;font-size:12px;color:var(--ink2);line-height:1.8">
+    <strong style="color:var(--ink)">📖 4가지 학습 모드</strong><br>
+    <strong>읽기</strong> — 대화를 클릭해 문장별로 발음 듣기<br>
+    <strong>쉐도잉</strong> — 한 줄씩 듣고 따라하기<br>
+    <strong>퀴즈</strong> — 빈칸 채우기로 기억력 테스트<br>
+    <strong>어휘</strong> — 핵심 표현 클릭해서 뜻 확인
+  </div>
+</div>`;
+}
+
+// ── TOPICS ──
+function renderTopics(){
+  const el=document.getElementById('v-topics');
+  el.innerHTML=`<div style="padding:.8rem 0">
+    <div class="section-label" style="padding:.8rem 1rem 6px">전체 주제</div>
+    <div class="topic-grid">
+    ${Object.entries(TOPICS).map(([key,t])=>{
+      const dc=topicDoneCount(key);const tt=topicTotal(key);const pct=Math.round(dc/tt*100);
+      return`<button class="topic-card" onclick="openTopic('${key}')" style="border-top:3px solid ${t.color}">
+        <div style="position:absolute;right:8px;bottom:8px;font-size:44px;opacity:.07">${t.emoji}</div>
+        <div class="tc-emoji">${t.emoji}</div>
+        <div class="tc-name">${key}</div>
+        <div class="tc-meta">${tt}개 대화</div>
+        <div class="tc-level" style="background:${t.color}22;color:${t.color}">${t.level}</div>
+        <div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%;background:${t.color}"></div></div>
+        <div style="font-size:11px;color:var(--ink3)">${dc}/${tt} 완료</div>
+      </button>`;
+    }).join('')}
+    </div>
+  </div>`;
+}
+
+// ── TOPIC DETAIL ──
+function renderTopic(){
+  if(!CUR_TOPIC)return;
+  const el=document.getElementById('v-topic');
+  const t=TOPICS[CUR_TOPIC];
+  const rows=t.dialogues.map(d=>{
+    const done=isDone(CUR_TOPIC,d.id);
+    const preview=d.lines[0][1];
+    return`<button class="dlg-row" onclick="openConv('${CUR_TOPIC}',${d.id})">
+      <div class="dlg-num" style="background:${t.color}">${d.id}</div>
+      <div class="dlg-info">
+        <div class="dlg-title">${d.title}</div>
+        <div class="dlg-preview">"${preview.length>40?preview.slice(0,40)+'…':preview}"</div>
+      </div>
+      <div class="dlg-done">${done?'완료 ✓':''}</div>
+    </button>`;
+  }).join('');
+
+  el.innerHTML=`
+<div class="topic-hdr">
+  <button class="back-btn" onclick="go('topics')">←</button>
+  <div class="topic-hdr-info">
+    <div class="topic-hdr-title">${t.emoji} ${CUR_TOPIC}</div>
+    <div class="topic-hdr-sub">${t.level} · ${t.dialogues.length}개 대화</div>
+  </div>
+</div>
+<div class="dlg-list">${rows}</div>`;
+}
+
+// ── CONVERSATION ──
+function renderConv(){
+  if(!CUR_DLG)return;
+  const el=document.getElementById('v-conv');
+  const t=TOPICS[CUR_TOPIC];
+  const done=isDone(CUR_TOPIC,CUR_DLG.id);
+
+  const modeContent=CUR_MODE==='read'?renderReadMode():
+                    CUR_MODE==='shadow'?renderShadowMode():
+                    CUR_MODE==='quiz'?renderQuizMode():
+                    renderVocabMode();
+
+  // Prev / Next dialogue
+  const dlgs=t.dialogues;
+  const idx=dlgs.findIndex(d=>d.id===CUR_DLG.id);
+  const prevD=dlgs[idx-1];const nextD=dlgs[idx+1];
+
+  el.innerHTML=`
+<div class="conv-hdr">
+  <div class="conv-hdr-top">
+    <button class="back-btn" onclick="openTopic('${CUR_TOPIC}')">←</button>
+    <div class="conv-title">${CUR_DLG.title}</div>
+    ${done?`<span style="font-size:12px;color:#16A34A;font-weight:700">✓ 완료</span>`:''}
+  </div>
+  <div class="conv-meta">
+    <span class="pill-tag" style="background:${t.color}22;color:${t.color}">${t.emoji} ${CUR_TOPIC}</span>
+    <span class="pill-tag" style="background:var(--card2);color:var(--ink2)">${CUR_DLG.lines.length}줄</span>
+    <span style="font-size:11px;color:var(--ink3)">대화 ${idx+1}/${dlgs.length}</span>
+  </div>
+</div>
+
+<div class="mode-bar">
+  ${['read','shadow','quiz','vocab'].map(m=>`<button class="mode-tab${CUR_MODE===m?' active':''}" onclick="setMode('${m}')">${m==='read'?'읽기':m==='shadow'?'쉐도잉':m==='quiz'?'퀴즈':'어휘'}</button>`).join('')}
+</div>
+
+${modeContent}
+
+<div class="conv-nav">
+  ${prevD?`<button class="cnav-btn" onclick="openConv('${CUR_TOPIC}',${prevD.id})">← 이전</button>`:`<div></div>`}
+  ${!done?`<button class="cnav-btn primary" style="background:${t.color}" onclick="markDoneAndRefresh()">✓ 완료 표시</button>`:`<span style="font-size:13px;color:#16A34A;font-weight:700">완료 ✓</span>`}
+  ${nextD?`<button class="cnav-btn" onclick="openConv('${CUR_TOPIC}',${nextD.id})">다음 →</button>`:`<div></div>`}
+</div>`;
+}
+
+function markDoneAndRefresh(){markDone(CUR_TOPIC,CUR_DLG.id);renderConv();}
+function setMode(m){CUR_MODE=m;QUIZ_STATE=null;KO_VISIBLE={};renderConv();}
+
+// ── READ MODE ──
+function renderReadMode(){
+  const t=TOPICS[CUR_TOPIC];
+  const lines=CUR_DLG.lines.map(([sp,text],i)=>{
+    const koShow=KO_VISIBLE[i]?' show':'';
+    return`<div class="line-block ${sp}">
+      <div class="speaker-tag">${sp==='A'?'Speaker A':'Speaker B'}</div>
+      <div class="bubble ${sp}" id="bubble-${i}" data-line="${i}" onclick="onBubbleClick(${i})" style="${sp==='B'?'background:'+t.color:''}">
+        <span class="bubble-icon">🔊</span>
+        <div class="bubble-text">${text}</div>
+        <div class="bubble-ko${koShow}" id="ko-${i}">🇰🇷 두 번 클릭하면 번역이 표시됩니다</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return`<div class="lines-wrap">${lines}</div>
+<div class="player-bar">
+  <div class="player-info">
+    <div class="player-title">${CUR_DLG.title}</div>
+    <div class="player-sub">문장을 클릭하면 발음을 들을 수 있어요</div>
+  </div>
+  <div class="player-btns">
+    <button class="pbtn" title="한국어 번역 토글" onclick="toggleAllKo()">🇰🇷</button>
+    <button class="pbtn play-all" title="전체 재생" onclick="playAll()">▶</button>
+  </div>
+</div>`;
+}
+
+let clickTimers={};
+function onBubbleClick(idx){
+  const text=CUR_DLG.lines[idx][1];
+  if(clickTimers[idx]){
+    clearTimeout(clickTimers[idx]);
+    delete clickTimers[idx];
+    KO_VISIBLE[idx]=!KO_VISIBLE[idx];
+    const ko=document.getElementById('ko-'+idx);
+    if(ko)ko.classList.toggle('show',!!KO_VISIBLE[idx]);
+  } else {
+    clickTimers[idx]=setTimeout(()=>{
+      delete clickTimers[idx];
+      const el=document.getElementById('bubble-'+idx);
+      speak(text,el);
+    },200);
+  }
+}
+
+function toggleAllKo(){
+  const anyVisible=Object.values(KO_VISIBLE).some(Boolean);
+  CUR_DLG.lines.forEach((_,i)=>{KO_VISIBLE[i]=!anyVisible;});
+  renderConv();
+}
+
+// ── SHADOW MODE ──
+function renderShadowMode(){
+  const t=TOPICS[CUR_TOPIC];
+  const cards=CUR_DLG.lines.map(([sp,text],i)=>{
+    return`<div class="shadow-card">
+      <div class="shadow-turn">${sp==='A'?'SPEAKER A':'SPEAKER B'} — Line ${i+1}</div>
+      <div class="shadow-text">${text}</div>
+      <div class="shadow-btns">
+        <button class="sbtn primary" style="background:${t.color}" onclick="speak('${esc}',null)">🔊 듣기</button>
+        <button class="sbtn" onclick="toggleReveal('sr-${i}')">번역 보기</button>
+      </div>
+      <div class="shadow-reveal" id="sr-${i}">💬 클릭해서 들은 후, 똑같이 따라해 보세요! 억양과 속도를 맞추는 게 핵심이에요.</div>
+    </div>`;
+  }).join('');
+  return`<div class="shadow-wrap">
+    <div class="shadow-instructions">
+      🎯 <strong>쉐도잉 방법:</strong> 🔊 버튼을 눌러 원어민 발음을 들은 후, 같은 억양으로 따라 말해보세요. 3번 반복하면 효과가 커요!
+    </div>
+    ${cards}
+  </div>`;
+}
+function toggleReveal(id){const el=document.getElementById(id);if(el)el.classList.toggle('show');}
+
+// ── QUIZ MODE ──
+function renderQuizMode(){
+  if(!QUIZ_STATE)initQuiz();
+  const t=TOPICS[CUR_TOPIC];
+  if(QUIZ_STATE.done)return renderQuizDone(t);
+
+  const q=QUIZ_STATE.questions[QUIZ_STATE.idx];
+  const pct=Math.round(QUIZ_STATE.idx/QUIZ_STATE.questions.length*100);
+  const phase=QUIZ_STATE.phase;
+
+  const optsHtml=q.opts.map((o,oi)=>{
+    let cls='qopt';
+    if(phase==='reveal'){if(oi===q.correctIdx)cls+=' correct';else if(oi===QUIZ_STATE.chosen)cls+=' wrong';}
+    return`<button class="${cls}" ${phase==='reveal'?'disabled':''} onclick="answerQuiz(${oi})">${o}</button>`;
+  }).join('');
+
+  const feedbackHtml=phase==='reveal'?`<div class="qfeedback show">
+    ${QUIZ_STATE.wasCorrect?'✅ 정답!':'❌ 오답 — 정답: <strong>'+q.opts[q.correctIdx]+'</strong>'}<br>
+    <em style="color:var(--ink3)">"${q.full}"</em>
+  </div>`:'';
+
+  const nextHtml=phase==='reveal'?`<button class="next-btn show" onclick="nextQuizQ()">다음 →</button>`:'';
+
+  return`<div class="quiz-wrap">
+    <div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden;margin-bottom:1rem">
+      <div style="height:100%;width:${pct}%;background:${t.color};border-radius:2px;transition:width .3s"></div>
+    </div>
+    <div class="qcard">
+      <div class="qcard-label">빈칸에 알맞은 것을 고르세요 · ${QUIZ_STATE.idx+1}/${QUIZ_STATE.questions.length}</div>
+      <div class="qcard-q">${q.display}</div>
+      <div class="quiz-opts">${optsHtml}</div>
+      ${feedbackHtml}
+      ${nextHtml}
+    </div>
+  </div>`;
+}
+
+function initQuiz(){
+  const lines=CUR_DLG.lines;
+  // Make questions by blanking key words in each line
+  const questions=lines.map(([sp,text],i)=>{
+    const words=text.split(' ');
+    // Pick a meaningful word to blank (longer words, not first word)
+    let blankIdx=1;
+    for(let j=Math.floor(words.length/2);j<words.length;j++){
+      const w=words[j].replace(/[^a-zA-Z']/g,'');
+      if(w.length>3&&!/^(that|this|with|from|have|been|they|when|what|your|just|some|very|more|also|here|will)$/i.test(w)){blankIdx=j;break;}
+    }
+    const blank=words[blankIdx];
+    const clean=blank.replace(/[^a-zA-Z']/g,'');
+    // Generate wrong options from other lines
+    const others=lines.filter((_,j)=>j!==i).map(([_,t])=>{
+      const ws=t.split(' ');
+      return ws[Math.floor(ws.length/2)].replace(/[^a-zA-Z']/g,'');
+    }).filter(w=>w.length>2&&w.toLowerCase()!==clean.toLowerCase());
+    const wrongOpts=[...new Set(others)].slice(0,3);
+    while(wrongOpts.length<3)wrongOpts.push(['think','really','going','always','never'][wrongOpts.length]);
+    const opts=shuffleArr([clean,...wrongOpts.slice(0,3)]);
+    const correctIdx=opts.findIndex(o=>o.toLowerCase()===clean.toLowerCase());
+    const display=words.map((w,wi)=>wi===blankIdx?`<span class="blank" style="border-color:${TOPICS[CUR_TOPIC].color}">_____</span>`:w).join(' ');
+    return{display,full:text,opts,correctIdx};
+  });
+  QUIZ_STATE={questions,idx:0,phase:'q',right:0,chosen:null,wasCorrect:false,done:false};
+}
+
+function shuffleArr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function answerQuiz(oi){
+  if(!QUIZ_STATE||QUIZ_STATE.phase!=='q')return;
+  const q=QUIZ_STATE.questions[QUIZ_STATE.idx];
+  const correct=oi===q.correctIdx;
+  QUIZ_STATE.phase='reveal';QUIZ_STATE.chosen=oi;QUIZ_STATE.wasCorrect=correct;
+  if(correct)QUIZ_STATE.right++;
+  renderConv();
+}
+function nextQuizQ(){
+  QUIZ_STATE.idx++;QUIZ_STATE.phase='q';QUIZ_STATE.chosen=null;
+  if(QUIZ_STATE.idx>=QUIZ_STATE.questions.length){
+    QUIZ_STATE.done=true;
+    const score=Math.round(QUIZ_STATE.right/QUIZ_STATE.questions.length*100);
+    P.quizScores[CUR_TOPIC+'_'+CUR_DLG.id]=score;
+    P.xp+=QUIZ_STATE.right*5;const t=today();
+    P.xpHistory[t]=(P.xpHistory[t]||0)+QUIZ_STATE.right*5;
+    saveP();
+  }
+  renderConv();
+}
+function renderQuizDone(t){
+  const score=Math.round(QUIZ_STATE.right/QUIZ_STATE.questions.length*100);
+  const emoji=score>=80?'🎉':score>=60?'👍':'💪';
+  return`<div class="quiz-done">
+    <div class="qd-score">${emoji}</div>
+    <div style="font-size:24px;font-weight:700;margin-bottom:6px">퀴즈 완료!</div>
+    <div class="qd-label">${QUIZ_STATE.questions.length}개 중 ${QUIZ_STATE.right}개 정답 (${score}%)</div>
+    <div class="qd-xp">+${QUIZ_STATE.right*5} XP 획득!</div>
+    <button onclick="initQuiz();renderConv()" style="padding:12px 24px;border-radius:12px;border:none;background:${t.color};color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-right:8px">다시 풀기</button>
+    <button onclick="setMode('read')" style="padding:12px 24px;border-radius:12px;border:1px solid var(--border);background:transparent;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">읽기로 돌아가기</button>
+  </div>`;
+}
+
+// ── VOCAB MODE ──
+function renderVocabMode(){
+  const t=TOPICS[CUR_TOPIC];
+  const vocab=CUR_DLG.vocab||[];
+  if(!vocab.length)return`<div class="empty">이 대화의 주요 어휘 목록이 곧 추가될 예정이에요.</div>`;
+
+  // Also extract key phrases from lines
+  const keyPhrases=CUR_DLG.lines.slice(0,6).map(([sp,text])=>text);
+
+  const vcards=vocab.map((w,wi)=>`<div class="vcard" onclick="toggleVocab(this,${wi})">
+    <button class="vspeak" onclick="event.stopPropagation();speakVocab(${wi})">🔊</button>
+    <div style="flex:1">
+      <div class="vword">${w}</div>
+      <div class="vdef">클릭해서 뜻 확인 — 이 단어가 포함된 예문을 연습해보세요!</div>
+    </div>
+    <span style="color:var(--ink3);font-size:13px">▼</span>
+  </div>`).join('');
+
+  const phrases=keyPhrases.map((p,i)=>`<div class="vcard" onclick="speakLine(${i})">
+    <button class="vspeak" onclick="event.stopPropagation();speakLine(${i})">🔊</button>
+    <div style="flex:1"><div style="font-size:13px;font-weight:500">${p}</div></div>
+  </div>`).join('');
+
+  return`<div class="vocab-wrap">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">핵심 어휘</div>
+    ${vcards}
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin:16px 0 10px">주요 표현 (클릭해서 발음 듣기)</div>
+    ${phrases}
+  </div>`;
+}
+function speakVocab(idx){if(CUR_DLG&&CUR_DLG.vocab)speak(CUR_DLG.vocab[idx],null);}
+function toggleVocab(el,idx){
+  const def=el.querySelector('.vdef');
+  if(def)def.classList.toggle('show');
+  if(CUR_DLG&&CUR_DLG.vocab)speak(CUR_DLG.vocab[idx],null);
+}
+
+// ── PROGRESS ──
+function renderProgress(){
+  const el=document.getElementById('v-progress');
+  const xpLv=Math.floor(P.xp/100)+1;const xpC=P.xp%100;
+  const total=Object.values(TOPICS).reduce((s,t)=>s+t.dialogues.length,0);
+  const done=totalDone();
+  const acc=Object.values(P.quizScores).length?Math.round(Object.values(P.quizScores).reduce((a,b)=>a+b,0)/Object.values(P.quizScores).length):0;
+
+  const xpDays=Array.from({length:14},(_,i)=>{
+    const d=new Date(Date.now()-(13-i)*86400000);
+    const k=d.toISOString().slice(0,10);
+    return{n:`${d.getMonth()+1}/${d.getDate()}`,xp:P.xpHistory[k]||0};
+  });
+  const maxXP=Math.max(...xpDays.map(d=>d.xp),1);
+  const xpBars=xpDays.map((d,i)=>`<div class="bc">
+    ${d.xp?`<div class="bc-v">${d.xp}</div>`:''}
+    <div class="bc-b" style="height:${Math.max(d.xp/maxXP*70,d.xp?4:2)}px;background:${d.xp?'var(--ink)':'var(--card2)'}"></div>
+    ${i%2===0?`<div class="bc-l">${d.n}</div>`:'<div class="bc-l"></div>'}
+  </div>`).join('');
+
+  const topicRows=Object.entries(TOPICS).map(([key,t])=>{
+    const dc=topicDoneCount(key);const tt=topicTotal(key);const pct=Math.round(dc/tt*100);
+    return`<div class="topic-prog-row">
+      <span style="font-size:18px">${t.emoji}</span>
+      <span class="tp-label">${key}</span>
+      <span class="tp-count">${dc}/${tt}</span>
+      <div class="tp-bar-wrap"><div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${t.color}"></div></div></div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`<div class="prog-section">
+<div class="xp-hero">
+  <div class="xp-lv">LEVEL ${xpLv}</div>
+  <div class="xp-val">${P.xp} XP</div>
+  <div class="xp-track"><div class="xp-fill" style="width:${xpC}%"></div></div>
+  <div class="xp-sub">${xpC}/100 XP · 다음 레벨까지 ${100-xpC}XP</div>
+</div>
+<div class="stat-grid2">
+  ${[{l:"완료 대화",v:done+"/"+total},{l:"퀴즈 정답률",v:acc?acc+'%':'—'},{l:"🔥 연속 학습",v:(P.streak||0)+"일"},{l:"총 대화 줄 수",v:done*10+"줄+"}]
+    .map(s=>`<div class="sg2"><div class="sg2-v">${s.v}</div><div class="sg2-l">${s.l}</div></div>`).join('')}
+</div>
+<div class="chart-box" style="margin-bottom:1rem">
+  <div class="chart-title">📈 최근 14일 XP</div>
+  <div class="bar-chart">${xpBars}</div>
+</div>
+<div class="chart-box">
+  <div class="chart-title">📚 주제별 진행률</div>
+  ${topicRows}
+</div>
+</div>`;
+}
+
+function speakLine(idx){
+  if(!CUR_DLG)return;
+  const text=CUR_DLG.lines[idx][1];
+  speak(text,null);
+}
+
+// ── SEARCH ──
+let SEARCH_QUERY = '';
+
+function renderSearch(){
+  const el = document.getElementById('v-search');
+  if(!el) return;
+
+  el.innerHTML = `
+<div class="search-bar">
+  <div class="search-inner">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="search-input" type="search"
+      placeholder="주제, 대화 제목, 단어 검색..."
+      value="${SEARCH_QUERY.replace(/"/g,'&quot;')}"
+      oninput="onSearch(this.value)"
+      autocomplete="off" autocorrect="off" spellcheck="false">
+    ${SEARCH_QUERY ? `<button class="search-clear" onclick="clearSearch()">✕</button>` : ''}
+  </div>
+</div>
+<div id="search-results-wrap"></div>`;
+
+  // Focus input
+  const inp = document.getElementById('search-input');
+  if(inp) setTimeout(()=>inp.focus(), 50);
+
+  renderSearchResults();
+}
+
+function onSearch(q){
+  SEARCH_QUERY = q.trim();
+  renderSearchResults();
+  // Update clear button
+  const si = document.querySelector('.search-inner');
+  if(si){
+    const existing = si.querySelector('.search-clear');
+    if(q && !existing){
+      const btn = document.createElement('button');
+      btn.className='search-clear'; btn.textContent='✕';
+      btn.onclick=()=>clearSearch();
+      si.appendChild(btn);
+    } else if(!q && existing){ existing.remove(); }
+  }
+}
+
+function clearSearch(){
+  SEARCH_QUERY='';
+  const inp=document.getElementById('search-input');
+  if(inp){inp.value='';inp.focus();}
+  renderSearchResults();
+  const si=document.querySelector('.search-inner');
+  if(si){const b=si.querySelector('.search-clear');if(b)b.remove();}
+}
+
+function highlight(text, q){
+  if(!q) return text;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return text.replace(new RegExp('('+escaped+')', 'gi'), '<mark>$1</mark>');
+}
+
+function renderSearchResults(){
+  const wrap = document.getElementById('search-results-wrap');
+  if(!wrap) return;
+  const q = SEARCH_QUERY.toLowerCase();
+
+  if(!q){
+    // Show all topics in compact grid when no query
+    const topicBtns = Object.entries(TOPICS).map(([key,t])=>{
+      const dc=topicDoneCount(key); const tt=topicTotal(key);
+      return `<button class="search-hit-row" onclick="openTopic('${key.replace(/'/g,"\\'")}')">
+        <div class="search-hit-num" style="background:${t.color}">${t.emoji}</div>
+        <div class="search-hit-info">
+          <div class="search-hit-title">${key}</div>
+          <div class="search-hit-preview">${tt}개 대화 · ${t.level}</div>
+        </div>
+        <span class="search-hit-tag" style="background:${t.color}22;color:${t.color}">${dc}/${tt}</span>
+      </button>`;
+    }).join('');
+    wrap.innerHTML = `<div class="search-hit-topic">전체 주제 (${Object.keys(TOPICS).length}개)</div>${topicBtns}`;
+    return;
+  }
+
+  // Search across topics AND dialogue titles AND vocab AND lines
+  const hits = [];
+  for(const [topicKey, topic] of Object.entries(TOPICS)){
+    // Topic name match
+    const topicMatch = topicKey.toLowerCase().includes(q);
+
+    for(const dlg of topic.dialogues){
+      const titleMatch = dlg.title.toLowerCase().includes(q);
+      const vocabMatch = (dlg.vocab||[]).some(v=>v.toLowerCase().includes(q));
+      const lineMatch = dlg.lines.some(([,text])=>text.toLowerCase().includes(q));
+
+      if(topicMatch || titleMatch || vocabMatch || lineMatch){
+        // Find matching preview line if searching lines
+        let preview = dlg.lines[0][1];
+        if(lineMatch && !titleMatch){
+          const matchLine = dlg.lines.find(([,text])=>text.toLowerCase().includes(q));
+          if(matchLine) preview = matchLine[1];
+        }
+        hits.push({topicKey, topic, dlg, preview,
+          matchType: titleMatch?'title':topicMatch?'topic':vocabMatch?'vocab':'line'});
+      }
+    }
+  }
+
+  if(!hits.length){
+    wrap.innerHTML = `<div class="empty">
+      <div style="font-size:32px;margin-bottom:12px">🔍</div>
+      <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">"${SEARCH_QUERY}"</div>
+      <div>검색 결과가 없어요.<br>다른 키워드로 검색해보세요.</div>
+    </div>`;
+    return;
+  }
+
+  // Group by topic
+  const grouped = {};
+  hits.forEach(h => {
+    if(!grouped[h.topicKey]) grouped[h.topicKey] = {topic:h.topic, results:[]};
+    grouped[h.topicKey].results.push(h);
+  });
+
+  const html = Object.entries(grouped).map(([key,g])=>{
+    const rows = g.results.map(h=>`
+      <button class="search-hit-row" onclick="openConv('${key.replace(/'/g,"\\'")}',${h.dlg.id})">
+        <div class="search-hit-num" style="background:${h.topic.color}">${h.dlg.id}</div>
+        <div class="search-hit-info">
+          <div class="search-hit-title">${highlight(h.dlg.title, SEARCH_QUERY)}</div>
+          <div class="search-hit-preview">${highlight(h.preview, SEARCH_QUERY)}</div>
+        </div>
+        <span class="search-hit-tag" style="background:${h.topic.color}22;color:${h.topic.color}">${
+          h.matchType==='vocab'?'어휘':h.matchType==='line'?'대화':h.matchType==='topic'?'주제':'제목'
+        }</span>
+      </button>`).join('');
+    return `<div class="search-hit-topic">${g.topic.emoji} ${key} (${g.results.length}개)</div>${rows}`;
+  }).join('');
+
+  wrap.innerHTML = `<div style="padding:.4rem 1rem .2rem;font-size:11px;color:var(--ink3)">
+    "${SEARCH_QUERY}" — ${hits.length}개 대화 발견
+  </div>${html}`;
+}
+
+// Also wire search into home screen quick search
+function goSearch(q){
+  SEARCH_QUERY = q || '';
+  go('search');
+}
+
+// ── INIT ──
+loadP();initVoices();renderHome();
+</script>
+</body>
+</html>

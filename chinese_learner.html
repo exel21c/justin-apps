@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉语 — Chinese Learner</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#ebe9e2;color:#1a1a18;min-height:100vh}
+:root{
+  --blue:#185FA5;--teal:#0F6E56;--amber:#854F0B;--coral:#D85A30;
+  --bg:#ffffff;--bg2:#f5f4f0;--bg3:#ebe9e2;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --border:rgba(0,0,0,0.09);--radius:12px;
+}
+#app{max-width:640px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,0.1)}
+
+/* NAV */
+.top-nav{display:flex;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100}
+.nav-logo{padding:13px 16px;font-weight:600;font-size:16px;color:var(--blue);border-right:1px solid var(--border);letter-spacing:-0.02em;white-space:nowrap}
+.nav-tab{flex:1;padding:12px 6px;border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--text2);border-bottom:2px solid transparent;font-family:inherit;transition:all .15s;position:relative}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--coral);color:#fff;border-radius:50%;width:15px;height:15px;font-size:9px;display:flex;align-items:center;justify-content:center}
+
+/* VIEWS */
+.view{display:none;padding:1.25rem 1rem}
+.view.active{display:block}
+
+/* CARDS */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem}
+
+/* BUTTONS */
+.btn{padding:9px 16px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:hover{background:var(--bg2)}
+.btn-block{width:100%;padding:14px;font-size:15px;border-radius:10px}
+
+/* UTILS */
+.row{display:flex;align-items:center;gap:10px}
+.row-between{display:flex;align-items:center;justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px}
+.section-label{font-size:11px;letter-spacing:.07em;color:var(--text3);margin-bottom:10px;text-transform:uppercase}
+.pill{font-size:10px;padding:2px 8px;border-radius:10px}
+
+/* XP CARD */
+.xp-card{background:var(--blue);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:12px}
+.xp-bar-track{height:6px;background:#0C447C;border-radius:3px;overflow:hidden;margin:10px 0 4px}
+.xp-bar-fill{height:100%;background:#85B7EB;border-radius:3px;transition:width .6s ease}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border-radius:10px;padding:.6rem .4rem;text-align:center}
+.stat-val{font-size:18px;font-weight:500}
+.stat-lbl{font-size:9px;color:var(--text3);margin-top:2px}
+
+/* LESSON CARDS */
+.lesson-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;cursor:pointer;transition:background .15s;margin-bottom:10px}
+.lesson-card:hover{background:var(--bg2)}
+.pbar-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:10px}
+.pbar-fill{height:100%;border-radius:2px;transition:width .5s}
+
+/* VOCAB GRID */
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;margin-bottom:14px}
+.vocab-card{background:var(--bg);border:0.5px solid var(--border);border-radius:10px;padding:.7rem}
+.mastery-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* QUIZ */
+.quiz-wrap{padding:1rem}
+.quiz-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.qpbar-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:26px}
+.qpbar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+.char-card{border:0.5px solid var(--border);border-radius:var(--radius);padding:2rem 1rem;text-align:center;margin-bottom:22px;transition:background .3s}
+.char-big{font-size:68px;line-height:1}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-btn{padding:14px 10px;border-radius:10px;border:0.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:14px;font-family:inherit;transition:all .2s;color:var(--text);text-align:center}
+.opt-btn:hover:not(:disabled){background:var(--bg2)}
+.opt-btn.correct{background:#EAF3DE!important;border:1.5px solid #639922!important}
+.opt-btn.wrong{background:#FCEBEB!important;border:1.5px solid #E24B4A!important}
+.opt-btn:disabled{cursor:default}
+
+/* DIALOGUE */
+.dlg-line{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border)}
+.dlg-line:last-child{border-bottom:none}
+.dlg-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:2px}
+
+/* PROGRESS / CHARTS */
+.bar-row{margin-bottom:10px}
+.bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.chart-wrap{display:flex;align-items:flex-end;gap:6px;height:120px;margin-bottom:4px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;min-height:2px}
+.chart-lbl{font-size:9px;color:var(--text3);text-align:center}
+.chart-val{font-size:10px;color:var(--text2);font-weight:500}
+.done-wrap{padding:2rem 1rem;text-align:center}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:.5px solid var(--border)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.empty-card{border:.5px dashed var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center;color:var(--text3);font-size:13px}
+.dlg-toggle{width:100%;padding:10px;border-radius:8px;border:.5px solid var(--border);background:transparent;cursor:pointer;font-size:13px;font-family:inherit;color:var(--text);margin-bottom:10px}
+.info-box{margin-top:20px;padding:.8rem 1rem;border-radius:10px;background:var(--bg2);font-size:12px;color:var(--text2);line-height:1.7}
+.sound-bar{padding:6px 16px;font-size:11px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.sound-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.vocab-card{cursor:pointer;transition:background .15s}
+.vocab-card:hover{background:var(--bg2)}
+.vocab-card.speaking{background:#E6F1FB!important;border-color:#185FA5!important}
+.dlg-line{cursor:pointer;transition:background .15s}
+.dlg-line:hover{background:var(--bg2)}
+.dlg-line.speaking{background:#E6F1FB!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav class="top-nav">
+    <div class="nav-logo">汉语</div>
+    <button class="nav-tab active" data-view="home" onclick="goView('home')">홈</button>
+    <button class="nav-tab" data-view="learn" onclick="goView('learn')">학습</button>
+    <button class="nav-tab" data-view="progress" onclick="goView('progress')">현황</button>
+  </nav>
+  <div id="sound-bar" class="sound-bar">
+    <div id="sound-dot" class="sound-dot" style="background:#B4B2A9"></div>
+    <span id="sound-msg" style="color:var(--text3)">소리 확인 중...</span>
+    <button id="sound-test" onclick="testSpeak()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:transparent;font-size:11px;cursor:pointer;font-family:inherit">테스트</button>
+  </div>
+  <div id="view-home"     class="view active"></div>
+  <div id="view-learn"    class="view"></div>
+  <div id="view-lesson"   class="view"></div>
+  <div id="view-quiz"     class="view" style="padding:0"></div>
+  <div id="view-progress" class="view"></div>
+</div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// CURRICULUM
+// Add new lessons here ↓
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+const CURRICULUM = [
+  {
+    id:"w1-l1",week:1,lesson:1,
+    title:"성조",subtitle:"Four Tones",color:"#185FA5",
+    vocab:[
+      {char:"妈",pinyin:"mā",meaning:"엄마",tone:1},
+      {char:"麻",pinyin:"má",meaning:"삼/마",tone:2},
+      {char:"马",pinyin:"mǎ",meaning:"말",tone:3},
+      {char:"骂",pinyin:"mà",meaning:"욕하다",tone:4},
+      {char:"书",pinyin:"shū",meaning:"책",tone:1},
+      {char:"人",pinyin:"rén",meaning:"사람",tone:2},
+      {char:"好",pinyin:"hǎo",meaning:"좋다",tone:3},
+      {char:"去",pinyin:"qù",meaning:"가다",tone:4},
+      {char:"看",pinyin:"kàn",meaning:"보다",tone:4},
+      {char:"大",pinyin:"dà",meaning:"크다",tone:4},
+    ]
+  },
+  {
+    id:"w1-l2",week:1,lesson:2,
+    title:"기본 단어",subtitle:"Basic Vocabulary",color:"#0F6E56",
+    vocab:[
+      {char:"妈",pinyin:"mā",meaning:"엄마"},
+      {char:"哥",pinyin:"gē",meaning:"형/오빠"},
+      {char:"家",pinyin:"jiā",meaning:"집"},
+      {char:"钱",pinyin:"qián",meaning:"돈"},
+      {char:"来",pinyin:"lái",meaning:"오다"},
+      {char:"你",pinyin:"nǐ",meaning:"너"},
+      {char:"买",pinyin:"mǎi",meaning:"사다"},
+      {char:"很",pinyin:"hěn",meaning:"매우"},
+      {char:"见",pinyin:"jiàn",meaning:"보다/만나다"},
+      {char:"学",pinyin:"xué",meaning:"배우다"},
+    ]
+  },
+  {
+    id:"w1-l3",week:1,lesson:3,
+    title:"인사말",subtitle:"Greetings",color:"#854F0B",
+    vocab:[
+      {char:"你好",pinyin:"nǐ hǎo",meaning:"안녕"},
+      {char:"早上好",pinyin:"zǎoshang hǎo",meaning:"좋은 아침"},
+      {char:"晚上好",pinyin:"wǎnshang hǎo",meaning:"좋은 저녁"},
+      {char:"今天",pinyin:"jīn tiān",meaning:"오늘"},
+      {char:"怎么样",pinyin:"zěnmeyàng",meaning:"어때"},
+      {char:"我很好",pinyin:"wǒ hěn hǎo",meaning:"나 잘 지내"},
+      {char:"谢谢",pinyin:"xiè xie",meaning:"고마워"},
+      {char:"再见",pinyin:"zài jiàn",meaning:"잘 가"},
+      {char:"好的",pinyin:"hǎo de",meaning:"알겠어"},
+      {char:"明天见",pinyin:"míngtiān jiàn",meaning:"내일 보자"},
+      {char:"拜拜",pinyin:"bài bài",meaning:"빠이빠이"},
+    ],
+    dialogue:[
+      {sp:"A",zh:"你好！早上好！",py:"Nǐ hǎo! Zǎoshang hǎo!",kr:"안녕! 좋은 아침!"},
+      {sp:"B",zh:"早上好！你今天怎么样？",py:"Zǎoshang hǎo! Nǐ jīntiān zěnmeyàng?",kr:"좋은 아침! 오늘 어때?"},
+      {sp:"A",zh:"我很好，谢谢！",py:"Wǒ hěn hǎo, xièxie!",kr:"나 잘 지내, 고마워!"},
+      {sp:"A",zh:"再见！",py:"Zài jiàn!",kr:"잘 가!"},
+      {sp:"B",zh:"好的，再见！",py:"Hǎo de, zàijiàn!",kr:"그래, 잘 가!"},
+      {sp:"A",zh:"明天见，拜拜！",py:"Míngtiān jiàn, bàibài!",kr:"내일 봐, 빠이빠이!"},
+    ]
+  },
+  // ━━━━━━━━━━━━━━━━━━━━━━━━
+  // WEEK 2 — 나 너무 배고파
+  // ━━━━━━━━━━━━━━━━━━━━━━━━
+  {
+    id:"w2-l1",week:2,lesson:1,
+    title:"형용사 술어문",subtitle:"Adjective Sentences",color:"#DC2626",
+    vocab:[
+      {char:"好吃",pinyin:"hǎochī",meaning:"맛있다"},{char:"辣",pinyin:"là",meaning:"맵다"},
+      {char:"热",pinyin:"rè",meaning:"덥다/뜨겁다"},{char:"冷",pinyin:"lěng",meaning:"춥다"},
+      {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다"},{char:"帅",pinyin:"shuài",meaning:"잘생겼다"},
+      {char:"聪明",pinyin:"cōngming",meaning:"똑똑하다"},{char:"忙",pinyin:"máng",meaning:"바쁘다"},
+      {char:"开心",pinyin:"kāixīn",meaning:"기쁘다"},{char:"累",pinyin:"lèi",meaning:"피곤하다"},
+      {char:"可爱",pinyin:"kě'ài",meaning:"귀엽다"},{char:"贵",pinyin:"guì",meaning:"비싸다"},
+      {char:"便宜",pinyin:"piányi",meaning:"싸다"},{char:"难",pinyin:"nán",meaning:"어렵다"},
+      {char:"幸福",pinyin:"xìngfú",meaning:"행복하다"},{char:"高",pinyin:"gāo",meaning:"(키)크다"},
+      {char:"矮",pinyin:"ǎi",meaning:"(키)작다"},{char:"好",pinyin:"hǎo",meaning:"좋다"},
+      {char:"饿",pinyin:"è",meaning:"배고프다"},{char:"很",pinyin:"hěn",meaning:"매우"},
+      {char:"不",pinyin:"bù",meaning:"아니다/~않다"},{char:"吗",pinyin:"ma",meaning:"~이야? (의문)"},
+      {char:"呢",pinyin:"ne",meaning:"~은? (추가 질문)"},
+    ],
+    dialogue:[
+      {sp:"A",zh:"你今天忙吗？",py:"Nǐ jīntiān máng ma?",kr:"너 오늘 바빠?"},
+      {sp:"B",zh:"我今天很忙。",py:"Wǒ jīntiān hěn máng.",kr:"나 오늘 아주 바빠."},
+      {sp:"A",zh:"那，明天呢？",py:"Nà, míngtiān ne?",kr:"그럼, 내일은?"},
+      {sp:"B",zh:"我明天不忙。",py:"Wǒ míngtiān bù máng.",kr:"나 내일은 안 바빠."},
+    ],
+    grammar:[
+      {title:"형용사 술어문",rule:"주어 + 很 + 형용사",example:"我很饿。",pinyin:"Wǒ hěn è.",meaning:"나는 매우 배고프다."},
+      {title:"부정문",rule:"주어 + 不 + 형용사",example:"我不饿。",pinyin:"Wǒ bù è.",meaning:"나는 배고프지 않다."},
+      {title:"의문문",rule:"주어 + 很 + 형용사 + 吗？",example:"你很忙吗？",pinyin:"Nǐ hěn máng ma?",meaning:"너 많이 바빠?"},
+      {title:"3성+3성 변화",rule:"앞의 3성 → 2성으로",example:"你好 nǐ hǎo → ní hǎo",pinyin:"",meaning:""},
+      {title:"不 성조변화",rule:"不(bù)+4성 → bú로 변화",example:"不是 bù shì → bú shì",pinyin:"",meaning:""},
+    ]
+  },
+  {
+    id:"w2-l2",week:2,lesson:2,
+    title:"我是韩国人",subtitle:"Nationality & Family",color:"#7C3AED",
+    vocab:[
+      {char:"韩国人",pinyin:"Hánguórén",meaning:"한국인"},{char:"中国人",pinyin:"Zhōngguórén",meaning:"중국인"},
+      {char:"日本人",pinyin:"Rìběnrén",meaning:"일본인"},{char:"美国人",pinyin:"Měiguórén",meaning:"미국인"},
+      {char:"法国人",pinyin:"Fǎguórén",meaning:"프랑스인"},{char:"英国人",pinyin:"Yīngguórén",meaning:"영국인"},
+      {char:"外国人",pinyin:"Wàiguórén",meaning:"외국인"},{char:"意大利人",pinyin:"Yìdàlìrén",meaning:"이탈리아인"},
+      {char:"是",pinyin:"shì",meaning:"~이다"},{char:"不是",pinyin:"bú shì",meaning:"~이 아니다"},
+      {char:"哪国人",pinyin:"nǎ guó rén",meaning:"어느 나라 사람"},
+      {char:"妈妈",pinyin:"māma",meaning:"엄마"},{char:"爸爸",pinyin:"bàba",meaning:"아빠"},
+      {char:"奶奶",pinyin:"nǎinai",meaning:"할머니"},{char:"爷爷",pinyin:"yéye",meaning:"할아버지"},
+      {char:"哥哥",pinyin:"gēge",meaning:"오빠/형"},{char:"弟弟",pinyin:"dìdi",meaning:"남동생"},
+      {char:"姐姐",pinyin:"jiějie",meaning:"언니/누나"},{char:"妹妹",pinyin:"mèimei",meaning:"여동생"},
+      {char:"朋友",pinyin:"péngyou",meaning:"친구"},{char:"男朋友",pinyin:"nánpéngyou",meaning:"남자친구"},
+      {char:"女朋友",pinyin:"nǚpéngyou",meaning:"여자친구"},{char:"同事",pinyin:"tóngshì",meaning:"동료"},
+      {char:"老师",pinyin:"lǎoshī",meaning:"선생님"},{char:"爱人",pinyin:"àiren",meaning:"배우자/애인"},
+      {char:"女儿",pinyin:"nǚ'ér",meaning:"딸"},{char:"儿子",pinyin:"érzi",meaning:"아들"},
+      {char:"而且",pinyin:"érqiě",meaning:"게다가"},
+    ],
+    dialogue:[
+      {sp:"A",zh:"你是中国人吗？",py:"Nǐ shì Zhōngguórén ma?",kr:"너는 중국인이야?"},
+      {sp:"B",zh:"不是，我是韩国人。",py:"Bú shì, wǒ shì Hánguórén.",kr:"아니, 나는 한국인이야."},
+      {sp:"B",zh:"你是哪国人？",py:"Nǐ shì nǎ guó rén?",kr:"너는 어느 나라 사람이야?"},
+      {sp:"A",zh:"我是日本人。",py:"Wǒ shì Rìběnrén.",kr:"나는 일본인이야."},
+    ],
+    grammar:[
+      {title:"是자문",rule:"주어 + 是 + 명사",example:"我是韩国人。",pinyin:"Wǒ shì Hánguórén.",meaning:"나는 한국인입니다."},
+      {title:"부정문",rule:"주어 + 不是 + 명사",example:"我不是中国人。",pinyin:"Wǒ bú shì Zhōngguórén.",meaning:"나는 중국인이 아니야."},
+      {title:"의문문",rule:"주어 + 是 + 명사 + 吗？",example:"你是中国人吗？",pinyin:"Nǐ shì Zhōngguórén ma?",meaning:"너는 중국인이야?"},
+      {title:"而且",rule:"A，而且B (A이고 게다가 B)",example:"他是老师，而且很帅。",pinyin:"Tā shì lǎoshī, érqiě hěn shuài.",meaning:"그는 선생님이고 잘생겼습니다."},
+    ]
+  },
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// SRS CONFIG (Anki-style)
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+const SRS_DAYS   = [0,1,3,7,14,30];
+const LVL_LABELS = ["새로운","입문","초급","중급","고급","마스터"];
+const LVL_COLORS = ["#B4B2A9","#378ADD","#1D9E75","#BA7517","#7F77DD","#D85A30"];
+const STORE_KEY  = "clp-html-v2";
+
+const ALL_VOCAB = [...new Map(
+  CURRICULUM.flatMap(l=>l.vocab).map(v=>[v.char,v])
+).values()];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+let P = {
+  xp:0,totalReviews:0,totalCorrect:0,lastStudied:null,
+  wordMastery:{},lessonProgress:{},xpHistory:{}
+};
+let currentView   = "home";
+let selectedLesson = null;
+let quiz          = null;
+
+function loadP(){
+  try{const r=localStorage.getItem(STORE_KEY);if(r)P=JSON.parse(r);}catch(e){}
+}
+function saveP(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(P));}catch(e){}
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// HELPERS
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+const nextRev  = (lv)=>Date.now()+SRS_DAYS[Math.min(lv,5)]*86400000;
+const isDue    = (wm)=>!wm||wm.level===0||Date.now()>=wm.nextReview;
+const today    = ()=>new Date().toISOString().slice(0,10);
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function buildOpts(correct){
+  const wrong=shuffle(ALL_VOCAB.filter(v=>v.meaning!==correct.meaning)).slice(0,3);
+  return shuffle([correct,...wrong]);
+}
+function buildCards(vocab){
+  return shuffle(vocab).map(v=>({...v,opts:buildOpts(v)}));
+}
+function getDue(){
+  return ALL_VOCAB.filter(v=>{
+    const wm=P.wordMastery[v.char];
+    return wm&&wm.level>0&&isDue(wm);
+  }).length;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// NAVIGATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+function goView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.view===name);
+  });
+  currentView=name;
+  document.getElementById('view-'+name).classList.add('active');
+  render();
+}
+
+function render(){
+  if(currentView==='home')     renderHome();
+  if(currentView==='learn')    renderLearn();
+  if(currentView==='lesson')   renderLesson();
+  if(currentView==='quiz')     renderQuiz();
+  if(currentView==='progress') renderProgress();
+  refreshBadge();
+}
+
+function refreshBadge(){
+  const tab=document.querySelector('[data-view="home"]');
+  const old=tab.querySelector('.nav-badge');
+  if(old)old.remove();
+  const n=getDue();
+  if(n>0){
+    const b=document.createElement('span');
+    b.className='nav-badge';b.textContent=n;tab.appendChild(b);
+  }
+}
+
+function openLesson(id){
+  selectedLesson=CURRICULUM.find(l=>l.id===id);
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  currentView='lesson';
+  document.getElementById('view-lesson').classList.add('active');
+  renderLesson();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// HOME
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+function renderHome(){
+  const el=document.getElementById('view-home');
+  const xpLevel   = Math.floor(P.xp/100)+1;
+  const xpCurrent = P.xp%100;
+  const accuracy  = P.totalReviews?Math.round(P.totalCorrect/P.totalReviews*100):0;
+  const learned   = Object.keys(P.wordMastery).length;
+  const mastered  = Object.values(P.wordMastery).filter(w=>w.level>=5).length;
+  const due       = getDue();
+
+  el.innerHTML=`
+<div style="margin-bottom:1.25rem">
+  <div style="font-size:20px;font-weight:500">안녕하세요, Justin! 👋</div>
+  <div style="font-size:13px;color:var(--text2);margin-top:2px">오늘도 중국어 공부 계속해봐요</div>
+</div>
+
+<div class="xp-card">
+  <div class="row-between" style="margin-bottom:4px">
+    <div>
+      <div style="font-size:10px;color:#85B7EB;letter-spacing:.08em">LEVEL ${xpLevel}</div>
+      <div style="font-size:24px;font-weight:500;color:#fff;line-height:1.1">${P.xp} XP</div>
+    </div>
+    <div style="font-size:32px">🏆</div>
+  </div>
+  <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpCurrent}%"></div></div>
+  <div style="font-size:10px;color:#85B7EB">${xpCurrent}/100 XP — 다음 레벨까지</div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-val">${learned}</div><div class="stat-lbl">학습 단어</div></div>
+  <div class="stat-card"><div class="stat-val">${mastered}</div><div class="stat-lbl">마스터</div></div>
+  <div class="stat-card"><div class="stat-val">${accuracy}%</div><div class="stat-lbl">정확도</div></div>
+  <div class="stat-card"><div class="stat-val" style="color:${due>0?'var(--coral)':'inherit'}">${due}</div><div class="stat-lbl">복습 예정</div></div>
+</div>
+
+<div class="col">
+  ${due>0?`<button class="btn btn-block" style="background:var(--coral);border:none;color:#fff;display:flex;align-items:center;gap:12px;justify-content:center" onclick="startReview()">
+    <span style="font-size:20px">🔄</span>
+    <span><strong>${due}개</strong> 단어 복습하기 (SRS)</span>
+  </button>`:''}
+  <button class="btn btn-block" style="display:flex;align-items:center;gap:12px;justify-content:center" onclick="goView('learn')">
+    <span style="font-size:20px">📚</span><span>수업 목록 보기</span>
+  </button>
+</div>
+
+<div class="info-box">
+  <strong style="color:var(--text)">SRS (간격 반복 학습)</strong>이란?<br>
+  정답 맞힌 단어 → 복습 간격 늘어남 (1일→3일→7일→14일→30일)<br>
+  틀린 단어 → 즉시 복습 예정으로 돌아옴 (Anki와 동일한 방식)
+</div>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// LEARN
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+function renderLearn(){
+  const el=document.getElementById('view-learn');
+  const weeks=[...new Set(CURRICULUM.map(l=>l.week))];
+  let html=`<div style="font-size:18px;font-weight:500;margin-bottom:1rem">커리큘럼</div>`;
+
+  weeks.forEach(week=>{
+    html+=`<div style="margin-bottom:1.5rem"><div class="section-label">WEEK ${week}</div>`;
+    CURRICULUM.filter(l=>l.week===week).forEach(lesson=>{
+      const lp=P.lessonProgress[lesson.id]||{};
+      const mastered=lesson.vocab.filter(v=>(P.wordMastery[v.char]?.level||0)>=4).length;
+      const pct=Math.round(mastered/lesson.vocab.length*100);
+      html+=`
+      <div class="lesson-card" onclick="openLesson('${lesson.id}')" style="border-left:3px solid ${lesson.color}">
+        <div class="row-between">
+          <div>
+            <div class="row" style="gap:8px;margin-bottom:3px">
+              <span style="font-size:15px;font-weight:500">${lesson.title}</span>
+              ${lp.completed?`<span class="pill" style="background:#EAF3DE;color:#3B6D11">완료 ✓</span>`:''}
+            </div>
+            <div style="font-size:12px;color:var(--text2)">${lesson.subtitle} · ${lesson.vocab.length}개 단어${lp.attempts?` · ${lp.attempts}회 도전`:''}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:18px;font-weight:500;color:${lesson.color}">${pct}%</div>
+            <div style="font-size:9px;color:var(--text3)">마스터율</div>
+          </div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill" style="width:${pct}%;background:${lesson.color}"></div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+
+  html+=`<div class="empty-card">새 수업이 매주 추가될 예정입니다 📌</div>`;
+  el.innerHTML=html;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// LESSON DETAIL
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+let LESSON_TAB = 'vocab';
+
+function renderLesson(){
+  if(!selectedLesson)return;
+  const el=document.getElementById('view-lesson');
+  const l=selectedLesson;
+  const lp=P.lessonProgress[l.id]||{};
+  const mastered=l.vocab.filter(v=>(P.wordMastery[v.char]?.level||0)>=4).length;
+  const pct=Math.round(mastered/l.vocab.length*100);
+
+  const grammarTab=l.grammar?`<button class="tab-item ${LESSON_TAB==="grammar"?"active":""}" onclick="setLTab('grammar')">문법</button>`:'';
+  const dlgTab=l.dialogue?`<button class="tab-item ${LESSON_TAB==="dialogue"?"active":""}" onclick="setLTab('dialogue')">대화문</button>`:'';
+
+  el.innerHTML=`
+<div style="background:var(--bg);border-bottom:1px solid var(--border);padding:1rem">
+  <button class="btn" style="margin-bottom:12px;font-size:13px" onclick="goView('learn')">← 뒤로</button>
+  <div style="border-left:3px solid ${l.color};padding-left:12px;margin-bottom:10px">
+    <div style="font-size:20px;font-weight:500">${l.title}</div>
+    <div style="font-size:13px;color:var(--text2)">${l.subtitle} · ${l.vocab.length}개 단어 · 숙련도 ${pct}%${lp.bestScore!=null?' · 최고 '+lp.bestScore+'%':''}</div>
+  </div>
+  <div class="pbar-track"><div class="pbar-fill" style="width:${pct}%;background:${l.color}"></div></div>
+</div>
+<div style="display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--bg)">
+  <button class="tab-item" onclick="setLTab('vocab')" style="${LESSON_TAB==='vocab'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">단어 (${l.vocab.length})</button>
+  ${l.grammar?`<button class="tab-item" onclick="setLTab('grammar')" style="${LESSON_TAB==='grammar'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">문법</button>`:''}
+  ${l.dialogue?`<button class="tab-item" onclick="setLTab('dialogue')" style="${LESSON_TAB==='dialogue'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">대화문</button>`:''}
+  <button class="tab-item" onclick="setLTab('quiz')" style="${LESSON_TAB==='quiz'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">퀴즈</button>
+  <button class="tab-item" onclick="setLTab('mastery')" style="${LESSON_TAB==='mastery'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">숙련도</button>
+</div>
+<div id="lesson-tab-content"></div>`;
+
+  renderLTab();
+}
+
+function setLTab(tab){LESSON_TAB=tab;renderLesson();}
+
+function renderLTab(){
+  const l=selectedLesson;
+  if(!l)return;
+  const tc=document.getElementById('lesson-tab-content');
+  if(!tc)return;
+
+  if(LESSON_TAB==='vocab'){
+    const legend=LVL_LABELS.map((label,i)=>`<div class="legend-item"><div class="mastery-dot" style="background:${LVL_COLORS[i]}"></div><span>${label}</span></div>`).join('');
+    const cards=l.vocab.map(v=>{
+      const lv=P.wordMastery[v.char]?.level||0;
+      const esc=v.char.replace(/'/g,"\'");
+      return`<div class="vocab-card" onclick="speak('${esc}')">
+        <div class="row-between" style="margin-bottom:4px">
+          <span style="font-size:24px">${v.char}</span>
+          <span class="mastery-dot" style="background:${LVL_COLORS[lv]}" title="${LVL_LABELS[lv]}"></span>
+        </div>
+        <div style="font-size:12px;color:var(--blue);font-weight:500">${v.pinyin}</div>
+        <div style="font-size:11px;color:var(--text2)">${v.meaning}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px">🔊 클릭</div>
+      </div>`;
+    }).join('');
+    tc.innerHTML=`<div class="legend" style="padding:.8rem 1rem .2rem">${legend}</div><div class="vocab-grid">${cards}</div>`;
+
+  } else if(LESSON_TAB==='grammar'){
+    if(!l.grammar||!l.grammar.length){tc.innerHTML='<div class="empty-note">문법 내용 없음</div>';return;}
+    const rows=l.grammar.map(g=>`
+      <div style="background:var(--bg);border-radius:12px;padding:.9rem 1rem;margin-bottom:10px;border-left:3px solid ${l.color}">
+        <div style="font-size:11px;font-weight:700;color:${l.color};letter-spacing:.04em;margin-bottom:5px">${g.title}</div>
+        <div style="font-size:12px;background:var(--bg2);border-radius:6px;padding:5px 10px;margin-bottom:8px;color:var(--text2)">${g.rule}</div>
+        ${g.example?`<div style="font-size:22px;font-weight:600;margin-bottom:2px">${g.example}</div>`:''}
+        ${g.pinyin?`<div style="font-size:13px;color:#185FA5;font-weight:500;margin-bottom:2px">${g.pinyin}</div>`:''}
+        ${g.meaning?`<div style="font-size:12px;color:var(--text2)">${g.meaning}</div>`:''}
+      </div>`).join('');
+    tc.innerHTML=`<div style="padding:1rem">${rows}</div>`;
+
+  } else if(LESSON_TAB==='dialogue'){
+    if(!l.dialogue||!l.dialogue.length){tc.innerHTML='<div class="empty-note">대화문 없음</div>';return;}
+    const lines=l.dialogue.map(line=>{
+      const esc=line.zh.replace(/'/g,"\'");
+      return`<div class="dlg-line" onclick="speak('${esc}')">
+        <div class="dlg-badge" style="background:${line.sp==='A'?'#E6F1FB':'#FAEEDA'};color:${line.sp==='A'?'#185FA5':'#854F0B'}">${line.sp}</div>
+        <div>
+          <div style="font-size:15px">${line.zh} <span style="font-size:11px;color:var(--text3)">🔊</span></div>
+          <div style="font-size:11px;color:#185FA5">${line.py}</div>
+          <div style="font-size:11px;color:var(--text2)">${line.kr}</div>
+        </div>
+      </div>`;
+    }).join('');
+    tc.innerHTML=`<div class="card" style="margin:1rem;border-radius:12px">${lines}</div>`;
+
+  } else if(LESSON_TAB==='quiz'){
+    tc.innerHTML=`<div style="padding:1rem">
+      <button class="btn btn-block" style="background:${l.color};border:none;color:#fff;font-weight:500;margin-bottom:10px" onclick="startQuiz('${l.id}','all')">전체 단어 퀴즈 (${l.vocab.length}개)</button>
+      <button class="btn btn-block" style="margin-bottom:10px" onclick="startQuiz('${l.id}','hard')">🔥 약한 단어만 퀴즈</button>
+    </div>`;
+
+  } else if(LESSON_TAB==='mastery'){
+    const rows=l.vocab.map(v=>{
+      const lv=P.wordMastery[v.char]?.level||0;
+      const wm=P.wordMastery[v.char];
+      const dueIn=wm&&wm.level>0?Math.max(0,Math.ceil((wm.nextReview-Date.now())/86400000)):0;
+      return`<div class="result-row">
+        <div><div style="font-size:15px;font-weight:500">${v.char}</div><div style="font-size:11px;color:var(--text2)">${v.pinyin} · ${v.meaning}</div></div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:600;color:${LVL_COLORS[lv]}">${LVL_LABELS[lv]}</div>
+          ${wm&&wm.level>0?`<div style="font-size:10px;color:var(--text3)">${dueIn===0?'복습 예정':dueIn+'일 후'}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    tc.innerHTML=`<div style="padding:1rem">${rows}</div>`;
+  }
+}
+
+function toggleDlg(btn){
+  const d=document.getElementById('dlg-content');
+  const open=d.style.display==='block';
+  d.style.display=open?'none':'block';
+  btn.textContent=(open?'▼':'▲')+' 대화문 보기';
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// QUIZ
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+function startQuiz(lessonId,mode){
+  const lesson=CURRICULUM.find(l=>l.id===lessonId);
+  let pool=lesson.vocab;
+  if(mode==='hard'){
+    pool=lesson.vocab.filter(v=>{const lv=P.wordMastery[v.char]?.level||0;return lv===0||lv===1;});
+    if(!pool.length)pool=lesson.vocab;
+  }
+  quiz={lessonId,title:lesson.title,cards:buildCards(pool),
+    idx:0,results:[],phase:'question',xpEarned:0,chosen:null,wasCorrect:null};
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  currentView='quiz';
+  document.getElementById('view-quiz').classList.add('active');
+  renderQuiz();
+}
+
+function startReview(){
+  const due=ALL_VOCAB.filter(v=>{
+    const wm=P.wordMastery[v.char];
+    return wm&&wm.level>0&&isDue(wm);
+  });
+  if(!due.length)return;
+  quiz={lessonId:null,title:'복습',cards:buildCards(due),
+    idx:0,results:[],phase:'question',xpEarned:0,chosen:null,wasCorrect:null};
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  currentView='quiz';
+  document.getElementById('view-quiz').classList.add('active');
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const el=document.getElementById('view-quiz');
+  if(!quiz)return;
+
+  if(quiz.phase==='done'){
+    const correct=quiz.results.filter(r=>r.correct).length;
+    const total=quiz.results.length;
+    const score=Math.round(correct/total*100);
+    const emoji=score>=80?'🎉':score>=60?'👍':'💪';
+    const rows=quiz.results.map(r=>`
+      <div class="result-row">
+        <span style="font-size:18px">${r.char}</span>
+        <span>${r.correct?'✅':'❌'}</span>
+      </div>`).join('');
+    const backFn=quiz.lessonId?`goView('learn')`:`goView('home')`;
+    el.innerHTML=`<div class="done-wrap">
+      <div style="font-size:52px;margin-bottom:12px">${emoji}</div>
+      <div style="font-size:24px;font-weight:500;margin-bottom:6px">완료!</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:6px">${total}개 중 ${correct}개 정답 (${score}%)</div>
+      <div style="font-size:20px;font-weight:500;color:var(--amber);margin-bottom:28px">+${quiz.xpEarned} XP 획득!</div>
+      <div style="text-align:left;margin-bottom:24px">${rows}</div>
+      <button class="btn btn-block" style="background:var(--blue);border:none;color:#fff" onclick="${backFn}">완료</button>
+    </div>`;
+    return;
+  }
+
+  const c=quiz.cards[quiz.idx];
+  const pct=Math.round(quiz.idx/quiz.cards.length*100);
+  let charBg='var(--bg)';
+  if(quiz.phase==='reveal')charBg=quiz.wasCorrect?'#EAF3DE':'#FCEBEB';
+
+  const backFn=quiz.lessonId?`goView('lesson')`:`goView('home')`;
+  const opts=c.opts.map(opt=>{
+    let cls='opt-btn';
+    if(quiz.phase==='reveal'){
+      if(opt.meaning===c.meaning)cls+=' correct';
+      else if(opt.meaning===quiz.chosen)cls+=' wrong';
+    }
+    const esc=opt.meaning.replace(/'/g,"\\'");
+    return`<button class="${cls}"${quiz.phase==='reveal'?' disabled':''} onclick="answer('${esc}')">${opt.meaning}</button>`;
+  }).join('');
+
+  el.innerHTML=`<div class="quiz-wrap">
+    <div class="quiz-hdr">
+      <button class="btn" style="padding:6px 12px;font-size:13px" onclick="${backFn}">✕</button>
+      <span style="font-size:13px;color:var(--text2)">${quiz.title} · ${quiz.idx+1}/${quiz.cards.length}</span>
+      <span style="font-size:13px;font-weight:500;color:var(--amber)">+${quiz.xpEarned} XP</span>
+    </div>
+    <div class="qpbar-track"><div class="qpbar-fill" style="width:${pct}%"></div></div>
+    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:8px">올바른 뜻을 고르세요</div>
+    <div class="char-card" style="background:${charBg}">
+      <div class="char-big">${c.char}</div>
+      ${quiz.phase==='reveal'?`
+        <div style="margin-top:12px">
+          <div style="font-size:16px;color:#185FA5;font-weight:500">${c.pinyin}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">${c.meaning}</div>
+          <div style="font-size:20px;margin-top:8px">${quiz.wasCorrect?'✅ 정답!':'❌ 틀렸어요'}</div>
+        </div>`:''}
+    </div>
+    <div class="opts-grid">${opts}</div>
+  </div>`;
+}
+
+function answer(choice){
+  if(!quiz||quiz.phase!=='question')return;
+  const c=quiz.cards[quiz.idx];
+  const correct=choice===c.meaning;
+  const newResults=[...quiz.results,{char:c.char,correct}];
+  const wm=P.wordMastery[c.char]||{level:0,correct:0,wrong:0};
+  const newLv=correct?Math.min(wm.level+1,5):Math.max(wm.level-1,0);
+  const xpGain=correct?10:0;
+  const isLast=quiz.idx===quiz.cards.length-1;
+  const t=today();
+
+  P.xp+=xpGain;
+  P.totalReviews++;
+  if(correct)P.totalCorrect++;
+  P.lastStudied=Date.now();
+  P.wordMastery[c.char]={level:newLv,nextReview:nextRev(newLv),
+    correct:wm.correct+(correct?1:0),wrong:wm.wrong+(correct?0:1)};
+  P.xpHistory[t]=(P.xpHistory[t]||0)+xpGain;
+
+  if(isLast&&quiz.lessonId){
+    const score=Math.round(newResults.filter(r=>r.correct).length/newResults.length*100);
+    const lp=P.lessonProgress[quiz.lessonId]||{};
+    P.lessonProgress[quiz.lessonId]={
+      completed:score>=60,
+      bestScore:Math.max(lp.bestScore||0,score),
+      attempts:(lp.attempts||0)+1,
+    };
+  }
+  saveP();
+
+  quiz.results=newResults;
+  quiz.xpEarned+=xpGain;
+  quiz.phase='reveal';
+  quiz.chosen=choice;
+  quiz.wasCorrect=correct;
+  renderQuiz();
+  speak(c.char); // pronounce the word on reveal
+
+  setTimeout(()=>{
+    if(isLast){quiz.phase='done';}
+    else{quiz.idx++;quiz.phase='question';quiz.chosen=null;quiz.wasCorrect=null;}
+    renderQuiz();
+  },1200);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// PROGRESS
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+function renderProgress(){
+  const el=document.getElementById('view-progress');
+  const accuracy=P.totalReviews?Math.round(P.totalCorrect/P.totalReviews*100):0;
+  const learnedCount=Object.keys(P.wordMastery).length;
+
+  // Mastery distribution
+  const mastDist=LVL_LABELS.map((label,i)=>{
+    const count=i===0
+      ?ALL_VOCAB.length-Object.values(P.wordMastery).filter(w=>w.level>0).length
+      :Object.values(P.wordMastery).filter(w=>w.level===i).length;
+    return{label,count,color:LVL_COLORS[i]};
+  });
+  const mastBars=mastDist.map(d=>`
+    <div class="bar-row">
+      <div class="row-between" style="margin-bottom:4px">
+        <div class="row" style="gap:6px">
+          <div class="mastery-dot" style="background:${d.color}"></div>
+          <span style="font-size:12px;color:var(--text2)">${d.label}</span>
+        </div>
+        <span style="font-size:12px;font-weight:500">${d.count}개</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${ALL_VOCAB.length?d.count/ALL_VOCAB.length*100:0}%;background:${d.color}"></div>
+      </div>
+    </div>`).join('');
+
+  // Lesson stacked bars
+  const lesData=CURRICULUM.map(l=>{
+    const mastered=l.vocab.filter(v=>(P.wordMastery[v.char]?.level||0)>=4).length;
+    const learning=l.vocab.filter(v=>{const lv=P.wordMastery[v.char]?.level||0;return lv>0&&lv<4;}).length;
+    return{name:l.title,mastered,learning,none:l.vocab.length-mastered-learning,total:l.vocab.length};
+  });
+  const maxT=Math.max(...lesData.map(d=>d.total));
+  const lesCols=lesData.map(d=>{
+    const mH=d.total?d.mastered/maxT*100:0;
+    const lH=d.total?d.learning/maxT*100:0;
+    const nH=d.total?d.none/maxT*100:0;
+    return`<div class="chart-col">
+      <div class="chart-val">${Math.round(d.mastered/d.total*100)}%</div>
+      <div style="width:100%;display:flex;flex-direction:column;justify-content:flex-end;flex:1;gap:1px">
+        <div class="chart-bar" style="height:${mH}%;background:#639922"></div>
+        <div class="chart-bar" style="height:${lH}%;background:#378ADD;border-radius:0"></div>
+        <div class="chart-bar" style="height:${nH}%;background:#D3D1C7;border-radius:0 0 4px 4px"></div>
+      </div>
+      <div class="chart-lbl">${d.name}</div>
+    </div>`;
+  }).join('');
+
+  // XP history 7 days
+  const xpDays=Array.from({length:7},(_,i)=>{
+    const d=new Date(Date.now()-(6-i)*86400000);
+    const key=d.toISOString().slice(0,10);
+    return{name:`${d.getMonth()+1}/${d.getDate()}`,xp:P.xpHistory[key]||0};
+  });
+  const maxXP=Math.max(...xpDays.map(d=>d.xp),10);
+  const xpCols=xpDays.map(d=>`
+    <div class="chart-col">
+      ${d.xp>0?`<div class="chart-val">${d.xp}</div>`:''}
+      <div style="width:100%;display:flex;flex-direction:column;justify-content:flex-end;flex:1">
+        <div class="chart-bar" style="height:${d.xp/maxXP*100}%;background:#185FA5"></div>
+      </div>
+      <div class="chart-lbl">${d.name}</div>
+    </div>`).join('');
+
+  el.innerHTML=`
+<div style="font-size:18px;font-weight:500;margin-bottom:1rem">학습 현황</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+  ${[
+    {label:'총 XP',value:P.xp},
+    {label:'정확도',value:accuracy+'%'},
+    {label:'총 복습 횟수',value:P.totalReviews},
+    {label:'학습한 단어',value:learnedCount},
+  ].map(s=>`<div style="background:var(--bg2);border-radius:10px;padding:.8rem 1rem">
+    <div style="font-size:10px;color:var(--text3);margin-bottom:4px">${s.label}</div>
+    <div style="font-size:22px;font-weight:500">${s.value}</div>
+  </div>`).join('')}
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:14px">단어 숙련도 분포</div>
+  ${mastBars}
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:8px">수업별 마스터율</div>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:12px">
+    <span style="color:#639922">■</span> 마스터 &nbsp;
+    <span style="color:#378ADD">■</span> 학습중 &nbsp;
+    <span style="color:#D3D1C7">■</span> 미학습
+  </div>
+  <div class="chart-wrap">${lesCols}</div>
+</div>
+
+<div class="card">
+  <div style="font-size:13px;font-weight:500;margin-bottom:14px">최근 7일 XP 획득량</div>
+  <div class="chart-wrap">${xpCols}</div>
+</div>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// SPEECH ENGINE
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+let selectedVoice = null;
+
+function initSpeech() {
+  if (!window.speechSynthesis) {
+    setSoundStatus('red', '이 브라우저는 음성을 지원하지 않습니다');
+    return;
+  }
+  function tryLoad() {
+    const all = window.speechSynthesis.getVoices();
+    if (!all.length) return;
+    const zh = all.filter(v => v.lang.startsWith('zh'));
+    if (zh.length) {
+      selectedVoice = zh[0];
+      setSoundStatus('green', '중국어 음성 준비됨: ' + zh[0].name + ' — 단어를 클릭하면 소리가 납니다');
+    } else {
+      setSoundStatus('orange', '중국어 음성 없음. Brave → 방패 해제 후 재시도, 또는 OS에서 중국어 음성 설치 필요');
+    }
+  }
+  tryLoad();
+  window.speechSynthesis.addEventListener('voiceschanged', tryLoad);
+}
+
+function setSoundStatus(color, msg) {
+  const colors = { green:'#1D9E75', orange:'#BA7517', red:'#E24B4A' };
+  document.getElementById('sound-dot').style.background = colors[color] || '#B4B2A9';
+  document.getElementById('sound-msg').textContent = msg;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (selectedVoice) u.voice = selectedVoice;
+  u.lang = 'zh-CN';
+  u.rate = 0.82;
+  window.speechSynthesis.speak(u);
+}
+
+function testSpeak() {
+  speak('你好');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+loadP();
+renderHome();
+refreshBadge();
+initSpeech();
+</script>
+</body>
+</html>

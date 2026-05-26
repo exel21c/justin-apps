@@ -169,6 +169,15 @@ body.edit-mode .app-acts{opacity:1}
 .empty-s{font-size:11.5px;line-height:1.6}
 
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── IFRAME VIEWER ── */
+.app-viewer{display:none;position:fixed;inset:0;z-index:999;flex-direction:column;background:#f0f3f7}
+.app-viewer.active{display:flex}
+.viewer-bar{background:var(--navy);display:flex;align-items:center;gap:10px;padding:0 1rem;height:48px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.viewer-back{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.viewer-back:hover{background:rgba(255,255,255,.18)}
+.viewer-title{font-size:14px;font-weight:700;color:#fff;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer-frame{flex:1;border:none;width:100%;background:#fff}
 </style>
 </head>
 <body>
@@ -440,7 +449,27 @@ function launch(ci,si,ai,e){
   if(!app)return;
   D.recent=D.recent||[];D.recent.unshift(app.name);D.recent=D.recent.slice(0,5);
   save();updateStats();
-  window.open(app.file,'_blank');
+  if(app.external||app.file.startsWith('http')){
+    window.open(app.file,'_blank');
+  } else {
+    openViewer(app.file, app.emoji+' '+app.name);
+  }
+}
+function openViewer(file,title){
+  var viewer=document.getElementById('app-viewer');
+  var frame=document.getElementById('viewer-frame');
+  var titleEl=document.getElementById('viewer-title');
+  if(titleEl) titleEl.textContent=title||'';
+  if(frame) frame.src=file;
+  if(viewer) viewer.classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeViewer(){
+  var viewer=document.getElementById('app-viewer');
+  var frame=document.getElementById('viewer-frame');
+  if(frame) frame.src='';
+  if(viewer) viewer.classList.remove('active');
+  document.body.style.overflow='';
 }
 
 // ── MODAL ──
@@ -560,5 +589,16 @@ try{
 }catch(e){}
 load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
 </script>
+
+<!-- APP VIEWER -->
+<div class="app-viewer" id="app-viewer">
+  <div class="viewer-bar">
+    <button class="viewer-back" onclick="closeViewer()">
+      ← Justin's Hub
+    </button>
+    <span class="viewer-title" id="viewer-title"></span>
+  </div>
+  <iframe class="viewer-frame" id="viewer-frame" src="" allowfullscreen></iframe>
+</div>
 </body>
 </html>

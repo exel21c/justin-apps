@@ -275,13 +275,7 @@ var curTab='all';
 
 var DEFAULT={
   cats:[
-    {id:'biz',name:'Business',emoji:'💼',color:'#1a3a5c',
-     subs:[
-       {id:'biz-s1',name:'Broker & Trade',color:'#1a3a5c',
-        apps:[
-          {id:'a1',name:'BrokerLedger',emoji:'🛃',file:'broker_ledger.html',desc:'세관 브로커 회계 · AR Aging · P&L',color:'#1a3a5c'}
-        ]}
-     ]},
+    {id:'biz',name:'Business',emoji:'💼',color:'#1a3a5c', subs:[]},
     {id:'per',name:'Personal',emoji:'🏡',color:'#2d5f96',
      subs:[
        {id:'per-study',name:'Study',color:'#1e4fa3',
@@ -626,6 +620,19 @@ document.addEventListener('keydown',function(e){
   }
 });
 
+// migrate: remove broker_ledger from saved data (now local-only)
+try{
+  var _bd=localStorage.getItem('jhub-v2');
+  if(_bd){
+    var _bp=JSON.parse(_bd);
+    _bp.cats.forEach(function(c){
+      c.subs.forEach(function(s){
+        s.apps=s.apps.filter(function(a){return a.file!=='broker_ledger.html';});
+      });
+    });
+    localStorage.setItem('jhub-v2',JSON.stringify(_bp));
+  }
+}catch(e){}
 // migrate: if jhub-v2 has no english_learner, add it
 try{
   var _d=localStorage.getItem('jhub-v2');

@@ -115,6 +115,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="nav-tab active" data-view="home" onclick="goView('home')">홈</button>
     <button class="nav-tab" data-view="learn" onclick="goView('learn')">학습</button>
     <button class="nav-tab" data-view="progress" onclick="goView('progress')">현황</button>
+    <button class="nav-tab" data-view="search" onclick="goView('search')">검색</button>
   </nav>
   <div id="sound-bar" class="sound-bar">
     <div id="sound-dot" class="sound-dot" style="background:#B4B2A9"></div>
@@ -124,9 +125,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="view-home"     class="view active"></div>
   <div id="view-learn"    class="view"></div>
   <div id="view-lesson"   class="view"></div>
-  <div id="view-quiz"     class="view" style="padding:0"></div>
-  <div id="view-progress" class="view"></div>
-</div>
+  <div id="view-quiz" class="view" style="padding:0"></div>
 
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -410,6 +409,100 @@ function getDue(){
 // ━━━━━━━━━━━━━━━━━━━━━━━━
 // NAVIGATION
 // ━━━━━━━━━━━━━━━━━━━━━━━━
+function renderSearch(){
+  var q = (document.getElementById('search-input').value||'').trim().toLowerCase();
+  var el = document.getElementById('search-results');
+  if(!el) return;
+  if(!q){ el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">단어, 병음, 뜻을 입력하세요</div>'; return; }
+
+  var results = [];
+  CURRICULUM.forEach(function(lesson){
+    // Search vocab
+    (lesson.vocab||[]).forEach(function(v){
+      var ch = (v.char||v.ch||'').toLowerCase();
+      var py = (v.pinyin||v.py||'').toLowerCase();
+      var mn = (v.meaning||v.kr||'').toLowerCase();
+      if(ch.includes(q)||py.includes(q)||mn.includes(q)){
+        results.push({type:'vocab',lesson:lesson,item:v});
+      }
+    });
+    // Search dialogue
+    (lesson.dialogue||[]).forEach(function(line){
+      var zh = (line.zh||'').toLowerCase();
+      var py = (line.py||'').toLowerCase();
+      var kr = (line.kr||'').toLowerCase();
+      if(zh.includes(q)||py.includes(q)||kr.includes(q)){
+        results.push({type:'dialogue',lesson:lesson,item:line});
+      }
+    });
+    // Search grammar
+    (lesson.grammar||[]).forEach(function(g){
+      var t = (g.title||'').toLowerCase();
+      var r = (g.rule||'').toLowerCase();
+      var ex = (g.example||'').toLowerCase();
+      var mn = (g.meaning||'').toLowerCase();
+      if(t.includes(q)||r.includes(q)||ex.includes(q)||mn.includes(q)){
+        results.push({type:'grammar',lesson:lesson,item:g});
+      }
+    });
+  });
+
+  if(!results.length){
+    el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">검색 결과가 없습니다: "'+q+'"</div>';
+    return;
+  }
+
+  var typeLabel = {vocab:'단어',dialogue:'대화문',grammar:'문법'};
+  var typeColor = {vocab:'#185FA5',dialogue:'#059669',grammar:'#854F0B'};
+  var typeBg    = {vocab:'#E6F1FB',dialogue:'#D1FAE5',grammar:'#FAEEDA'};
+
+  var html2 = '<div style="font-size:11px;color:var(--text3);margin-bottom:.8rem">'+results.length+'개 결과</div>';
+
+  results.forEach(function(r){
+    var it = r.item;
+    var lc = r.lesson.color||'#185FA5';
+    var tl = typeLabel[r.type];
+    var tc = typeColor[r.type];
+    var tb = typeBg[r.type];
+
+    html2 += '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;margin-bottom:8px;cursor:pointer" data-lid="'+r.lesson.id+'" onclick="goToLesson(this)">';
+    // Lesson badge
+    html2 += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+    html2 += '<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:'+tb+';color:'+tc+'">'+tl+'</span>';
+    html2 += '<span style="font-size:10px;color:var(--text3)">WEEK '+r.lesson.week+' · '+r.lesson.title+'</span>';
+    html2 += '</div>';
+
+    if(r.type==='vocab'){
+      html2 += '<div style="display:flex;align-items:baseline;gap:10px">';
+      html2 += '<span style="font-size:22px;font-weight:600;color:var(--text1)">'+(it.char||it.ch||'')+'</span>';
+      html2 += '<span style="font-size:12px;color:'+lc+'">'+(it.pinyin||it.py||'')+'</span>';
+      html2 += '<span style="font-size:12px;color:var(--text2);margin-left:auto">'+(it.meaning||it.kr||'')+'</span>';
+      html2 += '</div>';
+    } else if(r.type==='dialogue'){
+      html2 += '<div style="display:flex;gap:8px;align-items:flex-start">';
+      html2 += '<span style="min-width:20px;height:20px;border-radius:50%;background:'+(it.sp==='A'?'#E6F1FB':'#FAEEDA')+';color:'+(it.sp==='A'?'#185FA5':'#854F0B')+';font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+it.sp+'</span>';
+      html2 += '<div><div style="font-size:14px">'+(it.zh||'')+'</div>';
+      html2 += '<div style="font-size:11px;color:#185FA5">'+(it.py||'')+'</div>';
+      html2 += '<div style="font-size:11px;color:var(--text2)">'+(it.kr||'')+'</div></div>';
+      html2 += '</div>';
+    } else if(r.type==='grammar'){
+      html2 += '<div style="font-size:13px;font-weight:600;color:var(--text1);margin-bottom:3px">'+(it.title||'')+'</div>';
+      html2 += '<div style="font-size:11px;color:var(--text3);background:var(--bg);padding:4px 8px;border-radius:5px">'+(it.rule||'')+'</div>';
+    }
+    html2 += '</div>';
+  });
+
+  el.innerHTML = html2;
+}
+
+function goToLesson(el){
+  var lessonId=el.getAttribute('data-lid');
+  var lesson = CURRICULUM.find(function(l){return l.id===lessonId;});
+  if(!lesson) return;
+  openLesson(lesson);
+  goView('lesson');
+}
+
 function goView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>{
@@ -932,6 +1025,33 @@ function initSpeech() {
 }
 
 function setSoundStatus(color, msg) {
+  const colors = { green:'#1D9E75', orange:'#BA7517', red:'#E24B4A' };
+  document.getElementById('sound-dot').style.background = colors[color] || '#B4B2A9';
+  document.getElementById('sound-msg').textContent = msg;
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (selectedVoice) u.voice = selectedVoice;
+  u.lang = 'zh-CN';
+  u.rate = 0.82;
+  window.speechSynthesis.speak(u);
+}
+
+function testSpeak() {
+  speak('你好');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+loadP();
+renderHome();
+refreshBadge();
+initSpeech();
+function setSoundBar(color, msg) {
   const colors = { green:'#1D9E75', orange:'#BA7517', red:'#E24B4A' };
   document.getElementById('sound-dot').style.background = colors[color] || '#B4B2A9';
   document.getElementById('sound-msg').textContent = msg;

@@ -378,6 +378,7 @@ let P = {
   wordMastery:{},lessonProgress:{},xpHistory:{}
 };
 let currentView   = "home";
+let searchQuery   = "";  // highlight term from search
 let selectedLesson = null;
 let quiz          = null;
 
@@ -507,10 +508,14 @@ function renderSearch(){
 
 function goToLesson(el){
   var lessonId=el.getAttribute('data-lid');
-  var lesson = CURRICULUM.find(function(l){return l.id===lessonId;});
-  if(!lesson) return;
-  openLesson(lesson);
-  goView('lesson');
+  if(!lessonId) return;
+  searchQuery=(document.getElementById('search-input').value||'').trim().toLowerCase();
+  openLesson(lessonId);
+  // scroll to first highlighted item after render
+  setTimeout(function(){
+    var hl=document.querySelector('.search-hl-card');
+    if(hl) hl.scrollIntoView({behavior:'smooth',block:'center'});
+  },200);
 }
 
 function goView(name){
@@ -520,6 +525,7 @@ function goView(name){
   });
   currentView=name;
   document.getElementById('view-'+name).classList.add('active');
+  if(name!=='lesson') searchQuery='';
   render();
 }
 
@@ -704,13 +710,18 @@ function renderLTab(){
     const cards=l.vocab.map(v=>{
       const lv=P.wordMastery[v.char]?.level||0;
       const esc=v.char.replace(/'/g,"\'");
-      return`<div class="vocab-card" onclick="speak('${esc}')">
+      const q=searchQuery;
+      const vMatch=q&&(v.char.toLowerCase().includes(q)||(v.pinyin||'').toLowerCase().includes(q)||(v.meaning||'').toLowerCase().includes(q));
+      const hlClass=vMatch?' search-hl-card':'';
+      const hlBorder=vMatch?'border:2px solid #f59e0b;':'';
+      function hlText(t){ if(!q||!t) return t||''; return t.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark style="background:#fef08a;border-radius:2px;padding:0 1px">$1</mark>'); }
+      return `<div class="vocab-card${hlClass}" style="${hlBorder}" onclick="speak('${esc}')">
         <div class="row-between" style="margin-bottom:4px">
-          <span style="font-size:24px">${v.char}</span>
+          <span style="font-size:24px">${hlText(v.char)}</span>
           <span class="mastery-dot" style="background:${LVL_COLORS[lv]}" title="${LVL_LABELS[lv]}"></span>
         </div>
-        <div style="font-size:12px;color:var(--blue);font-weight:500">${v.pinyin}</div>
-        <div style="font-size:11px;color:var(--text2)">${v.meaning}</div>
+        <div style="font-size:12px;color:var(--blue);font-weight:500">${hlText(v.pinyin)}</div>
+        <div style="font-size:11px;color:var(--text2)">${hlText(v.meaning)}</div>
         <div style="font-size:9px;color:var(--text3);margin-top:3px">🔊 클릭</div>
       </div>`;
     }).join('');
@@ -732,12 +743,17 @@ function renderLTab(){
     if(!l.dialogue||!l.dialogue.length){tc.innerHTML='<div class="empty-note">대화문 없음</div>';return;}
     const lines=l.dialogue.map(line=>{
       const esc=line.zh.replace(/'/g,"\'");
-      return`<div class="dlg-line" onclick="speak('${esc}')">
+      const q2=searchQuery;
+      const dMatch=q2&&(line.zh.toLowerCase().includes(q2)||(line.py||'').toLowerCase().includes(q2)||(line.kr||'').toLowerCase().includes(q2));
+      const dlgStyle=dMatch?'border-left:3px solid #f59e0b;background:#fffbeb;border-radius:8px':'';
+      const dlgHlClass=dMatch?' search-hl-card':'';
+      function hlD(t){ if(!q2||!t) return t||''; return t.replace(new RegExp('('+q2.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark style="background:#fef08a;border-radius:2px;padding:0 1px">$1</mark>'); }
+      return `<div class="dlg-line${dlgHlClass}" style="${dlgStyle}" onclick="speak('${esc}')">
         <div class="dlg-badge" style="background:${line.sp==='A'?'#E6F1FB':'#FAEEDA'};color:${line.sp==='A'?'#185FA5':'#854F0B'}">${line.sp}</div>
         <div>
-          <div style="font-size:15px">${line.zh} <span style="font-size:11px;color:var(--text3)">🔊</span></div>
-          <div style="font-size:11px;color:#185FA5">${line.py}</div>
-          <div style="font-size:11px;color:var(--text2)">${line.kr}</div>
+          <div style="font-size:15px">${hlD(line.zh)} <span style="font-size:11px;color:var(--text3)">🔊</span></div>
+          <div style="font-size:11px;color:#185FA5">${hlD(line.py)}</div>
+          <div style="font-size:11px;color:var(--text2)">${hlD(line.kr)}</div>
         </div>
       </div>`;
     }).join('');

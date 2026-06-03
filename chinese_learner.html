@@ -128,12 +128,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="view-quiz" class="view" style="padding:0"></div>
 
   <!-- SEARCH VIEW -->
-  <div id="view-search" class="view" style="padding:1rem">
-    <div style="position:sticky;top:52px;background:var(--bg);padding:.5rem 0 .8rem;z-index:50">
-      <input id="search-input" type="text" placeholder="🔍 한국어, 중국어, 병음으로 검색..."
-        style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:var(--card);box-sizing:border-box"
-        oninput="renderSearch()" />
-    </div>
+  <div id="view-search" class="view">
+    <input id="search-input" type="text" placeholder="🔍 한국어, 중국어, 병음으로 검색..."
+      style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:var(--card);box-sizing:border-box;margin-bottom:1rem;display:block"
+      oninput="renderSearch()" />
     <div id="search-results">
       <div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">단어, 병음, 뜻을 입력하세요</div>
     </div>
@@ -531,7 +529,16 @@ function render(){
   if(currentView==='lesson')   renderLesson();
   if(currentView==='quiz')     renderQuiz();
   if(currentView==='progress') renderProgress();
+  if(currentView==='search')   initSearch();
   refreshBadge();
+}
+
+function initSearch(){
+  // Just focus the input when switching to search tab
+  setTimeout(function(){
+    var inp = document.getElementById('search-input');
+    if(inp) inp.focus();
+  }, 100);
 }
 
 function refreshBadge(){

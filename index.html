@@ -283,8 +283,7 @@ var DEFAULT={
           {id:'a2',name:'영어 문법',emoji:'📖',file:'grammar_in_focus.html',desc:'Grammar in Use · 30유닛',color:'#1e4fa3'},
           {id:'a3',name:'영어 회화',emoji:'💬',file:'conversation_lab.html',desc:'26토픽 · 쉐도잉 · 퀴즈',color:'#1e4fa3'},
           {id:'a4',name:'중국어',emoji:'🀄',file:'chinese_learner.html',desc:'성조 · 기본단어 · 인사말',color:'#c0392b'},
-          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'},
-          {id:'a7',name:'중국어 4주차',emoji:'📝',file:'chinese_week4_quiz.html',desc:'4주차 퀴즈 · 플래시카드 · 객관식 · 작문',color:'#c0392b'}
+          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'}
         ]},
        {id:'per-plan',name:'Life Planner',color:'#c8a84b',
         apps:[
@@ -300,15 +299,7 @@ var D=null;
 function load(){
   try{var s=localStorage.getItem(SK);D=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT));}
   catch(e){D=JSON.parse(JSON.stringify(DEFAULT));}
-  // ensure week4 quiz exists in saved data
-  try{
-    var _study=null;
-    D.cats.forEach(function(c){c.subs.forEach(function(s){if(s.id==='per-study')_study=s;});});
-    if(_study&&!_study.apps.find(function(a){return a.file==='chinese_week4_quiz.html';})){
-      _study.apps.push({id:'a7',name:'중국어 4주차',emoji:'📝',file:'chinese_week4_quiz.html',desc:'4주차 퀴즈 · 플래시카드 · 객관식 · 작문',color:'#c0392b'});
-      localStorage.setItem(SK,JSON.stringify(D));
-    }
-  }catch(e){}
+
   D.cats.forEach(function(c){
     if(openState[c.id]===undefined)openState[c.id]=true;
     c.subs.forEach(function(s){if(openState[s.id]===undefined)openState[s.id]=true;});
@@ -630,6 +621,19 @@ document.addEventListener('keydown',function(e){
   }
 });
 
+// migrate: remove chinese_week4_quiz from saved data (merged into chinese_learner)
+try{
+  var _wd=localStorage.getItem('jhub-v2');
+  if(_wd){
+    var _wp=JSON.parse(_wd);
+    _wp.cats.forEach(function(c){
+      c.subs.forEach(function(s){
+        s.apps=s.apps.filter(function(a){return a.file!=='chinese_week4_quiz.html';});
+      });
+    });
+    localStorage.setItem('jhub-v2',JSON.stringify(_wp));
+  }
+}catch(e){}
 // migrate: remove broker_ledger from saved data
 try{
   var _bd=localStorage.getItem('jhub-v2');

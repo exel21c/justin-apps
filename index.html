@@ -137,7 +137,7 @@ body.edit-mode .app-acts{opacity:1}
 .sw{width:22px;height:22px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0}
 .sw.active,.sw:hover{transform:scale(1.2);border-color:var(--ink)}
 .eg-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-height:120px;overflow-y:auto;margin-top:4px}
-.eg{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:1px solid transparent;transition:all .12s}
+.eg{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:1px solid transparent;transition:all .12px}
 .eg:hover,.eg.active{border-color:var(--navy);background:#eef3fa}
 .mfoot{display:flex;gap:7px;justify-content:flex-end;margin-top:1.2rem;padding-top:.8rem;border-top:1px solid var(--border)}
 .mbtn{padding:7px 18px;border-radius:5px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid var(--border);background:#f8fafc;color:var(--ink);transition:all .15s}
@@ -268,7 +268,7 @@ body.edit-mode .app-acts{opacity:1}
 </div>
 
 <script>
-var SK='jhub-v2';'jhub-v2';
+var SK='jhub-v2';
 var editMode=false;
 var openState={};
 var curTab='all';
@@ -283,7 +283,8 @@ var DEFAULT={
           {id:'a2',name:'영어 문법',emoji:'📖',file:'grammar_in_focus.html',desc:'Grammar in Use · 30유닛',color:'#1e4fa3'},
           {id:'a3',name:'영어 회화',emoji:'💬',file:'conversation_lab.html',desc:'26토픽 · 쉐도잉 · 퀴즈',color:'#1e4fa3'},
           {id:'a4',name:'중국어',emoji:'🀄',file:'chinese_learner.html',desc:'성조 · 기본단어 · 인사말',color:'#c0392b'},
-          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'}
+          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'},
+          {id:'a7',name:'중국어 4주차',emoji:'📝',file:'chinese_week4_quiz.html',desc:'4주차 퀴즈 · 플래시카드 · 객관식 · 작문',color:'#c0392b'}
         ]},
        {id:'per-plan',name:'Life Planner',color:'#c8a84b',
         apps:[
@@ -299,6 +300,15 @@ var D=null;
 function load(){
   try{var s=localStorage.getItem(SK);D=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT));}
   catch(e){D=JSON.parse(JSON.stringify(DEFAULT));}
+  // ensure week4 quiz exists in saved data
+  try{
+    var _study=null;
+    D.cats.forEach(function(c){c.subs.forEach(function(s){if(s.id==='per-study')_study=s;});});
+    if(_study&&!_study.apps.find(function(a){return a.file==='chinese_week4_quiz.html';})){
+      _study.apps.push({id:'a7',name:'중국어 4주차',emoji:'📝',file:'chinese_week4_quiz.html',desc:'4주차 퀴즈 · 플래시카드 · 객관식 · 작문',color:'#c0392b'});
+      localStorage.setItem(SK,JSON.stringify(D));
+    }
+  }catch(e){}
   D.cats.forEach(function(c){
     if(openState[c.id]===undefined)openState[c.id]=true;
     c.subs.forEach(function(s){if(openState[s.id]===undefined)openState[s.id]=true;});
@@ -345,12 +355,12 @@ function toggleOpen(id,e){if(e)e.stopPropagation();openState[id]=!openState[id];
 function renderNav(){
   var nav=document.getElementById('main-nav');
   if(!nav)return;
-  var parts=['<button class="nav-item'+(curTab==="all"?" active":"")+' " onclick="switchTab(\"all\")">전체보기</button>'];
+  var parts=['<button class="nav-item'+(curTab==="all"?" active":"")+'" onclick="switchTab(\'all\')">전체보기</button>'];
   D.cats.forEach(function(cat){
-    parts.push('<button class="nav-item'+(curTab===cat.id?' active':'')+'" onclick="switchTab(\"'+cat.id+'\")">'+ cat.emoji+' '+esc(cat.name)+'</button>');
+    parts.push('<button class="nav-item'+(curTab===cat.id?' active':'')+'" onclick="switchTab(\''+cat.id+'\')">'+ cat.emoji+' '+esc(cat.name)+'</button>');
   });
   parts.push('<div class="nav-spacer"></div>');
-  parts.push('<div class="nav-spacer"></div>'); nav.innerHTML=parts.join('');
+  nav.innerHTML=parts.join('');
 }
 function switchTab(tab){
   curTab=tab;
@@ -620,7 +630,7 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// migrate: remove broker_ledger from saved data (now local-only)
+// migrate: remove broker_ledger from saved data
 try{
   var _bd=localStorage.getItem('jhub-v2');
   if(_bd){
@@ -633,7 +643,7 @@ try{
     localStorage.setItem('jhub-v2',JSON.stringify(_bp));
   }
 }catch(e){}
-// migrate: if jhub-v2 has no english_learner, add it
+// migrate: add english_learner if missing
 try{
   var _d=localStorage.getItem('jhub-v2');
   if(_d){
@@ -646,6 +656,7 @@ try{
     }
   }
 }catch(e){}
+
 load();updateHeader();setInterval(updateHeader,60000);renderNav();renderAll();
 var hubZoom = parseFloat(localStorage.getItem('hub-zoom')||'1.5');
 applyHubZoom(hubZoom);
@@ -664,28 +675,6 @@ function setHubZoom(z){
   localStorage.setItem('hub-zoom', z);
   applyHubZoom(z);
 }
-
-
-
-
-
-
-
 </script>
-
-<!-- APP VIEWER -->
-<div class="app-viewer" id="app-viewer">
-  <div class="viewer-bar">
-    <button class="viewer-back" onclick="closeViewer()">← Justin's Hub</button>
-    <span class="viewer-title" id="viewer-title"></span>
-    <div class="zoom-group">
-      <span class="zoom-label">화면 크기</span>
-      <button class="zoom-btn" onclick="setZoom(1)">1x</button>
-      <button class="zoom-btn active" onclick="setZoom(1.5)">1.5x</button>
-      <button class="zoom-btn" onclick="setZoom(2)">2x</button>
-    </div>
-  </div>
-  <iframe class="viewer-frame" id="viewer-frame" src="" allowfullscreen></iframe>
-</div>
 </body>
 </html>

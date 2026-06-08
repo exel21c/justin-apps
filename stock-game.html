@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Trading Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f5f5f0;color:#1a1a2e;min-height:100vh}
+.app-header{background:#1a1a2e;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #1D9E75}
+.app-title{font-size:18px;font-weight:600}
+.app-title span{color:#1D9E75}
+.app-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px}
+.tabs{display:flex;gap:2px;background:#fff;border-bottom:1px solid #dde1e7;padding:0 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+.tab{padding:11px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#5d6d7e;border-bottom:2px solid transparent;transition:all 0.15s;font-family:'Inter',sans-serif}
+.tab.on{color:#1a1a2e;border-bottom-color:#1a1a2e;font-weight:500}
+.tab:hover:not(.on){color:#1a1a2e}
+.panel{display:none;max-width:1100px;margin:0 auto;padding:20px 20px 60px}.panel.on{display:block}
+.card{background:#fff;border:1px solid #dde1e7;border-radius:10px;padding:16px 20px;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:500;margin-bottom:12px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.metric{background:#f5f5f0;border-radius:8px;padding:14px 16px}
+.metric-label{font-size:11px;color:#5d6d7e;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.metric-value{font-size:20px;font-weight:500}
+.up{color:#0F6E56}.down{color:#A32D2D}
+.stock-row{display:grid;grid-template-columns:64px 1fr 88px 80px 80px 110px;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.stock-row:last-child{border-bottom:none}
+.stock-head{font-size:11px;color:#5d6d7e;font-weight:500;padding:6px 0;border-bottom:1px solid #dde1e7;display:grid;grid-template-columns:64px 1fr 88px 80px 80px 110px;gap:8px}
+.ticker{font-weight:600;font-size:13px}
+.btn{padding:5px 12px;border-radius:6px;border:1px solid #dde1e7;background:#fff;font-size:12px;cursor:pointer;transition:all 0.15s;color:#1a1a2e;font-family:'Inter',sans-serif}
+.btn:hover{background:#f5f5f0}
+.btn-buy{border-color:#1D9E75;color:#0F6E56;background:#fff}
+.btn-buy:hover{background:#E1F5EE}
+.btn-sell{border-color:#E24B4A;color:#A32D2D;background:#fff}
+.btn-sell:hover{background:#FCEBEB}
+.btn-primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.btn-primary:hover{background:#2c2c54}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.badge-up{background:#E1F5EE;color:#0F6E56}
+.badge-down{background:#FCEBEB;color:#A32D2D}
+.badge-neutral{background:#f0f0f0;color:#5d6d7e}
+.leaderboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.leader-card{border-radius:10px;border:1px solid #dde1e7;padding:20px;background:#fff}
+.leader-card.winner{border:2px solid #1D9E75;background:#f9fefc}
+.leader-name{font-size:13px;color:#5d6d7e;margin-bottom:6px}
+.leader-val{font-size:24px;font-weight:600}
+.leader-ret{font-size:13px;margin-top:4px}
+.news-item{padding:12px 0;border-bottom:1px solid #f0f0f0}
+.news-item:last-child{border-bottom:none}
+.news-title{font-size:13px;font-weight:500;margin-bottom:4px}
+.news-body{font-size:12px;color:#5d6d7e;line-height:1.55}
+.input-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.input-row label{font-size:13px;color:#5d6d7e;min-width:60px}
+input[type=number],select{height:34px;border:1px solid #dde1e7;border-radius:6px;padding:0 10px;font-size:13px;background:#fff;color:#1a1a2e}
+.msg{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:8px}
+.msg-ok{background:#E1F5EE;color:#0F6E56}
+.msg-err{background:#FCEBEB;color:#A32D2D}
+.progress-bar{height:8px;border-radius:4px;background:#f0f0f0;margin:6px 0 8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:#1D9E75;transition:width 0.5s}
+.holdings-row{display:grid;grid-template-columns:64px 1fr 70px 80px 90px 80px;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px;align-items:center}
+@media(max-width:700px){
+  .stock-row,.stock-head,.holdings-row{grid-template-columns:56px 1fr 76px 70px}
+  .stock-row>:nth-child(4),.stock-row>:nth-child(5),.stock-head>:nth-child(4),.stock-head>:nth-child(5),.holdings-row>:nth-child(4),.holdings-row>:nth-child(5){display:none}
+  .leaderboard{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div>
+    <div class="app-title">Stock Trading <span>Game</span></div>
+    <div class="app-sub">Justin vs Claude · 6-Month Challenge · $100,000 virtual cash each</div>
+  </div>
+  <div id="hdate" style="font-size:11px;color:rgba(255,255,255,0.45)"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="showTab('market',this)">📈 Market</button>
+  <button class="tab" onclick="showTab('portfolio',this)">💼 My Portfolio</button>
+  <button class="tab" onclick="showTab('claude',this)">🤖 Claude's Portfolio</button>
+  <button class="tab" onclick="showTab('briefing',this)">📰 Briefing</button>
+  <button class="tab" onclick="showTab('scoreboard',this)">🏆 Scoreboard</button>
+</div>
+
+<div id="tab-market" class="panel on">
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-label">Your cash</div><div class="metric-value" id="cash-display">$100,000</div></div>
+    <div class="metric"><div class="metric-label">Portfolio value</div><div class="metric-value" id="port-display">$100,000</div></div>
+    <div class="metric"><div class="metric-label">Return</div><div class="metric-value" id="return-display">0.00%</div></div>
+    <div class="metric"><div class="metric-label">Game day</div><div class="metric-value" id="day-display">Day 1</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Stock market — buy up to 5 stocks</div>
+    <div class="stock-head"><span>Ticker</span><span>Company</span><span>Price</span><span>Change</span><span>Sector</span><span>Action</span></div>
+    <div id="market-list"></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Advance time</div>
+    <p style="font-size:13px;color:#5d6d7e;margin-bottom:12px">Simulate one week of market movement. Prices shift based on volatility and sector trends.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="advanceWeek()">Advance 1 week →</button>
+    </div>
+    <div id="advance-msg"></div>
+  </div>
+</div>
+
+<div id="tab-portfolio" class="panel">
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-label">Cash remaining</div><div class="metric-value" id="p-cash">$100,000</div></div>
+    <div class="metric"><div class="metric-label">Invested value</div><div class="metric-value" id="p-invested">$0</div></div>
+    <div class="metric"><div class="metric-label">Total value</div><div class="metric-value" id="p-total">$100,000</div></div>
+    <div class="metric"><div class="metric-label">Return</div><div class="metric-value" id="p-return">+0.00%</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Your holdings</div>
+    <div id="holdings-list"><p style="font-size:13px;color:#5d6d7e">No stocks held yet. Go to Market tab to buy.</p></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Trade</div>
+    <div class="input-row"><label>Ticker</label><select id="trade-ticker" style="flex:1"></select></div>
+    <div class="input-row"><label>Shares</label><input type="number" id="trade-shares" min="1" value="10" style="width:100px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-buy" onclick="executeTrade('buy')" style="flex:1">Buy</button>
+      <button class="btn btn-sell" onclick="executeTrade('sell')" style="flex:1">Sell</button>
+    </div>
+    <div id="trade-msg"></div>
+  </div>
+</div>
+
+<div id="tab-claude" class="panel">
+  <div class="metric-grid">
+    <div class="metric"><div class="metric-label">Claude's cash</div><div class="metric-value" id="c-cash">$0</div></div>
+    <div class="metric"><div class="metric-label">Invested value</div><div class="metric-value" id="c-invested">$0</div></div>
+    <div class="metric"><div class="metric-label">Total value</div><div class="metric-value" id="c-total">$100,000</div></div>
+    <div class="metric"><div class="metric-label">Return</div><div class="metric-value" id="c-return">+0.00%</div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Claude's holdings (NVDA · MSFT · JPM · XOM · UNH)</div>
+    <div id="claude-holdings"></div>
+  </div>
+</div>
+
+<div id="tab-briefing" class="panel">
+  <div class="card">
+    <div class="section-title">📰 Market briefing</div>
+    <div class="news-item">
+      <div class="news-title"><span class="badge badge-down" style="margin-right:6px">Fed</span>Federal Reserve holds rates steady</div>
+      <div class="news-body">Fed maintained benchmark rate at 5.25–5.50%. Core inflation remains above 2% target. Tech stocks may face continued pressure from higher-for-longer rate environment.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><span class="badge badge-up" style="margin-right:6px">Tech</span>AI spending cycle accelerating</div>
+      <div class="news-body">Major cloud providers increasing capex for AI infrastructure. NVIDIA, AMD, and TSMC are key beneficiaries. Watch for guidance updates in upcoming earnings calls.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><span class="badge badge-neutral" style="margin-right:6px">Macro</span>US jobs market resilient</div>
+      <div class="news-body">Nonfarm payrolls came in at +240K. Consumer discretionary stocks may benefit as spending confidence remains elevated. Recession fears easing.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><span class="badge badge-down" style="margin-right:6px">Geopolitics</span>US–China trade tensions elevated</div>
+      <div class="news-body">New export controls on advanced semiconductors to China announced. Companies with significant China revenue — including Apple and Tesla — saw premarket pressure.</div>
+    </div>
+    <div class="news-item">
+      <div class="news-title"><span class="badge badge-up" style="margin-right:6px">Energy</span>Oil prices stabilize near $82</div>
+      <div class="news-body">OPEC+ output cuts extended through Q3. XOM and CVX showing strong free cash flow generation. Energy sector offers defensive value.</div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-scoreboard" class="panel">
+  <div class="leaderboard" id="leaderboard"></div>
+  <div class="card">
+    <div class="section-title">6-month game progress</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#5d6d7e;margin-bottom:4px">
+      <span>Day <span id="prog-day">1</span></span><span>Day 180</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0.5%"></div></div>
+    <p style="font-size:12px;color:#5d6d7e" id="prog-label">Game just started — 179 days remaining</p>
+  </div>
+  <div class="card">
+    <div class="section-title">Performance chart</div>
+    <div style="display:flex;gap:12px;font-size:11px;margin-bottom:8px">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#1D9E75;border-radius:2px;margin-right:4px"></span>Justin</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#378ADD;border-radius:2px;margin-right:4px"></span>Claude</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:2px;height:90px" id="perf-chart"></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#5d6d7e;margin-top:4px"><span>Start</span><span>Now</span></div>
+  </div>
+</div>
+
+<script>
+const STOCKS=[
+  {ticker:'AAPL',name:'Apple Inc.',sector:'Tech',price:189.30,vol:0.018},
+  {ticker:'NVDA',name:'NVIDIA Corp.',sector:'Chips',price:875.40,vol:0.032},
+  {ticker:'MSFT',name:'Microsoft',sector:'Tech',price:415.50,vol:0.016},
+  {ticker:'AMZN',name:'Amazon.com',sector:'E-Commerce',price:182.20,vol:0.022},
+  {ticker:'GOOGL',name:'Alphabet Inc.',sector:'Tech',price:168.90,vol:0.019},
+  {ticker:'META',name:'Meta Platforms',sector:'Social',price:495.60,vol:0.025},
+  {ticker:'TSLA',name:'Tesla Inc.',sector:'EV/Auto',price:177.80,vol:0.038},
+  {ticker:'JPM',name:'JPMorgan Chase',sector:'Finance',price:198.40,vol:0.014},
+  {ticker:'XOM',name:'Exxon Mobil',sector:'Energy',price:112.30,vol:0.016},
+  {ticker:'JNJ',name:'Johnson & Johnson',sector:'Health',price:147.60,vol:0.011},
+  {ticker:'WMT',name:'Walmart Inc.',sector:'Retail',price:68.20,vol:0.013},
+  {ticker:'UNH',name:'UnitedHealth',sector:'Health',price:492.10,vol:0.015},
+  {ticker:'AMD',name:'AMD',sector:'Chips',price:162.40,vol:0.030},
+  {ticker:'BRKB',name:'Berkshire B',sector:'Finance',price:381.50,vol:0.010},
+  {ticker:'COST',name:'Costco',sector:'Retail',price:742.80,vol:0.014},
+];
+const CLAUDE_PICKS=[
+  {ticker:'NVDA',shares:50,avgCost:875.40},
+  {ticker:'MSFT',shares:100,avgCost:415.50},
+  {ticker:'JPM',shares:200,avgCost:198.40},
+  {ticker:'XOM',shares:300,avgCost:112.30},
+  {ticker:'UNH',shares:80,avgCost:492.10},
+];
+let state={day:1,cash:100000,holdings:{},history:[100000],claudeHistory:[100000],prices:{},changes:{}};
+STOCKS.forEach(s=>{state.prices[s.ticker]=s.price;state.changes[s.ticker]=0;});
+
+document.getElementById('hdate').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');document.getElementById('tab-'+id).classList.add('on');
+  if(id==='portfolio')renderPortfolio();
+  if(id==='claude')renderClaude();
+  if(id==='scoreboard')renderScoreboard();
+  if(id==='market')renderMarket();
+}
+function fmt(n){return'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+function getPortVal(){return Object.entries(state.holdings).reduce((s,[t,h])=>s+h.shares*state.prices[t],0);}
+function getClaudeVal(){return CLAUDE_PICKS.reduce((s,p)=>s+p.shares*state.prices[p.ticker],0);}
+function claudeCost(){return CLAUDE_PICKS.reduce((s,p)=>s+p.shares*p.avgCost,0);}
+
+function renderMarket(){
+  document.getElementById('market-list').innerHTML=STOCKS.map(s=>{
+    const p=state.prices[s.ticker],chg=state.changes[s.ticker];
+    return`<div class="stock-row">
+      <span class="ticker">${s.ticker}</span>
+      <span style="font-size:12px;color:#5d6d7e">${s.name}</span>
+      <span style="font-weight:500">${fmt(p)}</span>
+      <span class="${chg>=0?'up':'down'}">${fmtPct(chg)}</span>
+      <span style="font-size:11px;color:#5d6d7e">${s.sector}</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-buy" onclick="quickBuy('${s.ticker}')">Buy</button>
+        <button class="btn btn-sell" onclick="quickSell('${s.ticker}')">Sell</button>
+      </div></div>`;
+  }).join('');
+  const pv=getPortVal(),total=state.cash+pv,ret=((total-100000)/100000)*100;
+  document.getElementById('cash-display').textContent=fmt(state.cash);
+  document.getElementById('port-display').textContent=fmt(total);
+  const rd=document.getElementById('return-display');rd.textContent=fmtPct(ret);rd.className='metric-value '+(ret>=0?'up':'down');
+  document.getElementById('day-display').textContent='Day '+state.day;
+  document.getElementById('trade-ticker').innerHTML=STOCKS.map(s=>`<option value="${s.ticker}">${s.ticker} — ${fmt(state.prices[s.ticker])}</option>`).join('');
+}
+
+function quickBuy(ticker){
+  const price=state.prices[ticker],held=Object.keys(state.holdings).length,already=state.holdings[ticker];
+  if(!already&&held>=5){showMsg('advance-msg','Max 5 stocks allowed.',false);return;}
+  const shares=Math.max(1,Math.floor(Math.min(state.cash*0.1,5000)/price)),cost=shares*price;
+  if(cost>state.cash){showMsg('advance-msg','Not enough cash.',false);return;}
+  state.cash-=cost;
+  if(!state.holdings[ticker])state.holdings[ticker]={shares:0,avgCost:price};
+  const h=state.holdings[ticker];h.avgCost=(h.avgCost*h.shares+cost)/(h.shares+shares);h.shares+=shares;
+  showMsg('advance-msg',`Bought ${shares} shares of ${ticker} at ${fmt(price)}`,true);renderMarket();
+}
+function quickSell(ticker){
+  if(!state.holdings[ticker]||state.holdings[ticker].shares===0){showMsg('advance-msg',`You don't hold ${ticker}.`,false);return;}
+  const shares=Math.ceil(state.holdings[ticker].shares/2),price=state.prices[ticker];
+  state.cash+=shares*price;state.holdings[ticker].shares-=shares;
+  if(state.holdings[ticker].shares===0)delete state.holdings[ticker];
+  showMsg('advance-msg',`Sold ${shares} shares of ${ticker} at ${fmt(price)}`,true);renderMarket();
+}
+function executeTrade(action){
+  const ticker=document.getElementById('trade-ticker').value,shares=parseInt(document.getElementById('trade-shares').value)||0,price=state.prices[ticker];
+  if(shares<=0){showMsg('trade-msg','Enter valid share count.',false);return;}
+  if(action==='buy'){
+    const cost=shares*price,held=Object.keys(state.holdings).length,already=state.holdings[ticker];
+    if(!already&&held>=5){showMsg('trade-msg','Max 5 stocks allowed.',false);return;}
+    if(cost>state.cash){showMsg('trade-msg','Not enough cash.',false);return;}
+    state.cash-=cost;
+    if(!state.holdings[ticker])state.holdings[ticker]={shares:0,avgCost:price};
+    const h=state.holdings[ticker];h.avgCost=(h.avgCost*h.shares+cost)/(h.shares+shares);h.shares+=shares;
+    showMsg('trade-msg',`Bought ${shares} shares of ${ticker} at ${fmt(price)}`,true);
+  }else{
+    if(!state.holdings[ticker]||state.holdings[ticker].shares<shares){showMsg('trade-msg','Not enough shares.',false);return;}
+    state.cash+=shares*price;state.holdings[ticker].shares-=shares;
+    if(state.holdings[ticker].shares===0)delete state.holdings[ticker];
+    showMsg('trade-msg',`Sold ${shares} shares of ${ticker} at ${fmt(price)}`,true);
+  }
+  renderPortfolio();
+}
+function advanceWeek(){
+  state.day+=7;
+  STOCKS.forEach(s=>{
+    const change=0.001+(Math.random()-0.48)*s.vol*2;
+    state.prices[s.ticker]=Math.max(1,state.prices[s.ticker]*(1+change));
+    state.changes[s.ticker]=change*100;
+  });
+  const pv=getPortVal();state.history.push(Math.round(state.cash+pv));
+  const cv=getClaudeVal(),cc=Math.max(0,100000-claudeCost());state.claudeHistory.push(Math.round(cc+cv));
+  showMsg('advance-msg',`Week advanced to Day ${state.day}. Markets moved!`,true);renderMarket();
+}
+function renderPortfolio(){
+  const pv=getPortVal(),total=state.cash+pv,ret=((total-100000)/100000)*100;
+  document.getElementById('p-cash').textContent=fmt(state.cash);
+  document.getElementById('p-invested').textContent=fmt(pv);
+  document.getElementById('p-total').textContent=fmt(total);
+  const pr=document.getElementById('p-return');pr.textContent=fmtPct(ret);pr.className='metric-value '+(ret>=0?'up':'down');
+  const hl=document.getElementById('holdings-list');
+  if(!Object.keys(state.holdings).length){hl.innerHTML='<p style="font-size:13px;color:#5d6d7e">No holdings yet.</p>';return;}
+  hl.innerHTML=`<div class="holdings-row" style="font-size:11px;color:#5d6d7e;font-weight:500;border-bottom:1px solid #dde1e7"><span>Ticker</span><span>Company</span><span>Shares</span><span>Avg cost</span><span>Value</span><span>Return</span></div>`+
+  Object.entries(state.holdings).map(([t,h])=>{
+    const curr=state.prices[t],val=h.shares*curr,ret=((curr-h.avgCost)/h.avgCost)*100;
+    const co=STOCKS.find(s=>s.ticker===t)?.name||t;
+    return`<div class="holdings-row"><span class="ticker">${t}</span><span style="font-size:12px;color:#5d6d7e">${co}</span><span>${h.shares}</span><span>${fmt(h.avgCost)}</span><span style="font-weight:500">${fmt(val)}</span><span class="${ret>=0?'up':'down'}">${fmtPct(ret)}</span></div>`;
+  }).join('');
+}
+function renderClaude(){
+  const cv=getClaudeVal(),cc=Math.max(0,100000-claudeCost()),total=cc+cv,ret=((total-100000)/100000)*100;
+  document.getElementById('c-cash').textContent=fmt(cc);
+  document.getElementById('c-invested').textContent=fmt(cv);
+  document.getElementById('c-total').textContent=fmt(total);
+  const cr=document.getElementById('c-return');cr.textContent=fmtPct(ret);cr.className='metric-value '+(ret>=0?'up':'down');
+  document.getElementById('claude-holdings').innerHTML=
+    `<div class="holdings-row" style="font-size:11px;color:#5d6d7e;font-weight:500;border-bottom:1px solid #dde1e7"><span>Ticker</span><span>Company</span><span>Shares</span><span>Avg cost</span><span>Value</span><span>Return</span></div>`+
+    CLAUDE_PICKS.map(p=>{
+      const curr=state.prices[p.ticker],val=p.shares*curr,ret=((curr-p.avgCost)/p.avgCost)*100;
+      const co=STOCKS.find(s=>s.ticker===p.ticker)?.name||p.ticker;
+      return`<div class="holdings-row"><span class="ticker">${p.ticker}</span><span style="font-size:12px;color:#5d6d7e">${co}</span><span>${p.shares}</span><span>${fmt(p.avgCost)}</span><span style="font-weight:500">${fmt(val)}</span><span class="${ret>=0?'up':'down'}">${fmtPct(ret)}</span></div>`;
+    }).join('');
+}
+function renderScoreboard(){
+  const pv=getPortVal(),jTotal=state.cash+pv,jRet=((jTotal-100000)/100000)*100;
+  const cv=getClaudeVal(),cc=Math.max(0,100000-claudeCost()),cTotal=cc+cv,cRet=((cTotal-100000)/100000)*100;
+  const jWin=jRet>=cRet;
+  document.getElementById('leaderboard').innerHTML=`
+    <div class="leader-card ${jWin?'winner':''}">
+      <div class="leader-name">${jWin?'🏆 ':''}Justin</div>
+      <div class="leader-val ${jRet>=0?'up':'down'}">${fmt(jTotal)}</div>
+      <div class="leader-ret ${jRet>=0?'up':'down'}">${fmtPct(jRet)} return</div>
+    </div>
+    <div class="leader-card ${!jWin?'winner':''}">
+      <div class="leader-name">${!jWin?'🏆 ':''}Claude</div>
+      <div class="leader-val ${cRet>=0?'up':'down'}">${fmt(cTotal)}</div>
+      <div class="leader-ret ${cRet>=0?'up':'down'}">${fmtPct(cRet)} return</div>
+    </div>`;
+  const day=state.day;
+  document.getElementById('prog-day').textContent=day;
+  document.getElementById('prog-fill').style.width=Math.min(100,(day/180)*100).toFixed(1)+'%';
+  document.getElementById('prog-label').textContent=Math.max(0,180-day)+' days remaining';
+  const hist=state.history,ch=state.claudeHistory;
+  const max=Math.max(...hist,...ch),min=Math.min(...hist,...ch),range=max-min||1;
+  document.getElementById('perf-chart').innerHTML=hist.map((_,i)=>{
+    const jh=Math.round(((hist[i]||100000)-min)/range*80)+5;
+    const chh=Math.round(((ch[i]||100000)-min)/range*80)+5;
+    return`<div style="flex:1;display:flex;align-items:flex-end;gap:1px"><div style="flex:1;height:${jh}px;background:#1D9E75;border-radius:1px 1px 0 0"></div><div style="flex:1;height:${chh}px;background:#378ADD;border-radius:1px 1px 0 0"></div></div>`;
+  }).join('');
+}
+function showMsg(id,text,ok){
+  const el=document.getElementById(id);if(!el)return;
+  el.className='msg '+(ok?'msg-ok':'msg-err');el.textContent=text;
+  setTimeout(()=>{el.textContent='';el.className='';},4000);
+}
+renderMarket();
+</script>
+</body>
+</html>

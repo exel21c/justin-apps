@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중국어 듣기 & 회화 훈련</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI','Malgun Gothic','Noto Sans KR',sans-serif;background:#edf0ee;color:#1a1a18}
+:root{
+  --teal:#0F6E56;--teal2:#E0F2ED;--teal3:#0A4A3A;
+  --bg:#ffffff;--bg2:#f4f6f5;--text2:#5f5e5a;--text3:#888780;
+  --border:rgba(0,0,0,0.09);--radius:14px;
+}
+#app{max-width:680px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 40px rgba(0,0,0,0.08)}
+
+.hdr{background:linear-gradient(135deg,#0A4A3A,#0F6E56);padding:1.4rem 1.4rem 1.2rem;color:#fff}
+.hdr-eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;opacity:.65;text-transform:uppercase}
+.hdr-title{font-size:22px;font-weight:700;margin-top:4px}
+.hdr-sub{font-size:12px;opacity:.7;margin-top:3px}
+
+.sound-bar{display:flex;align-items:center;gap:8px;padding:8px 1.4rem;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11.5px}
+.sound-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* TOPIC LIST */
+.list{padding:1.2rem 1.4rem}
+.topic-card{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:.6rem;cursor:pointer;transition:all .15s}
+.topic-card:hover{border-color:var(--teal);background:#f7fbf9;transform:translateY(-1px)}
+.topic-emoji{font-size:28px;flex-shrink:0}
+.topic-name{font-size:15px;font-weight:700}
+.topic-en{font-size:11px;color:var(--text3);margin-top:2px}
+.topic-stats{margin-left:auto;text-align:right;font-size:10px;color:var(--text3);flex-shrink:0;line-height:1.6}
+
+/* PRACTICE VIEW */
+.practice{display:none}
+.practice.active{display:block}
+.list-view.hidden{display:none}
+.p-bar{display:flex;align-items:center;gap:10px;padding:.8rem 1.4rem;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:50}
+.back-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.back-btn:hover{border-color:var(--teal);color:var(--teal)}
+.p-title{font-size:14px;font-weight:700;flex:1}
+
+/* MODE TABS */
+.mode-tabs{display:flex;gap:6px;padding:.8rem 1.4rem;border-bottom:1px solid var(--border)}
+.mtab{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text3);transition:all .14s}
+.mtab.active{background:var(--teal2);border-color:var(--teal);color:var(--teal)}
+
+.content{padding:1.2rem 1.4rem 3rem}
+
+/* LISTENING MODE */
+.lq-card{background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:1.6rem 1.4rem;text-align:center;margin-bottom:1rem}
+.lq-num{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.1em;margin-bottom:1rem}
+.lq-play{width:64px;height:64px;border-radius:50%;border:none;background:var(--teal);color:#fff;font-size:24px;cursor:pointer;margin-bottom:1.2rem;transition:all .15s}
+.lq-play:hover{background:var(--teal3);transform:scale(1.05)}
+.lq-hint{font-size:12px;color:var(--text3);margin-bottom:1rem}
+.lq-answer{display:none;border-top:1px dashed var(--border);padding-top:1.2rem;margin-top:.4rem}
+.lq-answer.show{display:block}
+.lq-zh{font-size:24px;font-weight:700}
+.lq-py{font-size:13px;color:var(--teal);margin-top:4px}
+.lq-kr{font-size:14px;color:var(--text2);margin-top:8px}
+.lq-btns{display:flex;gap:8px;justify-content:center;margin-top:1.2rem}
+.lq-btn{padding:9px 20px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .14s}
+.lq-btn.primary{background:var(--teal);border-color:var(--teal3);color:#fff}
+.lq-btn:hover{transform:translateY(-1px)}
+.lq-progress{display:flex;gap:4px;justify-content:center;margin-bottom:1.2rem}
+.lq-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.lq-dot.done{background:var(--teal)}
+.lq-dot.cur{background:#F2A33C;transform:scale(1.3)}
+
+/* CONVERSATION MODE */
+.role-bar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.role-label{font-size:11px;font-weight:700;color:var(--text3)}
+.role-btn{padding:5px 14px;border-radius:16px;border:1px solid var(--border);background:var(--bg);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text3)}
+.role-btn.active{background:var(--teal);border-color:var(--teal3);color:#fff}
+.dlg-line{display:flex;gap:10px;padding:.85rem 1rem;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:.55rem;cursor:pointer;transition:all .14s;align-items:flex-start}
+.dlg-line:hover{border-color:var(--teal)}
+.dlg-line.playing{border-color:#F2A33C;background:#FFF9EE}
+.dlg-line.my-line{background:var(--teal2);border-color:var(--teal)}
+.dlg-line.my-line .dlg-zh{filter:blur(6px);transition:filter .2s}
+.dlg-line.my-line:hover .dlg-zh,.dlg-line.my-line.revealed .dlg-zh{filter:none}
+.dlg-badge{min-width:26px;height:26px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dlg-zh{font-size:16px;font-weight:600;line-height:1.5}
+.dlg-py{font-size:11px;color:var(--teal);margin-top:2px}
+.dlg-kr{font-size:12px;color:var(--text2);margin-top:3px}
+.play-all-btn{display:block;width:100%;padding:12px;border-radius:12px;border:none;background:var(--teal);color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:1rem}
+.play-all-btn:hover{background:var(--teal3)}
+.role-tip{font-size:11px;color:var(--text3);background:var(--bg2);border-radius:8px;padding:8px 12px;margin-bottom:1rem;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="hdr">
+    <div class="hdr-eyebrow">LISTENING &amp; SPEAKING</div>
+    <div class="hdr-title">🎧 중국어 듣기 &amp; 회화 훈련</div>
+    <div class="hdr-sub">주제별로 듣고 따라하며 회화 실력을 키워요</div>
+  </header>
+
+  <div class="sound-bar">
+    <div id="sound-dot" class="sound-dot" style="background:#B4B2A9"></div>
+    <span id="sound-msg" style="color:var(--text3)">음성 확인 중...</span>
+    <button onclick="testSpeak()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;font-size:11px;cursor:pointer;font-family:inherit">테스트</button>
+  </div>
+
+  <!-- TOPIC LIST -->
+  <div class="list-view" id="list-view">
+    <div class="list" id="topic-list"></div>
+  </div>
+
+  <!-- PRACTICE VIEW -->
+  <div class="practice" id="practice">
+    <div class="p-bar">
+      <button class="back-btn" onclick="goList()">← 주제 목록</button>
+      <span class="p-title" id="p-title"></span>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mtab active" data-m="listen" onclick="setPMode('listen')">🎧 듣기 훈련</button>
+      <button class="mtab" data-m="talk" onclick="setPMode('talk')">💬 회화 연습</button>
+    </div>
+
+    <div class="content" id="p-content"></div>
+  </div>
+
+</div>
+
+<script>
+var TOPICS = [{"id": "t1", "emoji": "👋", "name": "인사 & 소개", "nameEn": "Greetings", "sentences": [["你好！", "Nǐ hǎo!", "안녕하세요!"], ["你叫什么名字？", "Nǐ jiào shénme míngzi?", "이름이 뭐예요?"], ["我叫Justin。", "Wǒ jiào Justin.", "저는 Justin이라고 해요."], ["很高兴认识你！", "Hěn gāoxìng rènshi nǐ!", "만나서 반가워요!"], ["你是哪国人？", "Nǐ shì nǎ guó rén?", "어느 나라 사람이에요?"], ["我是韩国人。", "Wǒ shì Hánguórén.", "저는 한국인이에요."]], "dialogue": [["A", "你好！你叫什么名字？", "Nǐ hǎo! Nǐ jiào shénme míngzi?", "안녕하세요! 이름이 뭐예요?"], ["B", "我叫Justin。你呢？", "Wǒ jiào Justin. Nǐ ne?", "저는 Justin이에요. 당신은요?"], ["A", "我叫王明。很高兴认识你！", "Wǒ jiào Wáng Míng. Hěn gāoxìng rènshi nǐ!", "저는 왕밍이에요. 만나서 반가워요!"], ["B", "我也很高兴认识你！", "Wǒ yě hěn gāoxìng rènshi nǐ!", "저도 만나서 반가워요!"]]}, {"id": "t2", "emoji": "🔢", "name": "숫자 & 시간", "nameEn": "Numbers & Time", "sentences": [["现在几点？", "Xiànzài jǐ diǎn?", "지금 몇 시예요?"], ["现在三点半。", "Xiànzài sān diǎn bàn.", "지금 3시 반이에요."], ["今天几月几号？", "Jīntiān jǐ yuè jǐ hào?", "오늘 몇 월 며칠이에요?"], ["今天六月十二号。", "Jīntiān liù yuè shí'èr hào.", "오늘은 6월 12일이에요."], ["今天星期几？", "Jīntiān xīngqī jǐ?", "오늘 무슨 요일이에요?"], ["今天星期四。", "Jīntiān xīngqī sì.", "오늘은 목요일이에요."]], "dialogue": [["A", "现在几点？", "Xiànzài jǐ diǎn?", "지금 몇 시야?"], ["B", "现在五点半。", "Xiànzài wǔ diǎn bàn.", "지금 5시 반이야."], ["A", "那我们七点见吧！", "Nà wǒmen qī diǎn jiàn ba!", "그럼 우리 7시에 만나자!"], ["B", "好的，七点见！", "Hǎo de, qī diǎn jiàn!", "좋아, 7시에 봐!"]]}, {"id": "t3", "emoji": "🛍️", "name": "쇼핑", "nameEn": "Shopping", "sentences": [["这个多少钱？", "Zhège duōshao qián?", "이거 얼마예요?"], ["三十块钱。", "Sānshí kuài qián.", "30위안이에요."], ["太贵了！便宜一点吧。", "Tài guì le! Piányi yìdiǎn ba.", "너무 비싸요! 좀 깎아주세요."], ["我要这个。", "Wǒ yào zhège.", "이거 주세요."], ["可以刷卡吗？", "Kěyǐ shuākǎ ma?", "카드 돼요?"], ["给你钱。", "Gěi nǐ qián.", "돈 여기요."]], "dialogue": [["A", "你好，这个多少钱？", "Nǐ hǎo, zhège duōshao qián?", "안녕하세요, 이거 얼마예요?"], ["B", "五十块钱。", "Wǔshí kuài qián.", "50위안이에요."], ["A", "太贵了！便宜一点吧。", "Tài guì le! Piányi yìdiǎn ba.", "너무 비싸요! 좀 깎아주세요."], ["B", "好吧，四十块。", "Hǎo ba, sìshí kuài.", "알겠어요, 40위안에 드릴게요."], ["A", "好的，我要这个。可以刷卡吗？", "Hǎo de, wǒ yào zhège. Kěyǐ shuākǎ ma?", "좋아요, 이거 주세요. 카드 돼요?"], ["B", "可以！", "Kěyǐ!", "돼요!"]]}, {"id": "t4", "emoji": "🍜", "name": "음식 주문", "nameEn": "Ordering Food", "sentences": [["服务员！", "Fúwùyuán!", "저기요! (종업원)"], ["我要一个炒饭。", "Wǒ yào yí ge chǎofàn.", "볶음밥 하나 주세요."], ["有什么好吃的？", "Yǒu shénme hǎochī de?", "뭐가 맛있어요?"], ["不要辣的。", "Bú yào là de.", "맵지 않게 해주세요."], ["再来一瓶可乐。", "Zài lái yì píng kělè.", "콜라 한 병 더 주세요."], ["买单！", "Mǎidān!", "계산할게요!"]], "dialogue": [["A", "服务员！有什么好吃的？", "Fúwùyuán! Yǒu shénme hǎochī de?", "저기요! 뭐가 맛있어요?"], ["B", "我们的炒饭很好吃。", "Wǒmen de chǎofàn hěn hǎochī.", "저희 볶음밥이 맛있어요."], ["A", "好，我要一个炒饭，不要辣的。", "Hǎo, wǒ yào yí ge chǎofàn, bú yào là de.", "네, 볶음밥 하나 주세요. 맵지 않게요."], ["B", "好的，请稍等。", "Hǎo de, qǐng shāo děng.", "네, 잠시만 기다려주세요."], ["A", "再来一瓶可乐！", "Zài lái yì píng kělè!", "콜라도 한 병 주세요!"]]}, {"id": "t5", "emoji": "🗺️", "name": "길 묻기", "nameEn": "Directions", "sentences": [["请问，地铁站在哪儿？", "Qǐngwèn, dìtiězhàn zài nǎr?", "실례지만, 지하철역이 어디예요?"], ["一直走。", "Yìzhí zǒu.", "쭉 가세요."], ["往左拐。", "Wǎng zuǒ guǎi.", "왼쪽으로 도세요."], ["往右拐。", "Wǎng yòu guǎi.", "오른쪽으로 도세요."], ["很近，五分钟就到。", "Hěn jìn, wǔ fēnzhōng jiù dào.", "가까워요, 5분이면 도착해요."], ["谢谢你！", "Xièxie nǐ!", "감사합니다!"]], "dialogue": [["A", "请问，地铁站在哪儿？", "Qǐngwèn, dìtiězhàn zài nǎr?", "실례지만, 지하철역이 어디예요?"], ["B", "一直走，然后往左拐。", "Yìzhí zǒu, ránhòu wǎng zuǒ guǎi.", "쭉 가다가 왼쪽으로 도세요."], ["A", "远吗？", "Yuǎn ma?", "멀어요?"], ["B", "不远，五分钟就到。", "Bù yuǎn, wǔ fēnzhōng jiù dào.", "안 멀어요, 5분이면 도착해요."], ["A", "谢谢你！", "Xièxie nǐ!", "감사합니다!"], ["B", "不客气！", "Bú kèqi!", "천만에요!"]]}, {"id": "t6", "emoji": "💬", "name": "일상 대화", "nameEn": "Daily Talk", "sentences": [["你今天忙吗？", "Nǐ jīntiān máng ma?", "오늘 바빠요?"], ["我今天很忙。", "Wǒ jīntiān hěn máng.", "오늘 너무 바빠요."], ["你吃饭了吗？", "Nǐ chīfàn le ma?", "밥 먹었어요?"], ["还没吃。", "Hái méi chī.", "아직 안 먹었어요."], ["明天有时间吗？", "Míngtiān yǒu shíjiān ma?", "내일 시간 있어요?"], ["明天我有时间！", "Míngtiān wǒ yǒu shíjiān!", "내일은 시간 있어요!"]], "dialogue": [["A", "你今天忙吗？", "Nǐ jīntiān máng ma?", "너 오늘 바빠?"], ["B", "我今天很忙，没有时间。", "Wǒ jīntiān hěn máng, méiyǒu shíjiān.", "나 오늘 너무 바빠, 시간 없어."], ["A", "那明天怎么样？", "Nà míngtiān zěnmeyàng?", "그럼 내일은 어때?"], ["B", "明天我有时间！", "Míngtiān wǒ yǒu shíjiān!", "내일은 시간 있어!"], ["A", "好，那明天见！", "Hǎo, nà míngtiān jiàn!", "좋아, 그럼 내일 봐!"]]}];
+
+var SK = 'listening-trainer-v1';
+var P = {done:{}};
+try{ var s = localStorage.getItem(SK); if(s) P = JSON.parse(s); }catch(e){}
+function save(){ try{ localStorage.setItem(SK, JSON.stringify(P)); }catch(e){} }
+
+var curTopic = null;
+var pMode = 'listen';
+var lqIdx = 0;           // listening question index
+var lqRevealed = false;
+var myRole = '';         // '' | 'A' | 'B'
+var dlgPlaying = -1;
+var zhVoice = null;
+
+// ── VOICE ──
+function initSpeech(){
+  if(!window.speechSynthesis){ setSound('red','이 브라우저는 음성을 지원하지 않습니다'); return; }
+  function findVoice(){
+    var vs = window.speechSynthesis.getVoices();
+    zhVoice = vs.find(function(v){return v.lang==='zh-CN';}) || vs.find(function(v){return v.lang&&v.lang.indexOf('zh')===0;});
+    if(zhVoice) setSound('green','중국어 음성 준비됨: '+zhVoice.name);
+    else setSound('orange','중국어 음성을 찾는 중...');
+  }
+  findVoice();
+  window.speechSynthesis.onvoiceschanged = findVoice;
+}
+function setSound(color,msg){
+  var colors = {green:'#1D9E75',orange:'#BA7517',red:'#E24B4A'};
+  document.getElementById('sound-dot').style.background = colors[color]||'#B4B2A9';
+  document.getElementById('sound-msg').textContent = msg;
+}
+function speak(text, rate, onend){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN';
+  if(zhVoice) u.voice = zhVoice;
+  u.rate = rate || 0.85;
+  if(onend) u.onend = onend;
+  window.speechSynthesis.speak(u);
+}
+function testSpeak(){ speak('你好！我们一起练习听力吧！', 0.9); }
+
+// ── TOPIC LIST ──
+function renderList(){
+  var el = document.getElementById('topic-list');
+  var parts = [];
+  TOPICS.forEach(function(t){
+    var doneCount = (P.done[t.id]||[]).length;
+    parts.push('<div class="topic-card" onclick="openTopic(\''+t.id+'\')">');
+    parts.push('<span class="topic-emoji">'+t.emoji+'</span>');
+    parts.push('<div><div class="topic-name">'+t.name+'</div><div class="topic-en">'+t.nameEn+'</div></div>');
+    parts.push('<div class="topic-stats">듣기 '+t.sentences.length+'문장<br>회화 '+t.dialogue.length+'줄');
+    if(doneCount) parts.push('<br><span style="color:#1D9E75;font-weight:700">✓ '+doneCount+'문장 학습</span>');
+    parts.push('</div></div>');
+  });
+  el.innerHTML = parts.join('');
+}
+
+// ── PRACTICE ──
+function openTopic(id){
+  curTopic = TOPICS.find(function(t){return t.id===id;});
+  if(!curTopic) return;
+  lqIdx = 0; lqRevealed = false; myRole = ''; dlgPlaying = -1;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('list-view').classList.add('hidden');
+  document.getElementById('practice').classList.add('active');
+  document.getElementById('p-title').textContent = curTopic.emoji+' '+curTopic.name;
+  setPMode('listen');
+  window.scrollTo(0,0);
+}
+function goList(){
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  document.getElementById('practice').classList.remove('active');
+  document.getElementById('list-view').classList.remove('hidden');
+  renderList();
+}
+function setPMode(m){
+  pMode = m;
+  document.querySelectorAll('.mtab').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-m')===m);
+  });
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  dlgPlaying = -1;
+  if(m==='listen') renderListen();
+  else renderTalk();
+}
+
+// ── LISTENING MODE ──
+function renderListen(){
+  var el = document.getElementById('p-content');
+  var S = curTopic.sentences;
+  if(lqIdx >= S.length) lqIdx = 0;
+  var cur = S[lqIdx];
+  var doneArr = P.done[curTopic.id]||[];
+
+  var parts = [];
+  // progress dots
+  parts.push('<div class="lq-progress">');
+  S.forEach(function(_, i){
+    var cls = i===lqIdx ? ' cur' : (doneArr.indexOf(i)>=0 ? ' done' : '');
+    parts.push('<div class="lq-dot'+cls+'"></div>');
+  });
+  parts.push('</div>');
+
+  parts.push('<div class="lq-card">');
+  parts.push('<div class="lq-num">'+(lqIdx+1)+' / '+S.length+'</div>');
+  parts.push('<button class="lq-play" onclick="playLq()">🔊</button>');
+  parts.push('<div class="lq-hint">먼저 듣고 무슨 뜻인지 생각해보세요!<br>그 다음 정답 확인을 눌러보세요.</div>');
+  parts.push('<div class="lq-answer'+(lqRevealed?' show':'')+'" id="lq-answer">');
+  parts.push('<div class="lq-zh">'+cur[0]+'</div>');
+  parts.push('<div class="lq-py">'+cur[1]+'</div>');
+  parts.push('<div class="lq-kr">'+cur[2]+'</div>');
+  parts.push('</div>');
+  parts.push('<div class="lq-btns">');
+  if(!lqRevealed){
+    parts.push('<button class="lq-btn" onclick="playLq(0.6)">🐢 천천히</button>');
+    parts.push('<button class="lq-btn primary" onclick="revealLq()">정답 확인</button>');
+  } else {
+    parts.push('<button class="lq-btn" onclick="playLq()">🔊 다시 듣기</button>');
+    parts.push('<button class="lq-btn primary" onclick="nextLq()">다음 →</button>');
+  }
+  parts.push('</div></div>');
+
+  el.innerHTML = parts.join('');
+}
+function playLq(rate){
+  var cur = curTopic.sentences[lqIdx];
+  speak(cur[0], rate||0.85);
+}
+function revealLq(){
+  lqRevealed = true;
+  // mark done
+  if(!P.done[curTopic.id]) P.done[curTopic.id] = [];
+  if(P.done[curTopic.id].indexOf(lqIdx)===-1){ P.done[curTopic.id].push(lqIdx); save(); }
+  renderListen();
+  playLq();
+}
+function nextLq(){
+  lqIdx = (lqIdx+1) % curTopic.sentences.length;
+  lqRevealed = false;
+  renderListen();
+  setTimeout(function(){ playLq(); }, 300);
+}
+
+// ── CONVERSATION MODE ──
+function renderTalk(){
+  var el = document.getElementById('p-content');
+  var D = curTopic.dialogue;
+  var parts = [];
+
+  parts.push('<div class="role-bar">');
+  parts.push('<span class="role-label">내 역할:</span>');
+  parts.push('<button class="role-btn'+(myRole===''?' active':'')+'" onclick="setRole(\'\')">관찰만</button>');
+  parts.push('<button class="role-btn'+(myRole==='A'?' active':'')+'" onclick="setRole(\'A\')">A 역할</button>');
+  parts.push('<button class="role-btn'+(myRole==='B'?' active':'')+'" onclick="setRole(\'B\')">B 역할</button>');
+  parts.push('</div>');
+
+  if(myRole){
+    parts.push('<div class="role-tip">💡 <strong>'+myRole+' 역할 연습 중</strong> — 내 대사는 가려져 있어요. 한국어 뜻을 보고 중국어로 말해본 뒤, 카드에 마우스를 올리거나 클릭해서 정답을 확인하세요!</div>');
+  }
+
+  parts.push('<button class="play-all-btn" onclick="playDialogue()">▶ 전체 대화 듣기</button>');
+
+  D.forEach(function(line, i){
+    var isMine = myRole && line[0]===myRole;
+    var cls = (dlgPlaying===i?' playing':'') + (isMine?' my-line':'');
+    parts.push('<div class="dlg-line'+cls+'" id="dl-'+i+'" onclick="clickDlgLine('+i+')">');
+    var bg = line[0]==='A' ? '#E0F2ED' : '#FFF3E0';
+    var fc = line[0]==='A' ? '#0F6E56' : '#B26A00';
+    parts.push('<div class="dlg-badge" style="background:'+bg+';color:'+fc+'">'+line[0]+'</div>');
+    parts.push('<div>');
+    parts.push('<div class="dlg-zh">'+line[1]+'</div>');
+    parts.push('<div class="dlg-py">'+line[2]+'</div>');
+    parts.push('<div class="dlg-kr">'+line[3]+'</div>');
+    parts.push('</div></div>');
+  });
+
+  el.innerHTML = parts.join('');
+}
+function setRole(r){
+  myRole = r;
+  renderTalk();
+}
+function clickDlgLine(i){
+  var line = curTopic.dialogue[i];
+  var el = document.getElementById('dl-'+i);
+  if(el && el.classList.contains('my-line')) el.classList.add('revealed');
+  dlgPlaying = i;
+  renderTalkKeepReveal(i);
+  speak(line[1], 0.85, function(){ dlgPlaying=-1; renderTalkKeepReveal(i); });
+}
+function renderTalkKeepReveal(revealIdx){
+  renderTalk();
+  if(myRole){
+    var el = document.getElementById('dl-'+revealIdx);
+    if(el && el.classList.contains('my-line')) el.classList.add('revealed');
+  }
+}
+function playDialogue(){
+  var D = curTopic.dialogue;
+  var idx = 0;
+  function next(){
+    if(idx >= D.length){ dlgPlaying=-1; renderTalk(); return; }
+    dlgPlaying = idx;
+    renderTalk();
+    var el = document.getElementById('dl-'+idx);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+    speak(D[idx][1], 0.85, function(){
+      idx++;
+      setTimeout(next, 600);
+    });
+  }
+  next();
+}
+
+// INIT
+initSpeech();
+renderList();
+</script>
+</body>
+</html>

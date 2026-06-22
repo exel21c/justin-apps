@@ -268,22 +268,36 @@ body.edit-mode .app-acts{opacity:1}
 </div>
 
 <script>
-var SK='jhub-v2';
+var SK='jhub-v3';
 var editMode=false;
 var openState={};
 var curTab='all';
 
 var DEFAULT={
   cats:[
-    {id:'biz',name:'Business',emoji:'💼',color:'#1a3a5c', subs:[]},
+    {id:'biz',name:'Brokerage',emoji:'🛃',color:'#1a3a5c',
+     subs:[
+       {id:'biz-ops',name:'Operations',color:'#1a3a5c',
+        apps:[
+          {id:'b1',name:'JN Ledger Pro',emoji:'📋',file:'broker_ledger.html',desc:'Entry관리 · 청구서 · Pipeline · ABI',color:'#1a3a5c'},
+          {id:'b2',name:'Case Notes DB',emoji:'🗂️',file:'case_notes.html',desc:'HTS분류 · 판례 · 케이스 검색 DB',color:'#0F6E56'}
+        ]},
+       {id:'biz-news',name:'News & Market',color:'#2d5f96',
+        apps:[
+          {id:'b3',name:'Korean News',emoji:'📰',file:'korean-news-portal.html',desc:'한국 뉴스 포털',color:'#2d5f96'},
+          {id:'b4',name:'Stock Game',emoji:'📈',file:'stock-game.html',desc:'모의 주식 트레이딩',color:'#1e6b3c'}
+        ]}
+     ]},
     {id:'per',name:'Personal',emoji:'🏡',color:'#2d5f96',
      subs:[
-       {id:'per-study',name:'Study',color:'#1e4fa3',
+       {id:'per-study',name:'Language Study',color:'#1e4fa3',
         apps:[
+          {id:'a4',name:'중국어 학습',emoji:'🀄',file:'chinese_learner.html',desc:'성조 · 기본단어 · 인사말',color:'#c0392b'},
+          {id:'a7',name:'중국어 듣기',emoji:'🎧',file:'chinese_listening.html',desc:'듣기 · 받아쓰기 · 연습',color:'#c0392b'},
+          {id:'a8',name:'주히 중국어',emoji:'👩‍🏫',file:'juhee_chinese.html',desc:'Juhee 선생님 전용 커리큘럼',color:'#c0392b'},
           {id:'a2',name:'영어 문법',emoji:'📖',file:'grammar_in_focus.html',desc:'Grammar in Use · 30유닛',color:'#1e4fa3'},
           {id:'a3',name:'영어 회화',emoji:'💬',file:'conversation_lab.html',desc:'26토픽 · 쉐도잉 · 퀴즈',color:'#1e4fa3'},
-          {id:'a4',name:'중국어',emoji:'🀄',file:'chinese_learner.html',desc:'성조 · 기본단어 · 인사말',color:'#c0392b'},
-          {id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'}
+          {id:'a6',name:'캘리쌤 영어',emoji:'🎙️',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'}
         ]},
        {id:'per-plan',name:'Life Planner',color:'#c8a84b',
         apps:[
@@ -575,7 +589,7 @@ function openEditApp(ci,si,ai){var a=D.cats[ci].subs[si].apps[ai],sub=D.cats[ci]
 function deleteApp(ci,si,ai){var a=D.cats[ci].subs[si].apps[ai];openModal('앱 삭제','<p style="font-size:13px;color:var(--ink2);line-height:1.8"><strong>'+esc(a.name)+'</strong>을 삭제할까요?</p>',DEL_FOOT,function(){D.cats[ci].subs[si].apps.splice(ai,1);save();closeModal();renderAll();toast('🗑 삭제됨');});}
 
 // ── BACKUP ──
-var ALL_SK=['jlp-v3','jhub-v1','jhub-v2','jdb-v1','chinese-learner-v1','grammar-v1','convlab-v1'];
+var ALL_SK=['jlp-v3','jhub-v3','chinese-learner-v1','grammar-v1','convlab-v1','exel_case_notes_v1','ets_tasks','ets_gs_config'];
 function openBackup(){
   var saved=ALL_SK.filter(function(k){try{return!!localStorage.getItem(k);}catch(e){return false;}});
   var lastBk=localStorage.getItem('jbk-last');
@@ -621,43 +635,12 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// migrate: remove chinese_week4_quiz from saved data (merged into chinese_learner)
+// v3 migration: reset to new structure with Brokerage category
 try{
-  var _wd=localStorage.getItem('jhub-v2');
-  if(_wd){
-    var _wp=JSON.parse(_wd);
-    _wp.cats.forEach(function(c){
-      c.subs.forEach(function(s){
-        s.apps=s.apps.filter(function(a){return a.file!=='chinese_week4_quiz.html';});
-      });
-    });
-    localStorage.setItem('jhub-v2',JSON.stringify(_wp));
-  }
-}catch(e){}
-// migrate: remove broker_ledger from saved data
-try{
-  var _bd=localStorage.getItem('jhub-v2');
-  if(_bd){
-    var _bp=JSON.parse(_bd);
-    _bp.cats.forEach(function(c){
-      c.subs.forEach(function(s){
-        s.apps=s.apps.filter(function(a){return a.file!=='broker_ledger.html';});
-      });
-    });
-    localStorage.setItem('jhub-v2',JSON.stringify(_bp));
-  }
-}catch(e){}
-// migrate: add english_learner if missing
-try{
-  var _d=localStorage.getItem('jhub-v2');
-  if(_d){
-    var _p=JSON.parse(_d);
-    var _study=null;
-    _p.cats.forEach(function(c){c.subs.forEach(function(s){if(s.id==='per-study')_study=s;});});
-    if(_study&&!_study.apps.find(function(a){return a.file==='english_learner.html';})){
-      _study.apps.push({id:'a6',name:'캘리쌤 영어',emoji:'🎧',file:'english_learner.html',desc:'30레슨 · 자막 · 단어 · 퀴즈',color:'#1a6fa8'});
-      localStorage.setItem('jhub-v2',JSON.stringify(_p));
-    }
+  var _v3=localStorage.getItem('jhub-v3-done');
+  if(!_v3){
+    localStorage.removeItem('jhub-v2');
+    localStorage.setItem('jhub-v3-done','1');
   }
 }catch(e){}
 

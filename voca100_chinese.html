@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>汉语 — Chinese Learner</title>
+<title>중국어 필수 표현 100개</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#ebe9e2;color:#1a1a18;min-height:100vh}
@@ -111,7 +111,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 <div id="app">
   <nav class="top-nav">
-    <div class="nav-logo">汉语</div>
+    <div class="nav-logo">필수 표현 100</div>
     <button class="nav-tab active" data-view="home" onclick="goView('home')">홈</button>
     <button class="nav-tab" data-view="learn" onclick="goView('learn')">학습</button>
     <button class="nav-tab" data-view="progress" onclick="goView('progress')">현황</button>
@@ -120,8 +120,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="sound-bar" class="sound-bar">
     <div id="sound-dot" class="sound-dot" style="background:#B4B2A9"></div>
     <span id="sound-msg" style="color:var(--text3)">소리 확인 중...</span>
-    <button onclick="speak('你好')" style="margin-left:auto;border:none;background:transparent;cursor:pointer;font-size:16px;padding:2px 4px" title="발음 테스트">🔊</button>
-    <button id="global-mic-btn" onclick="toggleGlobalMic()" style="border:none;background:transparent;cursor:pointer;font-size:16px;padding:2px 4px" title="발음 체크">🎤</button>
+    <button id="sound-test" onclick="testSpeak()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:transparent;font-size:11px;cursor:pointer;font-family:inherit">테스트</button>
   </div>
   <div id="view-home"     class="view active"></div>
   <div id="view-learn"    class="view"></div>
@@ -147,499 +146,173 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 // Add new lessons here ↓
 // ━━━━━━━━━━━━━━━━━━━━━━━━
 const CURRICULUM = [
-  {
-    id:"w1-l1",week:1,lesson:1,
-    title:"성조",subtitle:"Four Tones",color:"#185FA5",
-    vocab:[
-      {char:"妈",pinyin:"mā",meaning:"엄마",tone:1},
-      {char:"麻",pinyin:"má",meaning:"삼/마",tone:2},
-      {char:"马",pinyin:"mǎ",meaning:"말",tone:3},
-      {char:"骂",pinyin:"mà",meaning:"욕하다",tone:4},
-      {char:"书",pinyin:"shū",meaning:"책",tone:1},
-      {char:"人",pinyin:"rén",meaning:"사람",tone:2},
-      {char:"好",pinyin:"hǎo",meaning:"좋다",tone:3},
-      {char:"去",pinyin:"qù",meaning:"가다",tone:4},
-      {char:"看",pinyin:"kàn",meaning:"보다",tone:4},
-      {char:"大",pinyin:"dà",meaning:"크다",tone:4},
-    ]
-  },
-  {
-    id:"w1-l2",week:1,lesson:2,
-    title:"기본 단어",subtitle:"Basic Vocabulary",color:"#0F6E56",
-    vocab:[
-      {char:"妈",pinyin:"mā",meaning:"엄마"},
-      {char:"哥",pinyin:"gē",meaning:"형/오빠"},
-      {char:"家",pinyin:"jiā",meaning:"집"},
-      {char:"钱",pinyin:"qián",meaning:"돈"},
-      {char:"来",pinyin:"lái",meaning:"오다"},
-      {char:"你",pinyin:"nǐ",meaning:"너"},
-      {char:"买",pinyin:"mǎi",meaning:"사다"},
-      {char:"很",pinyin:"hěn",meaning:"매우"},
-      {char:"见",pinyin:"jiàn",meaning:"보다/만나다"},
-      {char:"学",pinyin:"xué",meaning:"배우다"},
-    ]
-  },
-  {
-    id:"w1-l3",week:1,lesson:3,
-    title:"인사말",subtitle:"Greetings",color:"#854F0B",
-    vocab:[
-      {char:"你好",pinyin:"nǐ hǎo",meaning:"안녕"},
-      {char:"早上好",pinyin:"zǎoshang hǎo",meaning:"좋은 아침"},
-      {char:"晚上好",pinyin:"wǎnshang hǎo",meaning:"좋은 저녁"},
-      {char:"今天",pinyin:"jīn tiān",meaning:"오늘"},
-      {char:"怎么样",pinyin:"zěnmeyàng",meaning:"어때"},
-      {char:"我很好",pinyin:"wǒ hěn hǎo",meaning:"나 잘 지내"},
-      {char:"谢谢",pinyin:"xiè xie",meaning:"고마워"},
-      {char:"再见",pinyin:"zài jiàn",meaning:"잘 가"},
-      {char:"好的",pinyin:"hǎo de",meaning:"알겠어"},
-      {char:"明天见",pinyin:"míngtiān jiàn",meaning:"내일 보자"},
-      {char:"拜拜",pinyin:"bài bài",meaning:"빠이빠이"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你好！早上好！",py:"Nǐ hǎo! Zǎoshang hǎo!",kr:"안녕! 좋은 아침!"},
-      {sp:"B",zh:"早上好！你今天怎么样？",py:"Zǎoshang hǎo! Nǐ jīntiān zěnmeyàng?",kr:"좋은 아침! 오늘 어때?"},
-      {sp:"A",zh:"我很好，谢谢！",py:"Wǒ hěn hǎo, xièxie!",kr:"나 잘 지내, 고마워!"},
-      {sp:"A",zh:"再见！",py:"Zài jiàn!",kr:"잘 가!"},
-      {sp:"B",zh:"好的，再见！",py:"Hǎo de, zàijiàn!",kr:"그래, 잘 가!"},
-      {sp:"A",zh:"明天见，拜拜！",py:"Míngtiān jiàn, bàibài!",kr:"내일 봐, 빠이빠이!"},
-    ]
-  },
   // ━━━━━━━━━━━━━━━━━━━━━━━━
-  // WEEK 2 — 나 너무 배고파
+  // VOCA100 — 중국어 필수 표현 100개 (@voca_zip_zhong)
   // ━━━━━━━━━━━━━━━━━━━━━━━━
   {
-    id:"w2-l1",week:2,lesson:1,
-    title:"형용사 술어문",subtitle:"Adjective Sentences",color:"#DC2626",
+    id:"v1-l1",week:7,lesson:1,
+    title:"연결어 ① (1~20)",subtitle:"접속사·연결표현 — 인과·가정·조건·비례",color:"#1D4ED8",
     vocab:[
-      {char:"好吃",pinyin:"hǎochī",meaning:"맛있다"},{char:"辣",pinyin:"là",meaning:"맵다"},
-      {char:"热",pinyin:"rè",meaning:"덥다/뜨겁다"},{char:"冷",pinyin:"lěng",meaning:"춥다"},
-      {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다"},{char:"帅",pinyin:"shuài",meaning:"잘생겼다"},
-      {char:"聪明",pinyin:"cōngming",meaning:"똑똑하다"},{char:"忙",pinyin:"máng",meaning:"바쁘다"},
-      {char:"开心",pinyin:"kāixīn",meaning:"기쁘다"},{char:"累",pinyin:"lèi",meaning:"피곤하다"},
-      {char:"可爱",pinyin:"kě'ài",meaning:"귀엽다"},{char:"贵",pinyin:"guì",meaning:"비싸다"},
-      {char:"便宜",pinyin:"piányi",meaning:"싸다"},{char:"难",pinyin:"nán",meaning:"어렵다"},
-      {char:"幸福",pinyin:"xìngfú",meaning:"행복하다"},{char:"高",pinyin:"gāo",meaning:"(키)크다"},
-      {char:"矮",pinyin:"ǎi",meaning:"(키)작다"},{char:"好",pinyin:"hǎo",meaning:"좋다"},
-      {char:"饿",pinyin:"è",meaning:"배고프다"},{char:"很",pinyin:"hěn",meaning:"매우"},
-      {char:"不",pinyin:"bù",meaning:"아니다/~않다"},{char:"吗",pinyin:"ma",meaning:"~이야? (의문)"},
-      {char:"呢",pinyin:"ne",meaning:"~은? (추가 질문)"},
+      {char:"因为…所以…",pinyin:"yīnwèi…suǒyǐ…",meaning:"왜냐하면…그래서… (인과)"},
+      {char:"虽然…但是…",pinyin:"suīrán…dànshì…",meaning:"비록…이지만… (양보·역접)"},
+      {char:"不但…而且…",pinyin:"búdàn…érqiě…",meaning:"~뿐만 아니라…게다가… (점층)"},
+      {char:"既然…就…",pinyin:"jìrán…jiù…",meaning:"이미 ~인 이상… (전제→결론)"},
+      {char:"如果…的话…",pinyin:"rúguǒ…dehuà…",meaning:"만약…라면… (가정)"},
+      {char:"要是…就…",pinyin:"yàoshi…jiù…",meaning:"만약…이라면… (구어 가정)"},
+      {char:"只要…就…",pinyin:"zhǐyào…jiù…",meaning:"~만 하면… (조건 충족)"},
+      {char:"只有…才…",pinyin:"zhǐyǒu…cái…",meaning:"~해야만 비로소… (유일 조건)"},
+      {char:"除非…否则…",pinyin:"chúfēi…fǒuzé…",meaning:"~하지 않는 한… (부정 조건)"},
+      {char:"无论…都…",pinyin:"wúlùn…dōu…",meaning:"아무리…해도… (양보 전체)"},
+      {char:"不管…都…",pinyin:"bùguǎn…dōu…",meaning:"~에 상관없이… (구어 양보)"},
+      {char:"尽管…还是…",pinyin:"jǐnguǎn…háishi…",meaning:"비록…그래도… (강한 역접)"},
+      {char:"一…就…",pinyin:"yī…jiù…",meaning:"~하자마자… (즉각 연결)"},
+      {char:"越…越…",pinyin:"yuè…yuè…",meaning:"~할수록 더… (비례 변화)"},
+      {char:"不是…而是…",pinyin:"búshì…érshì…",meaning:"~이 아니라 …이다 (대비·정정)"},
+      {char:"与其…不如…",pinyin:"yǔqí…bùrú…",meaning:"~하느니 차라리… (비교 선택)"},
+      {char:"宁可…也不…",pinyin:"nìngkě…yě bù…",meaning:"차라리…할지언정…않겠다 (강한 의지)"},
+      {char:"既…又…",pinyin:"jì…yòu…",meaning:"~이기도 하고…이기도 하다 (병렬)"},
+      {char:"一方面…另一方面…",pinyin:"yī fāngmiàn…lìng yī fāngmiàn…",meaning:"한편으로는…다른 한편으로는… (양면)"},
+      {char:"首先…然后…最后…",pinyin:"shǒuxiān…ránhòu…zuìhòu…",meaning:"먼저…그 다음…마지막으로… (순서)"},
     ],
     dialogue:[
-      {sp:"A",zh:"你今天忙吗？",py:"Nǐ jīntiān máng ma?",kr:"너 오늘 바빠?"},
-      {sp:"B",zh:"我今天很忙。",py:"Wǒ jīntiān hěn máng.",kr:"나 오늘 아주 바빠."},
-      {sp:"A",zh:"那，明天呢？",py:"Nà, míngtiān ne?",kr:"그럼, 내일은?"},
-      {sp:"B",zh:"我明天不忙。",py:"Wǒ míngtiān bù máng.",kr:"나 내일은 안 바빠."},
+      {sp:"A",zh:"你为什么选择学汉语？",py:"Nǐ wèishénme xuǎnzé xué Hànyǔ?",kr:"왜 중국어를 선택해서 배워?"},
+      {sp:"B",zh:"因为汉语很有用，所以我开始学了。",py:"Yīnwèi Hànyǔ hěn yǒuyòng, suǒyǐ wǒ kāishǐ xué le.",kr:"중국어가 유용하기 때문에 배우기 시작했어."},
+      {sp:"A",zh:"虽然很难，但是越学越有意思！",py:"Suīrán hěn nán, dànshì yuè xué yuè yǒuyìsi!",kr:"비록 어렵지만 배우면 배울수록 재미있어!"},
+      {sp:"B",zh:"只要每天坚持，就能进步！",py:"Zhǐyào měitiān jiānchí, jiù néng jìnbù!",kr:"매일 꾸준히만 하면 실력이 늘 수 있어!"},
+      {sp:"A",zh:"不管多难，我都不放弃。",py:"Bùguǎn duō nán, wǒ dōu bù fàngqì.",kr:"아무리 어려워도 나는 포기하지 않을 거야."},
+      {sp:"B",zh:"我也是！一起加油吧！",py:"Wǒ yě shì! Yìqǐ jiāyóu ba!",kr:"나도 그래! 같이 파이팅하자!"},
     ],
     grammar:[
-      {title:"형용사 술어문",rule:"주어 + 很 + 형용사",example:"我很饿。",pinyin:"Wǒ hěn è.",meaning:"나는 매우 배고프다."},
-      {title:"부정문",rule:"주어 + 不 + 형용사",example:"我不饿。",pinyin:"Wǒ bù è.",meaning:"나는 배고프지 않다."},
-      {title:"의문문",rule:"주어 + 很 + 형용사 + 吗？",example:"你很忙吗？",pinyin:"Nǐ hěn máng ma?",meaning:"너 많이 바빠?"},
-      {title:"3성+3성 변화",rule:"앞의 3성 → 2성으로",example:"你好 nǐ hǎo → ní hǎo",pinyin:"",meaning:""},
-      {title:"不 성조변화",rule:"不(bù)+4성 → bú로 변화",example:"不是 bù shì → bú shì",pinyin:"",meaning:""},
-    ]
+      {title:"인과: 因为…所以…",rule:"因为+원인, 所以+결과 (둘 다 쓰는 게 자연스러움)",example:"因为下雨，所以我没出门。",pinyin:"Yīnwèi xià yǔ, suǒyǐ wǒ méi chūmén.",meaning:"비가 와서 나는 외출하지 않았다."},
+      {title:"가정: 如果/要是…就…",rule:"如果(서면)·要是(구어) + 조건, 就 + 결과",example:"要是明天下雪，就不用去了。",pinyin:"Yàoshi míngtiān xià xuě, jiù bú yòng qù le.",meaning:"만약 내일 눈이 오면 가지 않아도 된다."},
+      {title:"조건: 只要/只有…",rule:"只要+조건+就(충분조건) vs 只有+조건+才(필요조건)",example:"只要努力，就能成功。/ 只有亲身经历，才能真正理解。",pinyin:"Zhǐyào nǔlì, jiù néng chénggōng. / Zhǐyǒu qīnshēn jīnglì, cái néng zhēnzhèng lǐjiě.",meaning:"열심히만 하면 성공할 수 있다. / 직접 경험해야만 진정으로 이해할 수 있다."},
+      {title:"비례: 越…越…",rule:"越+A+越+B = A할수록 B해진다",example:"中文越学越有意思。",pinyin:"Zhōngwén yuè xué yuè yǒuyìsi.",meaning:"중국어는 배우면 배울수록 재미있다."},
+      {title:"양보: 虽然/尽管…但是/还是…",rule:"虽然(비록)+상황, 但是(하지만)+결과",example:"虽然很累，但是很开心。",pinyin:"Suīrán hěn lèi, dànshì hěn kāixīn.",meaning:"비록 피곤하지만 정말 즐거웠다."},
+    ],
+    example:{zh:"只要努力，就能成功。中文越学越有意思！",pinyin:"Zhǐyào nǔlì, jiù néng chénggōng. Zhōngwén yuè xué yuè yǒuyìsi!",meaning:"열심히만 하면 성공할 수 있어. 중국어는 배울수록 재미있어!"},
   },
   {
-    id:"w2-l2",week:2,lesson:2,
-    title:"我是韩国人",subtitle:"Nationality & Family",color:"#7C3AED",
+    id:"v1-l2",week:7,lesson:2,
+    title:"연결어 ② (21~35) + 부사 (36~75)",subtitle:"접속사 마무리 + 정도·어기·시간·빈도·방식 부사",color:"#047857",
     vocab:[
-      {char:"韩国人",pinyin:"Hánguórén",meaning:"한국인"},{char:"中国人",pinyin:"Zhōngguórén",meaning:"중국인"},
-      {char:"日本人",pinyin:"Rìběnrén",meaning:"일본인"},{char:"美国人",pinyin:"Měiguórén",meaning:"미국인"},
-      {char:"法国人",pinyin:"Fǎguórén",meaning:"프랑스인"},{char:"英国人",pinyin:"Yīngguórén",meaning:"영국인"},
-      {char:"外国人",pinyin:"Wàiguórén",meaning:"외국인"},{char:"意大利人",pinyin:"Yìdàlìrén",meaning:"이탈리아인"},
-      {char:"是",pinyin:"shì",meaning:"~이다"},{char:"不是",pinyin:"bú shì",meaning:"~이 아니다"},
-      {char:"哪国人",pinyin:"nǎ guó rén",meaning:"어느 나라 사람"},
-      {char:"妈妈",pinyin:"māma",meaning:"엄마"},{char:"爸爸",pinyin:"bàba",meaning:"아빠"},
-      {char:"奶奶",pinyin:"nǎinai",meaning:"할머니"},{char:"爷爷",pinyin:"yéye",meaning:"할아버지"},
-      {char:"哥哥",pinyin:"gēge",meaning:"오빠/형"},{char:"弟弟",pinyin:"dìdi",meaning:"남동생"},
-      {char:"姐姐",pinyin:"jiějie",meaning:"언니/누나"},{char:"妹妹",pinyin:"mèimei",meaning:"여동생"},
-      {char:"朋友",pinyin:"péngyou",meaning:"친구"},{char:"男朋友",pinyin:"nánpéngyou",meaning:"남자친구"},
-      {char:"女朋友",pinyin:"nǚpéngyou",meaning:"여자친구"},{char:"同事",pinyin:"tóngshì",meaning:"동료"},
-      {char:"老师",pinyin:"lǎoshī",meaning:"선생님"},{char:"爱人",pinyin:"àiren",meaning:"배우자/애인"},
-      {char:"女儿",pinyin:"nǚ'ér",meaning:"딸"},{char:"儿子",pinyin:"érzi",meaning:"아들"},
-      {char:"而且",pinyin:"érqiě",meaning:"게다가"},
+      {char:"总之",pinyin:"zǒngzhī",meaning:"요컨대, 결국 (결론 마무리)"},
+      {char:"况且",pinyin:"kuàngqiě",meaning:"더욱이, 게다가 (이유 추가)"},
+      {char:"何况",pinyin:"hékuàng",meaning:"하물며 (강조 추가)"},
+      {char:"因此",pinyin:"yīncǐ",meaning:"따라서, 이 때문에 (문어 결과)"},
+      {char:"于是",pinyin:"yúshì",meaning:"그래서 — 서사적 (사건 연결)"},
+      {char:"然而",pinyin:"rán'ér",meaning:"그러나 — 문어체 (역접 서술)"},
+      {char:"不过",pinyin:"búguò",meaning:"그런데, 하지만 (부드러운 역접)"},
+      {char:"反而",pinyin:"fǎn'ér",meaning:"오히려 (예상 반전)"},
+      {char:"甚至",pinyin:"shènzhì",meaning:"심지어 (극단 강조)"},
+      {char:"另外",pinyin:"lìngwài",meaning:"그 외에, 또한 (내용 추가)"},
+      {char:"此外",pinyin:"cǐwài",meaning:"이 밖에도 — 문어체 추가"},
+      {char:"相反",pinyin:"xiāngfǎn",meaning:"반대로 (대조 전환)"},
+      {char:"同时",pinyin:"tóngshí",meaning:"동시에 (동시 진행)"},
+      {char:"其实",pinyin:"qíshí",meaning:"사실은, 실제로 (진실 반전)"},
+      {char:"总的来说",pinyin:"zǒng de lái shuō",meaning:"전반적으로 말하자면 (총괄)"},
+      {char:"竟然",pinyin:"jìngrán",meaning:"뜻밖에도, 의외로"},
+      {char:"居然",pinyin:"jūrán",meaning:"놀랍게도, 설마"},
+      {char:"果然",pinyin:"guǒrán",meaning:"역시, 과연"},
+      {char:"幸好",pinyin:"xìnghǎo",meaning:"다행히도"},
+      {char:"好在",pinyin:"hǎozài",meaning:"다행스럽게도"},
+      {char:"难怪",pinyin:"nánguài",meaning:"어쩐지, 그럴 만하다"},
+      {char:"偏偏",pinyin:"piānpiān",meaning:"하필이면, 공교롭게도"},
+      {char:"明明",pinyin:"míngmíng",meaning:"분명히, 뻔히"},
+      {char:"简直",pinyin:"jiǎnzhí",meaning:"정말이지, 그야말로"},
+      {char:"根本",pinyin:"gēnběn",meaning:"전혀, 도무지 (부정 강조)"},
+      {char:"完全",pinyin:"wánquán",meaning:"완전히, 전적으로"},
+      {char:"极其",pinyin:"jíqí",meaning:"극히, 매우"},
+      {char:"格外",pinyin:"géwài",meaning:"각별히, 특별히"},
+      {char:"尤其",pinyin:"yóuqí",meaning:"특히, 더욱이"},
+      {char:"几乎",pinyin:"jīhū",meaning:"거의"},
+      {char:"大约",pinyin:"dàyuē",meaning:"대략, 약"},
+      {char:"至少",pinyin:"zhìshǎo",meaning:"적어도, 최소한"},
+      {char:"至多",pinyin:"zhìduō",meaning:"기껏해야, 최대한"},
+      {char:"仅仅",pinyin:"jǐnjǐn",meaning:"단지, 겨우"},
+      {char:"不得不",pinyin:"bùdébù",meaning:"어쩔 수 없이 (~하지 않을 수 없다)"},
+      {char:"不禁",pinyin:"bùjīn",meaning:"자기도 모르게, 절로"},
+      {char:"忍不住",pinyin:"rěnbuzhù",meaning:"참을 수 없이"},
+      {char:"已经",pinyin:"yǐjīng",meaning:"이미, 벌써"},
+      {char:"曾经",pinyin:"céngjīng",meaning:"일찍이, 예전에"},
+      {char:"终于",pinyin:"zhōngyú",meaning:"마침내, 드디어"},
+      {char:"终究",pinyin:"zhōngjiū",meaning:"결국, 끝내"},
+      {char:"立刻",pinyin:"lìkè",meaning:"즉시, 당장"},
+      {char:"随时",pinyin:"suíshí",meaning:"언제든지"},
+      {char:"逐渐",pinyin:"zhújiàn",meaning:"점점, 차차"},
+      {char:"渐渐",pinyin:"jiànjiàn",meaning:"서서히, 조금씩"},
+      {char:"往往",pinyin:"wǎngwǎng",meaning:"자주, 흔히"},
+      {char:"经常",pinyin:"jīngcháng",meaning:"자주, 늘"},
+      {char:"偶尔",pinyin:"ǒu'ěr",meaning:"가끔, 때로는"},
+      {char:"重新",pinyin:"chóngxīn",meaning:"다시, 새로이"},
+      {char:"亲自",pinyin:"qīnzì",meaning:"직접, 몸소"},
+      {char:"互相",pinyin:"hùxiāng",meaning:"서로"},
+      {char:"分别",pinyin:"fēnbié",meaning:"각각, 따로따로"},
+      {char:"陆续",pinyin:"lùxù",meaning:"잇따라, 차례로"},
+      {char:"反复",pinyin:"fǎnfù",meaning:"반복적으로"},
+      {char:"特意",pinyin:"tèyì",meaning:"일부러, 특별히"},
     ],
     dialogue:[
-      {sp:"A",zh:"你是中国人吗？",py:"Nǐ shì Zhōngguórén ma?",kr:"너는 중국인이야?"},
-      {sp:"B",zh:"不是，我是韩国人。",py:"Bú shì, wǒ shì Hánguórén.",kr:"아니, 나는 한국인이야."},
-      {sp:"B",zh:"你是哪国人？",py:"Nǐ shì nǎ guó rén?",kr:"너는 어느 나라 사람이야?"},
-      {sp:"A",zh:"我是日本人。",py:"Wǒ shì Rìběnrén.",kr:"나는 일본인이야."},
+      {sp:"A",zh:"你怎么突然开始学中文了？",py:"Nǐ zěnme túrán kāishǐ xué Zhōngwén le?",kr:"갑자기 왜 중국어 공부 시작했어?"},
+      {sp:"B",zh:"其实我曾经学过，但是忘了很多。",py:"Qíshí wǒ céngjīng xué guò, dànshì wàng le hěn duō.",kr:"사실은 예전에 배운 적 있는데 많이 잊어버렸어."},
+      {sp:"A",zh:"难怪你进步这么快！果然有基础！",py:"Nánguài nǐ jìnbù zhème kuài! Guǒrán yǒu jīchǔ!",kr:"어쩐지 실력이 빨리 늘더라! 역시 기초가 있었구나!"},
+      {sp:"B",zh:"幸好我重新开始了，已经进步了很多。",py:"Xìnghǎo wǒ chóngxīn kāishǐ le, yǐjīng jìnbù le hěn duō.",kr:"다행히 다시 시작했어. 이미 많이 늘었거든."},
+      {sp:"A",zh:"我竟然不知道你学过！而且你几乎每天都练习！",py:"Wǒ jìngrán bù zhīdào nǐ xué guò! Érqiě nǐ jīhū měitiān dōu liànxí!",kr:"의외로 네가 배운 줄 몰랐어! 게다가 거의 매일 연습하잖아!"},
+      {sp:"B",zh:"总之，坚持最重要！随时可以一起练习哦！",py:"Zǒngzhī, jiānchí zuì zhòngyào! Suíshí kěyǐ yìqǐ liànxí ō!",kr:"요컨대 꾸준함이 제일 중요해! 언제든지 같이 연습하자!"},
     ],
     grammar:[
-      {title:"是자문",rule:"주어 + 是 + 명사",example:"我是韩国人。",pinyin:"Wǒ shì Hánguórén.",meaning:"나는 한국인입니다."},
-      {title:"부정문",rule:"주어 + 不是 + 명사",example:"我不是中国人。",pinyin:"Wǒ bú shì Zhōngguórén.",meaning:"나는 중국인이 아니야."},
-      {title:"의문문",rule:"주어 + 是 + 명사 + 吗？",example:"你是中国人吗？",pinyin:"Nǐ shì Zhōngguórén ma?",meaning:"너는 중국인이야?"},
-      {title:"而且",rule:"A，而且B (A이고 게다가 B)",example:"他是老师，而且很帅。",pinyin:"Tā shì lǎoshī, érqiě hěn shuài.",meaning:"그는 선생님이고 잘생겼습니다."},
-    ]
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  // WEEK 3 — 지금 몇 시야?
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  {
-    id:"w3-l1",week:3,lesson:1,
-    title:"지금 몇 시야?",subtitle:"Time & Date",color:"#0891b2",
-    vocab:[
-      {char:"现在",pinyin:"xiànzài",meaning:"지금"},
-      {char:"几点",pinyin:"jǐ diǎn",meaning:"몇 시"},
-      {char:"几分",pinyin:"jǐ fēn",meaning:"몇 분"},
-      {char:"半",pinyin:"bàn",meaning:"반 (30분)"},
-      {char:"今天",pinyin:"jīntiān",meaning:"오늘"},
-      {char:"几月",pinyin:"jǐ yuè",meaning:"몇 월"},
-      {char:"几号",pinyin:"jǐ hào",meaning:"몇 일"},
-      {char:"星期",pinyin:"xīngqī",meaning:"요일/주"},
-      {char:"星期一",pinyin:"xīngqī yī",meaning:"월요일"},
-      {char:"星期二",pinyin:"xīngqī èr",meaning:"화요일"},
-      {char:"星期三",pinyin:"xīngqī sān",meaning:"수요일"},
-      {char:"星期四",pinyin:"xīngqī sì",meaning:"목요일"},
-      {char:"星期五",pinyin:"xīngqī wǔ",meaning:"금요일"},
-      {char:"星期六",pinyin:"xīngqī liù",meaning:"토요일"},
-      {char:"星期天",pinyin:"xīngqītiān",meaning:"일요일"},
-      {char:"见",pinyin:"jiàn",meaning:"만나다"},
-      {char:"生日",pinyin:"shēngrì",meaning:"생일"},
-      {char:"圣诞节",pinyin:"Shèngdànjié",meaning:"크리스마스"},
-      {char:"那",pinyin:"nà",meaning:"그럼/그러면"},
-      {char:"吧",pinyin:"ba",meaning:"~하자 (제안)"},
+      {title:"어기부사 — 예상과 다를 때",rule:"竟然/居然=의외로(놀람) / 果然=역시(예상대로) / 幸好/好在=다행히",example:"他竟然忘了我的生日。/ 果然被我说中了。/ 幸好我带了伞。",pinyin:"Tā jìngrán wàng le wǒ de shēngrì. / Guǒrán bèi wǒ shuō zhōng le. / Xìnghǎo wǒ dài le sǎn.",meaning:"그가 의외로 내 생일을 잊었다. / 역시 내가 맞혔다. / 다행히 우산을 가져왔다."},
+      {title:"정도부사 비교",rule:"简直=그야말로 / 根本=전혀(부정) / 完全=완전히 / 尤其=특히 / 几乎=거의",example:"这个价格简直太便宜了！/ 我根本不知道。/ 我尤其喜欢游泳。",pinyin:"Zhège jiàgé jiǎnzhí tài piányí le! / Wǒ gēnběn bù zhīdào. / Wǒ yóuqí xǐhuan yóuyǒng.",meaning:"이 가격은 그야말로 너무 저렴해! / 나는 전혀 몰랐다. / 나는 특히 수영을 좋아한다."},
+      {title:"시간부사 뉘앙스",rule:"已经=이미(완료) / 曾经=예전에(경험) / 终于=드디어(기다림 끝) / 立刻=즉시",example:"电影已经开始了。/ 我曾经住过北京。/ 终于通过考试了！",pinyin:"Diànyǐng yǐjīng kāishǐ le. / Wǒ céngjīng zhù guò Běijīng. / Zhōngyú tōngguò kǎoshì le!",meaning:"영화가 이미 시작됐다. / 예전에 베이징에 산 적 있다. / 드디어 시험에 합격했다!"},
+      {title:"빈도부사 순서",rule:"往往·经常>常常>有时候>偶尔 (빈도 높음→낮음)",example:"他经常迟到，偶尔会准时。",pinyin:"Tā jīngcháng chídào, ǒu'ěr huì zhǔnshí.",meaning:"그는 자주 지각하고 가끔 제때 온다."},
     ],
-    dialogue:[
-      {sp:"A",zh:"现在几点？",py:"Xiànzài jǐ diǎn?",kr:"지금 몇 시야?"},
-      {sp:"B",zh:"现在五点半。",py:"Xiànzài wǔ diǎn bàn.",kr:"지금 5시 반이야."},
-      {sp:"A",zh:"那我们七点见吧。",py:"Nà wǒmen qī diǎn jiàn ba.",kr:"그럼 우리 7시에 만나자."},
-      {sp:"A",zh:"今天几月几号？",py:"Jīntiān jǐ yuè jǐ hào?",kr:"오늘 몇 월 며칠이야?"},
-      {sp:"B",zh:"今天六月十二号。",py:"Jīntiān liù yuè shí èr hào.",kr:"오늘은 6월 12일이야."},
-      {sp:"A",zh:"今天是星期几？",py:"Jīntiān shì xīngqī jǐ?",kr:"오늘은 무슨 요일이야?"},
-      {sp:"B",zh:"今天是星期四。",py:"Jīntiān shì xīngqī sì.",kr:"오늘은 목요일이야."},
-    ],
-    grammar:[
-      {title:"시간 말하기",rule:"숫자 + 点(시) + 숫자 + 分(분)",example:"三点二十七分",pinyin:"sān diǎn èr shí qī fēn",meaning:"3시 27분 / 30분은 半(bàn) 또는 三十分"},
-      {title:"날짜 말하기",rule:"숫자 + 月(월) + 숫자 + 号(일)",example:"六月十二号",pinyin:"liù yuè shí èr hào",meaning:"6월 12일"},
-      {title:"요일 말하기",rule:"星期 + 숫자(월~토) / 星期天(일요일)",example:"星期五",pinyin:"xīngqī wǔ",meaning:"금요일"},
-    ],
-    example:{zh:"现在三点二十七分。",pinyin:"Xiànzài sān diǎn èr shí qī fēn.",meaning:"지금은 3시 27분이야."},
+    example:{zh:"总之，坚持最重要。失败了没关系，重新开始吧！",pinyin:"Zǒngzhī, jiānchí zuì zhòngyào. Shībài le méi guānxi, chóngxīn kāishǐ ba!",meaning:"요컨대 꾸준함이 제일 중요해. 실패해도 괜찮아, 다시 시작하자!"},
   },
   {
-    id:"w3-l2",week:3,lesson:2,
-    title:"有 / 没有",subtitle:"Have / Don't Have",color:"#059669",
+    id:"v1-l3",week:7,lesson:3,
+    title:"전치사구 (76~100)",subtitle:"개사구 25개 — 입장·근거·목적·비교·관점",color:"#B45309",
     vocab:[
-      {char:"有",pinyin:"yǒu",meaning:"있다 / 가지고 있다"},
-      {char:"没有",pinyin:"méiyǒu",meaning:"없다 / 가지고 있지 않다"},
-      {char:"时间",pinyin:"shíjiān",meaning:"시간"},
-      {char:"忙",pinyin:"máng",meaning:"바쁘다"},
-      {char:"早上",pinyin:"zǎoshang",meaning:"아침"},
-      {char:"明天",pinyin:"míngtiān",meaning:"내일"},
-      {char:"怎么样",pinyin:"zěnmeyàng",meaning:"어때?"},
-      {char:"感冒药",pinyin:"gǎnmàoyào",meaning:"감기약"},
-      {char:"雨伞",pinyin:"yǔsǎn",meaning:"우산"},
-      {char:"手机",pinyin:"shǒujī",meaning:"핸드폰"},
-      {char:"现金",pinyin:"xiànjīn",meaning:"현금"},
-      {char:"汉语书",pinyin:"Hànyǔ shū",meaning:"중국어 책"},
-      {char:"啤酒",pinyin:"píjiǔ",meaning:"맥주"},
-      {char:"可乐",pinyin:"kělè",meaning:"콜라"},
-      {char:"苹果",pinyin:"píngguǒ",meaning:"사과"},
-      {char:"卡",pinyin:"kǎ",meaning:"카드"},
-      {char:"眼镜",pinyin:"yǎnjìng",meaning:"안경"},
-      {char:"男朋友",pinyin:"nánpéngyou",meaning:"남자친구"},
-      {char:"女朋友",pinyin:"nǚpéngyou",meaning:"여자친구"},
-      {char:"妹妹",pinyin:"mèimei",meaning:"여동생"},
-      {char:"弟弟",pinyin:"dìdi",meaning:"남동생"},
-      {char:"护照",pinyin:"hùzhào",meaning:"여권"},
-      {char:"汽车",pinyin:"qìchē",meaning:"자동차"},
-      {char:"自行车",pinyin:"zìxíngchē",meaning:"자전거"},
-      {char:"钱",pinyin:"qián",meaning:"돈"},
-      {char:"笔记本电脑",pinyin:"bǐjìběn diànnǎo",meaning:"노트북"},
-      {char:"圆珠笔",pinyin:"yuánzhūbǐ",meaning:"볼펜"},
+      {char:"对…来说",pinyin:"duì…lái shuō",meaning:"~에게 있어서 (입장 표현)"},
+      {char:"对于…",pinyin:"duìyú…",meaning:"~에 대하여 (대상 지정)"},
+      {char:"关于…",pinyin:"guānyú…",meaning:"~에 관하여 (주제 제시)"},
+      {char:"根据…",pinyin:"gēnjù…",meaning:"~에 근거하여 (근거 제시)"},
+      {char:"按照…",pinyin:"ànzhào…",meaning:"~에 따라서 (기준 표현)"},
+      {char:"依据…",pinyin:"yījù…",meaning:"~를 근거로 — 문어체"},
+      {char:"通过…",pinyin:"tōngguò…",meaning:"~을 통해서 (수단·방법)"},
+      {char:"经过…",pinyin:"jīngguò…",meaning:"~을 거쳐서 (과정 표현)"},
+      {char:"为了…",pinyin:"wèile…",meaning:"~을 위해서 (목적)"},
+      {char:"以…为…",pinyin:"yǐ…wéi…",meaning:"~을 …으로 삼다 (기준·목표)"},
+      {char:"除了…以外",pinyin:"chúle…yǐwài",meaning:"~을 제외하고 (예외)"},
+      {char:"除了…之外还…",pinyin:"chúle…zhīwài hái…",meaning:"~외에도 더… (추가 포함)"},
+      {char:"比起…来",pinyin:"bǐqǐ…lái",meaning:"~에 비하면 (비교)"},
+      {char:"相比之下",pinyin:"xiāngbǐ zhīxià",meaning:"비교해 보면 (대조 비교)"},
+      {char:"在…方面",pinyin:"zài…fāngmiàn",meaning:"~면에서 (측면 한정)"},
+      {char:"在…上",pinyin:"zài…shàng",meaning:"~에 있어서 (범위 한정)"},
+      {char:"从…角度来看",pinyin:"cóng…jiǎodù lái kàn",meaning:"~의 각도에서 보면 (관점)"},
+      {char:"从…出发",pinyin:"cóng…chūfā",meaning:"~에서 출발하여 (관점·근거)"},
+      {char:"随着…",pinyin:"suízhe…",meaning:"~에 따라, ~와 함께 (변화 수반)"},
+      {char:"由于…",pinyin:"yóuyú…",meaning:"~로 인하여 — 문어체 원인"},
+      {char:"以…的方式",pinyin:"yǐ…de fāngshì",meaning:"~의 방식으로 (방법 표현)"},
+      {char:"就…而言",pinyin:"jiù…éryán",meaning:"~에 관해 말하자면 (화제 한정)"},
+      {char:"针对…",pinyin:"zhēnduì…",meaning:"~을 겨냥하여, ~에 맞게"},
+      {char:"围绕…",pinyin:"wéirào…",meaning:"~을 중심으로 (주제 중심)"},
+      {char:"基于…",pinyin:"jīyú…",meaning:"~에 기반하여 — 고급 문어체"},
     ],
     dialogue:[
-      {sp:"A",zh:"你今天有时间吗？",py:"Nǐ jīntiān yǒu shíjiān ma?",kr:"너 오늘 시간 있어?"},
-      {sp:"B",zh:"我今天很忙，没有时间。",py:"Wǒ jīntiān hěn máng, méiyǒu shíjiān.",kr:"나 오늘 너무 바빠, 시간 없어."},
-      {sp:"A",zh:"那明天怎么样？",py:"Nà míngtiān zěnmeyàng?",kr:"그럼 내일은 어때?"},
-      {sp:"B",zh:"我明天早上十点有时间。",py:"Wǒ míngtiān zǎoshang shí diǎn yǒu shíjiān.",kr:"나 내일 아침 10시에는 시간 있어."},
+      {sp:"A",zh:"对我来说，学好汉语是最重要的目标。",py:"Duì wǒ lái shuō, xué hǎo Hànyǔ shì zuì zhòngyào de mùbiāo.",kr:"나에게 있어서 중국어를 잘 배우는 게 가장 중요한 목표야."},
+      {sp:"B",zh:"为了提高中文，你每天做什么？",py:"Wèile tígāo Zhōngwén, nǐ měitiān zuò shénme?",kr:"중국어 실력 향상을 위해서 매일 뭐 해?"},
+      {sp:"A",zh:"通过看中国电影和听播客，我每天练习。",py:"Tōngguò kàn Zhōngguó diànyǐng hé tīng bōkè, wǒ měitiān liànxí.",kr:"중국 영화 보기와 팟캐스트 듣기를 통해서 매일 연습해."},
+      {sp:"B",zh:"根据你的经验，哪个方法最有效？",py:"Gēnjù nǐ de jīngyàn, nǎge fāngfǎ zuì yǒuxiào?",kr:"네 경험에 근거하면 어떤 방법이 제일 효과적이야?"},
+      {sp:"A",zh:"比起背单词来，多说多练更重要。随着时间推移，自然就进步了。",py:"Bǐqǐ bèi dāncí lái, duō shuō duō liàn gèng zhòngyào. Suízhe shíjiān tuīyí, zìrán jiù jìnbù le.",kr:"단어 암기에 비하면 많이 말하고 많이 연습하는 게 더 중요해. 시간이 흐름에 따라 자연히 늘게 돼."},
     ],
     grammar:[
-      {title:"有 / 没有 사용법",rule:"주어 + 有/没有 + 목적어",example:"我有时间。/ 我没有时间。",pinyin:"Wǒ yǒu shíjiān. / Wǒ méiyǒu shíjiān.",meaning:"나 시간 있어. / 나 시간 없어."},
-      {title:"부사어 포함 구조",rule:"주어 + 부사어 + 有/没有 + 목적어",example:"我现在有感冒药。",pinyin:"Wǒ xiànzài yǒu gǎnmàoyào.",meaning:"나 지금 감기약 있어."},
+      {title:"입장·대상: 对…来说 vs 对于…",rule:"对…来说=~에게 있어서(주관적 입장) / 对于…=~에 대하여(객관적 대상)",example:"对我来说，健康最重要。/ 对于这个问题，我有看法。",pinyin:"Duì wǒ lái shuō, jiànkāng zuì zhòngyào. / Duìyú zhège wèntí, wǒ yǒu kànfǎ.",meaning:"나에게 있어서 건강이 가장 중요해. / 이 문제에 대하여 나는 견해가 있다."},
+      {title:"근거: 根据 vs 按照 vs 由于",rule:"根据=~에 근거하여(정보·데이터) / 按照=~에 따라서(규칙·방법) / 由于=~로 인하여(원인, 문어)",example:"根据天气预报，明天下雨。/ 请按照说明书操作。/ 由于天气原因，航班取消了。",pinyin:"Gēnjù tiānqì yùbào, míngtiān xià yǔ. / Qǐng ànzhào shuōmíng shū cāozuò. / Yóuyú tiānqì yuányīn, hángbān qǔxiāo le.",meaning:"일기예보에 근거하면 내일 비가 온다. / 설명서에 따라 조작하세요. / 날씨로 인하여 항공편이 취소됐다."},
+      {title:"목적: 为了… / 수단: 通过…",rule:"为了+목적 (앞에 위치) / 通过+수단+동사 (방법 강조)",example:"为了健康，她每天运动。/ 通过练习，你会越来越好。",pinyin:"Wèile jiànkāng, tā měitiān yùndòng. / Tōngguò liànxí, nǐ huì yuè lái yuè hǎo.",meaning:"건강을 위해서 그녀는 매일 운동한다. / 연습을 통해서 너는 점점 잘하게 될 것이다."},
+      {title:"비교: 比起…来 / 相比之下",rule:"比起A来, B更~= A에 비해 B가 더~ / 相比之下=비교해 보면(앞 내용과 대조)",example:"比起去年来，今年进步了很多。/ 相比之下，这个方案更合适。",pinyin:"Bǐqǐ qùnián lái, jīnnián jìnbù le hěn duō. / Xiāngbǐ zhīxià, zhège fāng'àn gèng héshì.",meaning:"작년에 비하면 올해 많이 발전했다. / 비교해 보면 이 방안이 더 적합하다."},
+      {title:"수반변화: 随着… / 관점: 从…角度来看",rule:"随着+변화요인+변화결과 / 从+관점+角度来看+평가",example:"随着时间的推移，一切都会改变。/ 从长远角度来看，这是正确的选择。",pinyin:"Suízhe shíjiān de tuīyí, yīqiè dōu huì gǎibiàn. / Cóng cháng yuǎn jiǎodù lái kàn, zhè shì zhèngquè de xuǎnzé.",meaning:"시간의 흐름에 따라 모든 것은 변한다. / 장기적 관점에서 보면 이것이 올바른 선택이다."},
     ],
-    example:{zh:"我今天很忙，没有时间。",pinyin:"Wǒ jīntiān hěn máng, méiyǒu shíjiān.",meaning:"나 오늘 너무 바빠, 시간 없어."},
-  },
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  // WEEK 4 — 우리 같이 먹자!
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  {
-    id:"w4-l1",week:4,lesson:1,
-    title:"술어 동사",subtitle:"Common Predicate Verbs",color:"#c0392b",
-    vocab:[
-      {char:"吃",pinyin:"chī",meaning:"먹다"},
-      {char:"喝",pinyin:"hē",meaning:"마시다"},
-      {char:"买",pinyin:"mǎi",meaning:"사다"},
-      {char:"喜欢",pinyin:"xǐhuan",meaning:"좋아하다"},
-      {char:"做",pinyin:"zuò",meaning:"하다 / 만들다"},
-      {char:"学习",pinyin:"xuéxí",meaning:"공부하다"},
-      {char:"去",pinyin:"qù",meaning:"가다"},
-      {char:"坐",pinyin:"zuò",meaning:"타다 / 앉다"},
-      {char:"看",pinyin:"kàn",meaning:"보다"},
-      {char:"用",pinyin:"yòng",meaning:"사용하다"},
-      {char:"汉堡包",pinyin:"hànbǎobāo",meaning:"햄버거"},
-      {char:"米饭",pinyin:"mǐfàn",meaning:"밥 (쌀밥)"},
-      {char:"咖啡",pinyin:"kāfēi",meaning:"커피"},
-      {char:"水",pinyin:"shuǐ",meaning:"물"},
-      {char:"书",pinyin:"shū",meaning:"책"},
-      {char:"手机",pinyin:"shǒujī",meaning:"핸드폰"},
-      {char:"电脑",pinyin:"diànnǎo",meaning:"컴퓨터"},
-      {char:"地铁",pinyin:"dìtiě",meaning:"지하철"},
-      {char:"作业",pinyin:"zuòyè",meaning:"숙제"},
-      {char:"运动",pinyin:"yùndòng",meaning:"운동"},
-      {char:"电影",pinyin:"diànyǐng",meaning:"영화"},
-      {char:"汉语",pinyin:"Hànyǔ",meaning:"중국어"},
-      {char:"中国菜",pinyin:"Zhōngguó cài",meaning:"중국 요리"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你现在吃什么？",py:"Nǐ xiànzài chī shénme?",kr:"너 지금 뭐 먹어?"},
-      {sp:"B",zh:"我现在吃汉堡包。",py:"Wǒ xiànzài chī hànbǎobāo.",kr:"나 지금 햄버거 먹어."},
-      {sp:"B",zh:"我们一起吃汉堡包，好吗？",py:"Wǒmen yìqǐ chī hànbǎobāo, hǎo ma?",kr:"우리 같이 햄버거 먹을래?"},
-      {sp:"A",zh:"好啊！",py:"Hǎo a!",kr:"좋아!"},
-      {sp:"A",zh:"我们一起吃吧！",py:"Wǒmen yìqǐ chī ba!",kr:"같이 먹자!"},
-    ],
-    grammar:[
-      {title:"술어동사문 (주·술·목)",rule:"주어 + 동사 + 목적어",example:"你吃什么？/ 我吃汉堡包。",pinyin:"Nǐ chī shénme? / Wǒ chī hànbǎobāo.",meaning:"뭐 먹어? / 나 햄버거 먹어."},
-      {title:"일起 — 함께",rule:"주어 + 一起 + 동사 + 목적어",example:"我们一起吃饭吧。",pinyin:"Wǒmen yìqǐ chīfàn ba.",meaning:"우리 같이 밥 먹자."},
-      {title:"喜欢 + 동사",rule:"주어 + 喜欢 + 동사 + 목적어",example:"我喜欢喝咖啡。",pinyin:"Wǒ xǐhuan hē kāfēi.",meaning:"나는 커피 마시는 게 좋아."},
-    ],
-    example:{zh:"我们一起吃饭吧。",pinyin:"Wǒmen yìqǐ chīfàn ba.",meaning:"우리 같이 밥 먹자."},
-  },
-  {
-    id:"w4-l2",week:4,lesson:2,
-    title:"太~了 / 一起",subtitle:"So ~ / Together",color:"#7C3AED",
-    vocab:[
-      {char:"太",pinyin:"tài",meaning:"너무 / 매우"},
-      {char:"了",pinyin:"le",meaning:"~했어 / 완료 (어기조사)"},
-      {char:"一起",pinyin:"yìqǐ",meaning:"함께 / 같이"},
-      {char:"名字",pinyin:"míngzi",meaning:"이름"},
-      {char:"叫",pinyin:"jiào",meaning:"~라고 불리다 / 이름이 ~이다"},
-      {char:"几口人",pinyin:"jǐ kǒu rén",meaning:"몇 식구"},
-      {char:"口",pinyin:"kǒu",meaning:"식구를 세는 단위"},
-      {char:"今年",pinyin:"jīnnián",meaning:"올해"},
-      {char:"岁",pinyin:"suì",meaning:"살 (나이 단위)"},
-      {char:"多大",pinyin:"duō dà",meaning:"몇 살 (나이 물을 때)"},
-      {char:"热",pinyin:"rè",meaning:"덥다 / 뜨겁다"},
-      {char:"冷",pinyin:"lěng",meaning:"춥다"},
-      {char:"忙",pinyin:"máng",meaning:"바쁘다"},
-      {char:"帅",pinyin:"shuài",meaning:"잘생겼다"},
-      {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다"},
-      {char:"有意思",pinyin:"yǒu yìsi",meaning:"재미있다"},
-      {char:"好",pinyin:"hǎo",meaning:"좋다"},
-      {char:"怎么样",pinyin:"zěnmeyàng",meaning:"어때? / 어떤가?"},
-      {char:"那",pinyin:"nà",meaning:"그럼 / 그러면"},
-      {char:"早上",pinyin:"zǎoshang",meaning:"아침"},
-      {char:"见",pinyin:"jiàn",meaning:"만나다"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你喜欢喝什么？",py:"Nǐ xǐhuan hē shénme?",kr:"넌 뭐 마시는 거 좋아해?"},
-      {sp:"B",zh:"我很喜欢喝咖啡。",py:"Wǒ hěn xǐhuan hē kāfēi.",kr:"나는 커피 마시는 거 너무 좋아해."},
-      {sp:"A",zh:"你明天有时间吗？",py:"Nǐ míngtiān yǒu shíjiān ma?",kr:"너 내일 시간 있어?"},
-      {sp:"B",zh:"我明天不忙，我有时间。",py:"Wǒ míngtiān bù máng, wǒ yǒu shíjiān.",kr:"나 내일 안 바빠, 내일 시간 있어."},
-      {sp:"A",zh:"那我们明天早上九点一起喝咖啡，怎么样？",py:"Nà wǒmen míngtiān zǎoshang jiǔ diǎn yìqǐ hē kāfēi, zěnmeyàng?",kr:"그럼 우리 내일 아침 9시에 같이 커피 마시자, 어때?"},
-      {sp:"B",zh:"太好了！",py:"Tài hǎo le!",kr:"너무 좋아!"},
-      {sp:"A",zh:"那我们明天九点见吧！",py:"Nà wǒmen míngtiān jiǔ diǎn jiàn ba!",kr:"그럼 우리 내일 9시에 만나자!"},
-    ],
-    grammar:[
-      {title:"太~了 구조",rule:"太 + 형용사 + 了",example:"太忙了！/ 太热了！/ 太好了！",pinyin:"Tài máng le! / Tài rè le! / Tài hǎo le!",meaning:"너무 바빠! / 너무 더워! / 너무 좋아!"},
-      {title:"一起 위치",rule:"주어 + (시간) + 一起 + 동사 + 목적어",example:"我们明天一起去学校。",pinyin:"Wǒmen míngtiān yìqǐ qù xuéxiào.",meaning:"우리는 내일 함께 학교에 가."},
-      {title:"怎么样 — 어때?",rule:"제안문 뒤에 붙여 의견 묻기",example:"我们一起吃中国菜，怎么样？",pinyin:"Wǒmen yìqǐ chī Zhōngguó cài, zěnmeyàng?",meaning:"우리 같이 중국요리 먹자, 어때?"},
-    ],
-    example:{zh:"太有意思了！",pinyin:"Tài yǒu yìsi le!",meaning:"너무 재미있어!"},
-  },
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  // WEEK 5 — 나의 주말 (我的周末)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  {
-    id:"w5-l1",week:5,lesson:1,
-    title:"하루의 시간 / 想·要",subtitle:"Times of Day & Want/Will",color:"#0E7490",
-    vocab:[
-      {char:"凌晨",pinyin:"língchén",meaning:"새벽"},
-      {char:"早上",pinyin:"zǎoshang",meaning:"아침"},
-      {char:"上午",pinyin:"shàngwǔ",meaning:"오전"},
-      {char:"中午",pinyin:"zhōngwǔ",meaning:"점심때"},
-      {char:"下午",pinyin:"xiàwǔ",meaning:"오후"},
-      {char:"晚上",pinyin:"wǎnshang",meaning:"저녁 / 밤"},
-      {char:"想",pinyin:"xiǎng",meaning:"~하고 싶다 / 생각하다"},
-      {char:"要",pinyin:"yào",meaning:"~할 것이다 / ~을 원하다"},
-      {char:"书店",pinyin:"shūdiàn",meaning:"서점"},
-      {char:"休息",pinyin:"xiūxi",meaning:"쉬다"},
-      {char:"听",pinyin:"tīng",meaning:"듣다"},
-      {char:"音乐",pinyin:"yīnyuè",meaning:"음악"},
-      {char:"周末",pinyin:"zhōumò",meaning:"주말"},
-      {char:"觉得",pinyin:"juéde",meaning:"~라고 생각하다 / 느끼다"},
-      {char:"星期六",pinyin:"Xīngqīliù",meaning:"토요일"},
-      {char:"星期天",pinyin:"Xīngqītiān",meaning:"일요일"},
-      {char:"上课",pinyin:"shàngkè",meaning:"수업을 듣다"},
-      {char:"起床",pinyin:"qǐchuáng",meaning:"일어나다 / 기상하다"},
-      {char:"然后",pinyin:"ránhòu",meaning:"그 다음에"},
-      {char:"也",pinyin:"yě",meaning:"~도 / 또한"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你周末想做什么？",py:"Nǐ zhōumò xiǎng zuò shénme?",kr:"너 주말에 뭐 하고 싶어?"},
-      {sp:"B",zh:"星期六，我想去书店买书。",py:"Xīngqīliù, wǒ xiǎng qù shūdiàn mǎi shū.",kr:"토요일에 서점 가서 책 사고 싶어."},
-      {sp:"A",zh:"下午呢？",py:"Xiàwǔ ne?",kr:"오후에는?"},
-      {sp:"B",zh:"下午，我想和朋友一起喝咖啡。",py:"Xiàwǔ, wǒ xiǎng hé péngyou yìqǐ hē kāfēi.",kr:"오후에는 친구랑 같이 커피 마시고 싶어."},
-      {sp:"A",zh:"星期天你要做什么？",py:"Xīngqītiān nǐ yào zuò shénme?",kr:"일요일엔 뭐 할 거야?"},
-      {sp:"B",zh:"我想在家休息，也想听音乐。",py:"Wǒ xiǎng zài jiā xiūxi, yě xiǎng tīng yīnyuè.",kr:"집에서 쉬고 싶고, 음악도 듣고 싶어."},
-      {sp:"B",zh:"我觉得周末很开心！",py:"Wǒ juéde zhōumò hěn kāixīn!",kr:"주말은 정말 즐거운 것 같아!"},
-    ],
-    grammar:[
-      {title:"조동사 어순",rule:"주어 + 부사어(조동사) + 술어 + 목적어",example:"我想喝咖啡。",pinyin:"Wǒ xiǎng hē kāfēi.",meaning:"나는 커피를 마시고 싶다."},
-      {title:"想 — ~하고 싶다",rule:"주어 + 想 + 동사 + 목적어 (희망)",example:"我想学汉语。/ 他想去中国。",pinyin:"Wǒ xiǎng xué Hànyǔ. / Tā xiǎng qù Zhōngguó.",meaning:"나 중국어 배우고 싶어. / 그는 중국에 가고 싶어해."},
-      {title:"要 — ~할 것이다",rule:"주어 + 要 + 동사 + 목적어 (의지·계획)",example:"我要买手机。/ 你明天要做什么？",pinyin:"Wǒ yào mǎi shǒujī. / Nǐ míngtiān yào zuò shénme?",meaning:"나 핸드폰 살 거야. / 너 내일 뭐 할 거야?"},
-      {title:"하루의 시간 순서",rule:"凌晨 → 早上 → 上午 → 中午 → 下午 → 晚上",example:"我早上喝咖啡，晚上看电影。",pinyin:"Wǒ zǎoshang hē kāfēi, wǎnshang kàn diànyǐng.",meaning:"나는 아침에 커피 마시고, 저녁에 영화 봐."},
-    ],
-    example:{zh:"星期天，我想在家休息，也想听音乐。",pinyin:"Xīngqītiān, wǒ xiǎng zài jiā xiūxi, yě xiǎng tīng yīnyuè.",meaning:"일요일엔 집에서 쉬고 싶고, 음악도 듣고 싶어."},
-  },
-  {
-    id:"w5-l2",week:5,lesson:2,
-    title:"양사 / 这·那·它 / 在",subtitle:"Measure Words & This/That & 在",color:"#B45309",
-    vocab:[
-      {char:"个",pinyin:"gè",meaning:"(양사) 사람·사물 일반"},
-      {char:"本",pinyin:"běn",meaning:"(양사) 책 — 권"},
-      {char:"杯",pinyin:"bēi",meaning:"(양사) 컵에 담긴 음료 — 잔"},
-      {char:"张",pinyin:"zhāng",meaning:"(양사) 종이·사진·표 — 장"},
-      {char:"只",pinyin:"zhī",meaning:"(양사) 동물 — 마리"},
-      {char:"条",pinyin:"tiáo",meaning:"(양사) 길쭉한 것 (물고기·바지)"},
-      {char:"件",pinyin:"jiàn",meaning:"(양사) 옷·사건 — 벌"},
-      {char:"辆",pinyin:"liàng",meaning:"(양사) 자동차·교통수단 — 대"},
-      {char:"位",pinyin:"wèi",meaning:"(양사) 사람 (존칭) — 분"},
-      {char:"次",pinyin:"cì",meaning:"(양사) 횟수 — 번"},
-      {char:"这",pinyin:"zhè",meaning:"이것 (가까운 것)"},
-      {char:"那",pinyin:"nà",meaning:"저것 (먼 것)"},
-      {char:"它",pinyin:"tā",meaning:"그것 (사물·동물)"},
-      {char:"谁",pinyin:"shéi",meaning:"누구"},
-      {char:"在",pinyin:"zài",meaning:"~에 있다 / ~에서 / ~하는 중"},
-      {char:"哪儿",pinyin:"nǎr",meaning:"어디"},
-      {char:"苹果",pinyin:"píngguǒ",meaning:"사과"},
-      {char:"照片",pinyin:"zhàopiàn",meaning:"사진"},
-      {char:"衣服",pinyin:"yīfu",meaning:"옷"},
-      {char:"旅行",pinyin:"lǚxíng",meaning:"여행"},
-      {char:"字典",pinyin:"zìdiǎn",meaning:"사전"},
-      {char:"牛奶",pinyin:"niúnǎi",meaning:"우유"},
-      {char:"地图",pinyin:"dìtú",meaning:"지도"},
-      {char:"熊猫",pinyin:"xióngmāo",meaning:"판다"},
-      {char:"外套",pinyin:"wàitào",meaning:"외투"},
-      {char:"出租车",pinyin:"chūzūchē",meaning:"택시"},
-      {char:"感冒药",pinyin:"gǎnmào yào",meaning:"감기약"},
-      {char:"帽子",pinyin:"màozi",meaning:"모자"},
-      {char:"钥匙",pinyin:"yàoshi",meaning:"열쇠"},
-      {char:"公司",pinyin:"gōngsī",meaning:"회사"},
-      {char:"同学",pinyin:"tóngxué",meaning:"학교 친구 / 동창"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你在哪儿？",py:"Nǐ zài nǎr?",kr:"너 어디야?"},
-      {sp:"B",zh:"我现在在公司。",py:"Wǒ xiànzài zài gōngsī.",kr:"나 지금 회사에 있어."},
-      {sp:"A",zh:"他也在公司吗？",py:"Tā yě zài gōngsī ma?",kr:"그도 회사에 있어?"},
-      {sp:"B",zh:"他不在公司。",py:"Tā bú zài gōngsī.",kr:"그는 회사에 없어."},
-      {sp:"A",zh:"这是什么？",py:"Zhè shì shénme?",kr:"이건 뭐야?"},
-      {sp:"B",zh:"这是我的感冒药。",py:"Zhè shì wǒ de gǎnmào yào.",kr:"이건 내 감기약이야."},
-      {sp:"A",zh:"那是谁？",py:"Nà shì shéi?",kr:"저 사람은 누구야?"},
-      {sp:"B",zh:"那是我哥哥。",py:"Nà shì wǒ gēge.",kr:"저 사람은 우리 형이야."},
-    ],
-    grammar:[
-      {title:"양사 (수량 표현)",rule:"수사 + 양사 + 명사",example:"一本书 / 两只狗 / 三杯咖啡",pinyin:"yì běn shū / liǎng zhī gǒu / sān bēi kāfēi",meaning:"책 한 권 / 강아지 두 마리 / 커피 세 잔"},
-      {title:"一 성조 변화",rule:"4성 앞 → yí(2성), 1·2·3성 앞 → yì(4성)",example:"一个 yí gè / 一本 yì běn / 一杯 yì bēi",pinyin:"",meaning:"뒤 글자 성조에 따라 一의 발음이 바뀜"},
-      {title:"这 / 那 / 它",rule:"这=이것(가까움), 那=저것(멂), 它=그것(사물·동물)",example:"这是一本书。/ 那是我的帽子。/ 它是我的狗。",pinyin:"Zhè shì yì běn shū. / Nà shì wǒ de màozi. / Tā shì wǒ de gǒu.",meaning:"이것은 책 한 권이야. / 저것은 내 모자야. / 그것은 내 강아지야."},
-      {title:"在 3가지 용법",rule:"①~에 있다 ②在+장소+동사(~에서) ③在+동사(~하는 중)",example:"我在家。/ 我在家吃饭。/ 我在吃饭。",pinyin:"Wǒ zài jiā. / Wǒ zài jiā chīfàn. / Wǒ zài chīfàn.",meaning:"나 집에 있어. / 나 집에서 밥 먹어. / 나 밥 먹는 중이야."},
-    ],
-    example:{zh:"我家有两只狗，它们很可爱。",pinyin:"Wǒ jiā yǒu liǎng zhī gǒu, tāmen hěn kě'ài.",meaning:"우리 집엔 강아지 두 마리가 있는데, 정말 귀여워."},
-  },
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  // WEEK 6 — 접속사 / 색상 / 시제
-  // ━━━━━━━━━━━━━━━━━━━━━━━━
-  {
-    id:"w6-l1",week:6,lesson:1,
-    title:"접속사 10개",subtitle:"Conjunctions & Connectors",color:"#6B21A8",
-    vocab:[
-      {char:"和",pinyin:"hé",meaning:"그리고 / ~와"},
-      {char:"跟",pinyin:"gēn",meaning:"~와 함께"},
-      {char:"也",pinyin:"yě",meaning:"~도 / 또한"},
-      {char:"但是",pinyin:"dànshì",meaning:"하지만"},
-      {char:"因为",pinyin:"yīnwèi",meaning:"왜냐하면"},
-      {char:"所以",pinyin:"suǒyǐ",meaning:"그래서"},
-      {char:"而且",pinyin:"érqiě",meaning:"게다가 / 뿐만 아니라"},
-      {char:"然后",pinyin:"ránhòu",meaning:"그리고 나서"},
-      {char:"还是",pinyin:"háishì",meaning:"또는 / 아니면"},
-      {char:"如果",pinyin:"rúguǒ",meaning:"만약"},
-      {char:"先",pinyin:"xiān",meaning:"먼저"},
-      {char:"累",pinyin:"lèi",meaning:"피곤하다"},
-      {char:"忙",pinyin:"máng",meaning:"바쁘다"},
-      {char:"饿",pinyin:"è",meaning:"배고프다"},
-      {char:"冷",pinyin:"lěng",meaning:"춥다"},
-      {char:"下雨",pinyin:"xiàyǔ",meaning:"비가 오다"},
-      {char:"穿",pinyin:"chuān",meaning:"입다"},
-      {char:"外套",pinyin:"wàitào",meaning:"외투"},
-      {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다"},
-      {char:"聪明",pinyin:"cōngming",meaning:"똑똑하다"},
-      {char:"努力",pinyin:"nǔlì",meaning:"열심히 하다 / 노력하다"},
-      {char:"善良",pinyin:"shànliáng",meaning:"착하다"},
-      {char:"有意思",pinyin:"yǒuyìsi",meaning:"재미있다"},
-      {char:"时间",pinyin:"shíjiān",meaning:"시간"},
-      {char:"常常",pinyin:"chángcháng",meaning:"자주 / 늘"},
-      {char:"有时候",pinyin:"yǒu shíhou",meaning:"가끔"},
-      {char:"作业",pinyin:"zuòyè",meaning:"숙제"},
-      {char:"电视",pinyin:"diànshì",meaning:"텔레비전"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你喝咖啡还是茶？",py:"Nǐ hē kāfēi háishì chá?",kr:"너 커피 마실 거야 아니면 차?"},
-      {sp:"B",zh:"我喝咖啡。我很喜欢咖啡，但是不喜欢茶。",py:"Wǒ hē kāfēi. Wǒ hěn xǐhuan kāfēi, dànshì bù xǐhuan chá.",kr:"나 커피 마실게. 커피 정말 좋아하는데 차는 안 좋아해."},
-      {sp:"A",zh:"我也喜欢咖啡，而且我每天喝两杯！",py:"Wǒ yě xǐhuan kāfēi, érqiě wǒ měitiān hē liǎng bēi!",kr:"나도 커피 좋아해, 게다가 매일 두 잔씩 마신다!"},
-      {sp:"B",zh:"如果明天下雨，我们在家喝咖啡吧。",py:"Rúguǒ míngtiān xiàyǔ, wǒmen zài jiā hē kāfēi ba.",kr:"만약 내일 비 오면 집에서 커피 마시자."},
-      {sp:"A",zh:"好！因为我很忙，所以我们先做作业，然后喝咖啡。",py:"Hǎo! Yīnwèi wǒ hěn máng, suǒyǐ wǒmen xiān zuò zuòyè, ránhòu hē kāfēi.",kr:"좋아! 나 바빠서 숙제 먼저 하고 나서 커피 마시자."},
-    ],
-    grammar:[
-      {title:"和 vs 跟",rule:"和=A和B (명사 연결) / 跟=跟+사람+一起 (행동 동반)",example:"我喜欢咖啡和茶。/ 我跟朋友一起学习。",pinyin:"Wǒ xǐhuan kāfēi hé chá. / Wǒ gēn péngyou yìqǐ xuéxí.",meaning:"나는 커피와 차를 좋아해. / 나는 친구와 함께 공부해."},
-      {title:"因为…所以… 인과관계",rule:"因为 + 이유, 所以 + 결과",example:"因为今天下雨，所以我在家。",pinyin:"Yīnwèi jīntiān xiàyǔ, suǒyǐ wǒ zài jiā.",meaning:"오늘 비가 와서 나는 집에 있어."},
-      {title:"先…然后… 순서",rule:"先 + 첫 번째 행동, 然后 + 두 번째 행동",example:"我先吃饭，然后学习。",pinyin:"Wǒ xiān chīfàn, ránhòu xuéxí.",meaning:"나는 먼저 밥 먹고, 그 다음에 공부해."},
-      {title:"如果… 가정",rule:"如果 + 조건, (주어) + 결과",example:"如果明天下雨，我不去。",pinyin:"Rúguǒ míngtiān xiàyǔ, wǒ bù qù.",meaning:"만약 내일 비가 오면 나는 안 가."},
-      {title:"还是 선택의문문",rule:"A 还是 B？ (둘 중 하나 선택)",example:"你喝咖啡还是茶？",pinyin:"Nǐ hē kāfēi háishì chá?",meaning:"너 커피 마실 거야 아니면 차?"},
-    ],
-    example:{zh:"因为他很努力，所以他的汉语很好。",pinyin:"Yīnwèi tā hěn nǔlì, suǒyǐ tā de Hànyǔ hěn hǎo.",meaning:"그는 열심히 하기 때문에 중국어를 잘해."},
-  },
-  {
-    id:"w6-l2",week:6,lesson:2,
-    title:"색상 / 시제 了·着·过",subtitle:"Colors & Verb Aspects",color:"#0F766E",
-    vocab:[
-      {char:"红色",pinyin:"hóngsè",meaning:"빨간색"},
-      {char:"蓝色",pinyin:"lánsè",meaning:"파란색"},
-      {char:"黄色",pinyin:"huángsè",meaning:"노란색"},
-      {char:"绿色",pinyin:"lǜsè",meaning:"초록색"},
-      {char:"黑色",pinyin:"hēisè",meaning:"검은색"},
-      {char:"白色",pinyin:"báisè",meaning:"흰색"},
-      {char:"紫色",pinyin:"zǐsè",meaning:"보라색"},
-      {char:"颜色",pinyin:"yánsè",meaning:"색깔"},
-      {char:"了",pinyin:"le",meaning:"(시제) ~했다 (완료)"},
-      {char:"着",pinyin:"zhe",meaning:"(시제) ~하고 있다 / ~한 상태이다"},
-      {char:"过",pinyin:"guo",meaning:"(시제) ~한 적이 있다 (경험)"},
-      {char:"早饭",pinyin:"zǎofàn",meaning:"아침밥"},
-      {char:"新",pinyin:"xīn",meaning:"새것의 / 새로운"},
-      {char:"拿",pinyin:"ná",meaning:"들다 / 쥐다"},
-      {char:"放",pinyin:"fàng",meaning:"놓다"},
-      {char:"桌子",pinyin:"zhuōzi",meaning:"책상 / 탁자"},
-      {char:"北京烤鸭",pinyin:"Běijīng kǎoyā",meaning:"베이징 덕 (베이징 오리구이)"},
-      {char:"房间",pinyin:"fángjiān",meaning:"방"},
-      {char:"电脑",pinyin:"diànnǎo",meaning:"컴퓨터"},
-      {char:"台",pinyin:"tái",meaning:"(양사) 기계·전자제품 — 대"},
-    ],
-    dialogue:[
-      {sp:"A",zh:"你喜欢什么颜色？",py:"Nǐ xǐhuan shénme yánsè?",kr:"너 무슨 색 좋아해?"},
-      {sp:"B",zh:"我喜欢蓝色。你呢？",py:"Wǒ xǐhuan lánsè. Nǐ ne?",kr:"나는 파란색 좋아해. 너는?"},
-      {sp:"A",zh:"我喜欢红色。你去过中国吗？",py:"Wǒ xǐhuan hóngsè. Nǐ qù guo Zhōngguó ma?",kr:"나는 빨간색. 중국 가본 적 있어?"},
-      {sp:"B",zh:"去过！我在北京吃了北京烤鸭。",py:"Qù guo! Wǒ zài Běijīng chī le Běijīng kǎoyā.",kr:"가봤어! 베이징에서 베이징 덕 먹었어."},
-      {sp:"A",zh:"哇，他现在穿着什么颜色的衣服？",py:"Wā, tā xiànzài chuān zhe shénme yánsè de yīfu?",kr:"와, 걔 지금 무슨 색 옷 입고 있어?"},
-      {sp:"B",zh:"他穿着白色的衣服。",py:"Tā chuān zhe báisè de yīfu.",kr:"흰색 옷 입고 있어."},
-    ],
-    grammar:[
-      {title:"了 — 완료 (~했다)",rule:"동사 + 了 (동작 완료)",example:"我吃了早饭。/ 她买了一个苹果。/ 我看了电影。",pinyin:"Wǒ chī le zǎofàn. / Tā mǎi le yí ge píngguǒ. / Wǒ kàn le diànyǐng.",meaning:"나는 아침밥을 먹었다. / 그녀는 사과 하나를 샀다. / 나는 영화를 봤다."},
-      {title:"着 — 진행·상태 (~하고 있다)",rule:"동사 + 着 (동작이 지속되는 상태)",example:"他穿着新衣服。/ 她拿着手机。/ 桌子上放着一本书。",pinyin:"Tā chuān zhe xīn yīfu. / Tā ná zhe shǒujī. / Zhuōzi shàng fàng zhe yì běn shū.",meaning:"그는 새 옷을 입고 있다. / 그녀는 핸드폰을 들고 있다. / 책상 위에 책 한 권이 놓여 있다."},
-      {title:"过 — 경험 (~한 적이 있다)",rule:"동사 + 过 (과거 경험)",example:"我去过中国。/ 你吃过北京烤鸭吗？/ 我学过汉语。",pinyin:"Wǒ qù guo Zhōngguó. / Nǐ chī guo Běijīng kǎoyā ma? / Wǒ xué guo Hànyǔ.",meaning:"나는 중국에 가본 적이 있다. / 베이징 덕 먹어본 적 있어? / 나는 중국어를 배운 적이 있다."},
-      {title:"了·着·过 비교",rule:"了=완료(끝남) / 着=상태(지속중) / 过=경험(해봤음)",example:"我吃了。(먹었다) / 我拿着。(들고있다) / 我吃过。(먹어봤다)",pinyin:"",meaning:"같은 동사라도 了·着·过에 따라 의미가 완전히 달라짐!"},
-    ],
-    example:{zh:"我很喜欢这个朋友，因为他很善良，而且很有意思。",pinyin:"Wǒ hěn xǐhuan zhège péngyou, yīnwèi tā hěn shànliáng, érqiě hěn yǒuyìsi.",meaning:"나는 이 친구를 매우 좋아해. 왜냐하면 착하고 게다가 재미있거든."},
-  },
+    example:{zh:"对我来说，通过坚持学习，随着时间推移，中文一定会越来越好！",pinyin:"Duì wǒ lái shuō, tōngguò jiānchí xuéxí, suízhe shíjiān tuīyí, Zhōngwén yīdìng huì yuè lái yuè hǎo!",meaning:"나에게 있어서, 꾸준한 학습을 통해 시간이 흐름에 따라 중국어는 반드시 점점 좋아질 거야!"},
+  }
 ];
 
 
@@ -650,7 +323,7 @@ const CURRICULUM = [
 const SRS_DAYS   = [0,1,3,7,14,30];
 const LVL_LABELS = ["새로운","입문","초급","중급","고급","마스터"];
 const LVL_COLORS = ["#B4B2A9","#378ADD","#1D9E75","#BA7517","#7F77DD","#D85A30"];
-const STORE_KEY  = "clp-html-v2";
+const STORE_KEY  = "voca100-v1";
 
 const ALL_VOCAB = [...new Map(
   CURRICULUM.flatMap(l=>l.vocab).map(v=>[v.char,v])
@@ -976,7 +649,8 @@ function renderLesson(){
   ${l.grammar?`<button class="tab-item" onclick="setLTab('grammar')" style="${LESSON_TAB==='grammar'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">문법</button>`:''}
   ${l.dialogue?`<button class="tab-item" onclick="setLTab('dialogue')" style="${LESSON_TAB==='dialogue'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">대화문</button>`:''}
   <button class="tab-item" onclick="setLTab('quiz')" style="${LESSON_TAB==='quiz'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">퀴즈</button>
-  <button class="tab-item" onclick="setLTab('pronun')" style="${LESSON_TAB==='pronun'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">숙련도</button>
+  <button class="tab-item" onclick="setLTab('mastery')" style="${LESSON_TAB==='mastery'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">숙련도</button>
+  <button class="tab-item" onclick="setLTab('pronun')" style="${LESSON_TAB==='pronun'?'color:#fff;background:'+l.color+';border-bottom:2px solid '+l.color:''}">🎤 발음</button>
 </div>
 <div id="lesson-tab-content"></div>`;
 
@@ -1065,6 +739,21 @@ function renderLTab(){
       </div>`;
     }).join('');
     tc.innerHTML=`<div style="padding:1rem">${rows}</div>`;
+  } else if(LESSON_TAB==='pronun'){
+    const pV = l.vocab[Math.floor(Math.random()*l.vocab.length)];
+    const pEsc = pV.char.replace(/'/g,"\\'");
+    tc.innerHTML=`<div style="padding:.5rem 0">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:.5rem">단어를 듣고 따라 말해보세요</div>
+      <div style="background:var(--bg2);border-radius:12px;padding:1.2rem;text-align:center;margin-bottom:1rem">
+        <div style="font-size:32px;font-weight:700;color:${l.color};cursor:pointer" onclick="speak('${pEsc}')">${pV.char}</div>
+        <div style="font-size:13px;color:#1D4ED8;margin-top:4px">${pV.pinyin}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${pV.meaning}</div>
+        <button onclick="speak('${pEsc}',0.6)" style="margin-top:10px;border:none;background:var(--border);border-radius:20px;padding:6px 16px;cursor:pointer;font-family:inherit;font-size:12px">🐢 천천히 듣기</button>
+      </div>
+      <div id="pronun-mic-area"></div>
+      <button onclick="setLTab('pronun')" style="margin-top:12px;width:100%;border:1px solid var(--border);background:transparent;border-radius:8px;padding:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text2)">🔀 다른 단어</button>
+    </div>`;
+    setTimeout(()=>{ speak('${pEsc}'); renderMicBtn(document.getElementById('pronun-mic-area'),'${pEsc}',l.color); },300);
   }
 }
 
@@ -1499,9 +1188,167 @@ function toggleMic(target, btn, color) {
 
 function toggleGlobalMic() {
   const btn = document.getElementById('global-mic-btn');
-  if (sttActive) {
-    stopSTT(); btn.textContent='🎤'; return;
+  if (sttActive) { stopSTT(); btn.textContent='🎤'; return; }
+  btn.textContent = '⏹';
+  startSTT(function(heard, alts) {
+    btn.textContent = '🎤';
+    if (heard) setSoundStatus('green', '들림: ' + heard);
+    else setSoundStatus('orange', '소리를 인식하지 못했어요');
+    setTimeout(()=>initSpeech(), 3000);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// INIT
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+loadP();
+renderHome();
+refreshBadge();
+initSpeech();
+function setSoundBar(color, msg) {
+  const colors = { green:'#1D9E75', orange:'#BA7517', red:'#E24B4A' };
+  document.getElementById('sound-dot').style.background = colors[color] || '#B4B2A9';
+  document.getElementById('sound-msg').textContent = msg;
+}
+
+
+
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// SPEECH ENGINE
+// ━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SPEECH ENGINE — TTS + STT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let selectedVoice = null;
+let sttRecognizer  = null;
+let sttActive      = false;
+let sttCallback    = null; // fn(transcript)
+
+// ── TTS init ──────────────────────────────
+function initSpeech() {
+  if (!window.speechSynthesis) {
+    setSoundStatus('red', '이 브라우저는 음성을 지원하지 않아요');
+    return;
   }
+  function tryLoad() {
+    const all = window.speechSynthesis.getVoices();
+    if (!all.length) return;
+    const zh = all.filter(v => v.lang.startsWith('zh'));
+    if (zh.length) {
+      selectedVoice = zh[0];
+      setSoundStatus('green', '🔊 ' + zh[0].name + ' — 단어 클릭 시 발음 재생');
+    } else {
+      setSoundStatus('orange', '중국어 음성 없음 — OS에서 중국어(보통화) 음성을 설치해 주세요');
+    }
+  }
+  tryLoad();
+  window.speechSynthesis.addEventListener('voiceschanged', tryLoad);
+}
+
+function setSoundStatus(color, msg) {
+  const colors = { green:'#1D9E75', orange:'#BA7517', red:'#E24B4A' };
+  const dot = document.getElementById('sound-dot');
+  const txt = document.getElementById('sound-msg');
+  if (dot) dot.style.background = colors[color] || '#B4B2A9';
+  if (txt) txt.textContent = msg;
+}
+
+
+
+// ── STT init & toggle ─────────────────────
+function initSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'zh-CN';
+  r.continuous = false;
+  r.interimResults = false;
+  r.maxAlternatives = 5;
+  return r;
+}
+
+// Start STT and call cb(transcript, alternatives[])
+
+
+function stopSTT() {
+  if (sttRecognizer) { try { sttRecognizer.stop(); } catch(e){} }
+  sttActive = false;
+}
+
+// ── Pronunciation check (STT → compare with target) ─────
+// Returns: {score: 0-100, ok: bool, heard: str}
+function checkPronunciation(target, heard) {
+  // normalize: strip spaces, punctuation, tone marks stripped for loose match
+  const norm = s => s.replace(/[，。！？\s]/g,'').toLowerCase();
+  const t = norm(target);
+  const h = norm(heard);
+  if (t === h) return { score: 100, ok: true, heard };
+  // character-level match
+  let match = 0;
+  for (let i = 0; i < Math.min(t.length, h.length); i++) {
+    if (t[i] === h[i]) match++;
+  }
+  const score = Math.round((match / Math.max(t.length, 1)) * 100);
+  return { score, ok: score >= 70, heard };
+}
+
+// ── STT Quiz: render mic button + result inside a container el ──
+// target = Chinese text to say, color = accent color
+
+
+function toggleMic(target, btn, color) {
+  if (sttActive) {
+    stopSTT();
+    btn.textContent = '🎤 말하기';
+    btn.style.background = 'transparent';
+    return;
+  }
+  btn.innerHTML = '⏹ 인식 중...';
+  btn.style.background = color;
+  btn.style.color = '#fff';
+
+  startSTT(function(heard, alts) {
+    btn.innerHTML = '🎤 다시 말하기';
+    btn.style.background = 'transparent';
+    btn.style.color = color;
+
+    const res = document.getElementById('mic-result');
+    if (!res) return;
+    if (!heard) {
+      res.innerHTML = `<div style="color:var(--text2);font-size:13px">소리를 인식하지 못했어요. 다시 시도해 주세요.</div>`;
+      return;
+    }
+    // Check all alternatives for best match
+    const results = (alts.length ? alts : [heard]).map(a => checkPronunciation(target, a));
+    const best = results.reduce((a,b) => a.score>b.score?a:b);
+    const barColor = best.score >= 90 ? '#1D9E75' : best.score >= 70 ? '#BA7517' : '#E24B4A';
+    const emoji = best.score >= 90 ? '🎉 완벽해요!' : best.score >= 70 ? '👍 잘했어요!' : '💪 다시 해봐요!';
+
+    // Auto-speak correct pronunciation
+    speak(target, 0.75);
+
+    res.innerHTML = `
+    <div style="background:var(--bg2);border-radius:10px;padding:12px 14px;text-align:left">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;color:var(--text2)">인식된 발음</span>
+        <span style="font-size:18px;font-weight:700;color:${barColor}">${best.score}점</span>
+      </div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px">${best.heard}</div>
+      <div style="height:6px;background:var(--border);border-radius:3px;margin-bottom:8px">
+        <div style="height:6px;background:${barColor};border-radius:3px;width:${best.score}%;transition:width .4s"></div>
+      </div>
+      <div style="font-size:14px;font-weight:500;color:${barColor}">${emoji}</div>
+      ${!best.ok ? `<div style="font-size:12px;color:var(--text2);margin-top:4px">정답: <b>${target}</b></div>` : ''}
+    </div>`;
+  });
+}
+
+
+function toggleGlobalMic() {
+  const btn = document.getElementById('global-mic-btn');
+  if (sttActive) { stopSTT(); btn.textContent='🎤'; return; }
   btn.textContent = '⏹';
   startSTT(function(heard, alts) {
     btn.textContent = '🎤';

@@ -116,6 +116,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="nav-tab" data-view="learn" onclick="goView('learn')">학습</button>
     <button class="nav-tab" data-view="progress" onclick="goView('progress')">현황</button>
     <button class="nav-tab" data-view="search" onclick="goView('search')">검색</button>
+    <button class="nav-tab" data-view="hsk" onclick="goView('hsk')" style="white-space:nowrap">HSK</button>
   </nav>
   <div id="sound-bar" class="sound-bar">
     <div id="sound-dot" class="sound-dot" style="background:#B4B2A9"></div>
@@ -140,6 +141,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">단어, 병음, 뜻을 입력하세요</div>
     </div>
   </div>
+  <div id="view-hsk" class="view"></div>
 
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -822,6 +824,7 @@ function render(){
   if(currentView==='quiz')     renderQuiz();
   if(currentView==='progress') renderProgress();
   if(currentView==='search')   initSearch();
+  if(currentView==='hsk')      renderHSK();
   refreshBadge();
 }
 
@@ -1518,6 +1521,1105 @@ loadP();
 renderHome();
 refreshBadge();
 initSpeech();
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// HSK 1~4급 필수 단어 데이터
+// 형식: {char, pinyin, meaning, example, exPy, exKr}
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const HSK_DATA = {
+
+// ════════════════════════════════════════
+// HSK 1급 — 150단어
+// ════════════════════════════════════════
+1: [
+  // 인칭·호칭
+  {char:"我",pinyin:"wǒ",meaning:"나, 저",example:"我是学生。",exPy:"Wǒ shì xuésheng.",exKr:"나는 학생이다."},
+  {char:"你",pinyin:"nǐ",meaning:"너, 당신",example:"你好！",exPy:"Nǐ hǎo!",exKr:"안녕하세요!"},
+  {char:"他",pinyin:"tā",meaning:"그(남)",example:"他是老师。",exPy:"Tā shì lǎoshī.",exKr:"그는 선생님이다."},
+  {char:"她",pinyin:"tā",meaning:"그녀",example:"她很漂亮。",exPy:"Tā hěn piàoliang.",exKr:"그녀는 예쁘다."},
+  {char:"我们",pinyin:"wǒmen",meaning:"우리",example:"我们是朋友。",exPy:"Wǒmen shì péngyou.",exKr:"우리는 친구이다."},
+  {char:"你们",pinyin:"nǐmen",meaning:"너희",example:"你们好！",exPy:"Nǐmen hǎo!",exKr:"여러분 안녕하세요!"},
+  {char:"他们",pinyin:"tāmen",meaning:"그들",example:"他们是同学。",exPy:"Tāmen shì tóngxué.",exKr:"그들은 같은 반 친구다."},
+  {char:"朋友",pinyin:"péngyou",meaning:"친구",example:"他是我的好朋友。",exPy:"Tā shì wǒ de hǎo péngyou.",exKr:"그는 내 좋은 친구다."},
+  {char:"老师",pinyin:"lǎoshī",meaning:"선생님",example:"我的老师很好。",exPy:"Wǒ de lǎoshī hěn hǎo.",exKr:"우리 선생님은 좋다."},
+  {char:"学生",pinyin:"xuésheng",meaning:"학생",example:"我是学生。",exPy:"Wǒ shì xuésheng.",exKr:"나는 학생이다."},
+  {char:"妈妈",pinyin:"māma",meaning:"엄마",example:"妈妈做饭。",exPy:"Māma zuò fàn.",exKr:"엄마가 밥을 짓는다."},
+  {char:"爸爸",pinyin:"bàba",meaning:"아빠",example:"爸爸工作。",exPy:"Bàba gōngzuò.",exKr:"아빠가 일한다."},
+  // 기본 동사
+  {char:"是",pinyin:"shì",meaning:"~이다",example:"这是书。",exPy:"Zhè shì shū.",exKr:"이것은 책이다."},
+  {char:"有",pinyin:"yǒu",meaning:"있다, 가지다",example:"我有一个苹果。",exPy:"Wǒ yǒu yí gè píngguǒ.",exKr:"나는 사과 하나가 있다."},
+  {char:"喜欢",pinyin:"xǐhuan",meaning:"좋아하다",example:"我喜欢中文。",exPy:"Wǒ xǐhuan Zhōngwén.",exKr:"나는 중국어를 좋아한다."},
+  {char:"看",pinyin:"kàn",meaning:"보다",example:"我看书。",exPy:"Wǒ kàn shū.",exKr:"나는 책을 본다."},
+  {char:"听",pinyin:"tīng",meaning:"듣다",example:"我听音乐。",exPy:"Wǒ tīng yīnyuè.",exKr:"나는 음악을 듣는다."},
+  {char:"说",pinyin:"shuō",meaning:"말하다",example:"他说汉语。",exPy:"Tā shuō Hànyǔ.",exKr:"그는 중국어를 말한다."},
+  {char:"读",pinyin:"dú",meaning:"읽다",example:"我读书。",exPy:"Wǒ dú shū.",exKr:"나는 책을 읽는다."},
+  {char:"写",pinyin:"xiě",meaning:"쓰다",example:"我写字。",exPy:"Wǒ xiě zì.",exKr:"나는 글자를 쓴다."},
+  {char:"吃",pinyin:"chī",meaning:"먹다",example:"我吃饭。",exPy:"Wǒ chī fàn.",exKr:"나는 밥을 먹는다."},
+  {char:"喝",pinyin:"hē",meaning:"마시다",example:"我喝水。",exPy:"Wǒ hē shuǐ.",exKr:"나는 물을 마신다."},
+  {char:"去",pinyin:"qù",meaning:"가다",example:"我去学校。",exPy:"Wǒ qù xuéxiào.",exKr:"나는 학교에 간다."},
+  {char:"来",pinyin:"lái",meaning:"오다",example:"请进来。",exPy:"Qǐng jìnlái.",exKr:"들어오세요."},
+  {char:"买",pinyin:"mǎi",meaning:"사다",example:"我买书。",exPy:"Wǒ mǎi shū.",exKr:"나는 책을 산다."},
+  {char:"叫",pinyin:"jiào",meaning:"~라고 불리다",example:"我叫小明。",exPy:"Wǒ jiào Xiǎomíng.",exKr:"나는 샤오밍이라고 한다."},
+  {char:"做",pinyin:"zuò",meaning:"하다, 만들다",example:"我做作业。",exPy:"Wǒ zuò zuòyè.",exKr:"나는 숙제를 한다."},
+  {char:"工作",pinyin:"gōngzuò",meaning:"일하다, 직장",example:"我工作。",exPy:"Wǒ gōngzuò.",exKr:"나는 일한다."},
+  {char:"学习",pinyin:"xuéxí",meaning:"공부하다",example:"我学习汉语。",exPy:"Wǒ xuéxí Hànyǔ.",exKr:"나는 중국어를 공부한다."},
+  {char:"睡觉",pinyin:"shuìjiào",meaning:"자다",example:"我想睡觉。",exPy:"Wǒ xiǎng shuìjiào.",exKr:"나는 자고 싶다."},
+  {char:"坐",pinyin:"zuò",meaning:"앉다, 타다",example:"请坐。",exPy:"Qǐng zuò.",exKr:"앉으세요."},
+  {char:"开",pinyin:"kāi",meaning:"열다, 운전하다",example:"请开门。",exPy:"Qǐng kāi mén.",exKr:"문을 열어주세요."},
+  {char:"回",pinyin:"huí",meaning:"돌아가다",example:"我回家。",exPy:"Wǒ huí jiā.",exKr:"나는 집에 돌아간다."},
+  // 형용사
+  {char:"好",pinyin:"hǎo",meaning:"좋다",example:"天气很好。",exPy:"Tiānqì hěn hǎo.",exKr:"날씨가 좋다."},
+  {char:"大",pinyin:"dà",meaning:"크다",example:"这个苹果很大。",exPy:"Zhège píngguǒ hěn dà.",exKr:"이 사과는 매우 크다."},
+  {char:"小",pinyin:"xiǎo",meaning:"작다",example:"这只猫很小。",exPy:"Zhè zhī māo hěn xiǎo.",exKr:"이 고양이는 매우 작다."},
+  {char:"多",pinyin:"duō",meaning:"많다",example:"书很多。",exPy:"Shū hěn duō.",exKr:"책이 많다."},
+  {char:"少",pinyin:"shǎo",meaning:"적다",example:"人很少。",exPy:"Rén hěn shǎo.",exKr:"사람이 적다."},
+  {char:"高兴",pinyin:"gāoxìng",meaning:"기쁘다",example:"我很高兴。",exPy:"Wǒ hěn gāoxìng.",exKr:"나는 매우 기쁘다."},
+  {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다",example:"她很漂亮。",exPy:"Tā hěn piàoliang.",exKr:"그녀는 예쁘다."},
+  {char:"冷",pinyin:"lěng",meaning:"춥다",example:"今天很冷。",exPy:"Jīntiān hěn lěng.",exKr:"오늘은 매우 춥다."},
+  {char:"热",pinyin:"rè",meaning:"덥다",example:"夏天很热。",exPy:"Xiàtiān hěn rè.",exKr:"여름은 덥다."},
+  {char:"贵",pinyin:"guì",meaning:"비싸다",example:"这个太贵了。",exPy:"Zhège tài guì le.",exKr:"이것은 너무 비싸다."},
+  // 숫자
+  {char:"零",pinyin:"líng",meaning:"0",example:"零点",exPy:"líng diǎn",exKr:"영점"},
+  {char:"一",pinyin:"yī",meaning:"1",example:"一个人",exPy:"yí gè rén",exKr:"한 명"},
+  {char:"二",pinyin:"èr",meaning:"2",example:"二号",exPy:"èr hào",exKr:"2번"},
+  {char:"三",pinyin:"sān",meaning:"3",example:"三天",exPy:"sān tiān",exKr:"3일"},
+  {char:"四",pinyin:"sì",meaning:"4",example:"四月",exPy:"sì yuè",exKr:"4월"},
+  {char:"五",pinyin:"wǔ",meaning:"5",example:"五点",exPy:"wǔ diǎn",exKr:"5시"},
+  {char:"六",pinyin:"liù",meaning:"6",example:"六月",exPy:"liù yuè",exKr:"6월"},
+  {char:"七",pinyin:"qī",meaning:"7",example:"七点",exPy:"qī diǎn",exKr:"7시"},
+  {char:"八",pinyin:"bā",meaning:"8",example:"八月",exPy:"bā yuè",exKr:"8월"},
+  {char:"九",pinyin:"jiǔ",meaning:"9",example:"九号",exPy:"jiǔ hào",exKr:"9번"},
+  {char:"十",pinyin:"shí",meaning:"10",example:"十分钟",exPy:"shí fēnzhōng",exKr:"10분"},
+  {char:"百",pinyin:"bǎi",meaning:"100",example:"一百块",exPy:"yī bǎi kuài",exKr:"100위안"},
+  {char:"千",pinyin:"qiān",meaning:"1000",example:"一千元",exPy:"yī qiān yuán",exKr:"1000위안"},
+  // 시간
+  {char:"今天",pinyin:"jīntiān",meaning:"오늘",example:"今天天气很好。",exPy:"Jīntiān tiānqì hěn hǎo.",exKr:"오늘 날씨가 좋다."},
+  {char:"明天",pinyin:"míngtiān",meaning:"내일",example:"明天见！",exPy:"Míngtiān jiàn!",exKr:"내일 봐요!"},
+  {char:"昨天",pinyin:"zuótiān",meaning:"어제",example:"昨天我很忙。",exPy:"Zuótiān wǒ hěn máng.",exKr:"어제 나는 바빴다."},
+  {char:"现在",pinyin:"xiànzài",meaning:"지금",example:"现在几点？",exPy:"Xiànzài jǐ diǎn?",exKr:"지금 몇 시예요?"},
+  {char:"年",pinyin:"nián",meaning:"년, 해",example:"今年",exPy:"jīnnián",exKr:"올해"},
+  {char:"月",pinyin:"yuè",meaning:"월, 달",example:"这个月",exPy:"zhège yuè",exKr:"이번 달"},
+  {char:"日",pinyin:"rì",meaning:"일, 날",example:"星期日",exPy:"xīngqīrì",exKr:"일요일"},
+  {char:"号",pinyin:"hào",meaning:"날짜, 번호",example:"今天几号？",exPy:"Jīntiān jǐ hào?",exKr:"오늘 며칠이에요?"},
+  {char:"点",pinyin:"diǎn",meaning:"시(시각)",example:"八点",exPy:"bā diǎn",exKr:"8시"},
+  {char:"分钟",pinyin:"fēnzhōng",meaning:"분",example:"五分钟",exPy:"wǔ fēnzhōng",exKr:"5분"},
+  {char:"上午",pinyin:"shàngwǔ",meaning:"오전",example:"上午十点",exPy:"shàngwǔ shí diǎn",exKr:"오전 10시"},
+  {char:"下午",pinyin:"xiàwǔ",meaning:"오후",example:"下午三点",exPy:"xiàwǔ sān diǎn",exKr:"오후 3시"},
+  {char:"星期",pinyin:"xīngqī",meaning:"요일, 주",example:"星期几？",exPy:"Xīngqī jǐ?",exKr:"무슨 요일이에요?"},
+  // 장소
+  {char:"中国",pinyin:"Zhōngguó",meaning:"중국",example:"我去中国。",exPy:"Wǒ qù Zhōngguó.",exKr:"나는 중국에 간다."},
+  {char:"北京",pinyin:"Běijīng",meaning:"베이징",example:"北京很大。",exPy:"Běijīng hěn dà.",exKr:"베이징은 크다."},
+  {char:"学校",pinyin:"xuéxiào",meaning:"학교",example:"我去学校。",exPy:"Wǒ qù xuéxiào.",exKr:"나는 학교에 간다."},
+  {char:"家",pinyin:"jiā",meaning:"집",example:"我在家。",exPy:"Wǒ zài jiā.",exKr:"나는 집에 있다."},
+  {char:"医院",pinyin:"yīyuàn",meaning:"병원",example:"去医院。",exPy:"Qù yīyuàn.",exKr:"병원에 간다."},
+  {char:"饭馆",pinyin:"fànguǎn",meaning:"식당",example:"去饭馆吃饭。",exPy:"Qù fànguǎn chīfàn.",exKr:"식당에 밥 먹으러 간다."},
+  {char:"商店",pinyin:"shāngdiàn",meaning:"상점",example:"去商店买东西。",exPy:"Qù shāngdiàn mǎi dōngxi.",exKr:"상점에 물건을 사러 간다."},
+  {char:"里",pinyin:"lǐ",meaning:"안, 속",example:"包里有钱。",exPy:"Bāo lǐ yǒu qián.",exKr:"가방 안에 돈이 있다."},
+  {char:"上",pinyin:"shàng",meaning:"위",example:"桌子上有书。",exPy:"Zhuōzi shàng yǒu shū.",exKr:"책상 위에 책이 있다."},
+  {char:"前",pinyin:"qián",meaning:"앞",example:"学校前面。",exPy:"xuéxiào qiánmiàn",exKr:"학교 앞"},
+  // 사물
+  {char:"书",pinyin:"shū",meaning:"책",example:"这是一本书。",exPy:"Zhè shì yì běn shū.",exKr:"이것은 책 한 권이다."},
+  {char:"电话",pinyin:"diànhuà",meaning:"전화",example:"打电话。",exPy:"dǎ diànhuà",exKr:"전화하다"},
+  {char:"手机",pinyin:"shǒujī",meaning:"핸드폰",example:"我的手机。",exPy:"wǒ de shǒujī",exKr:"나의 핸드폰"},
+  {char:"电视",pinyin:"diànshì",meaning:"텔레비전",example:"看电视。",exPy:"kàn diànshì",exKr:"TV를 보다"},
+  {char:"电脑",pinyin:"diànnǎo",meaning:"컴퓨터",example:"用电脑。",exPy:"yòng diànnǎo",exKr:"컴퓨터를 사용하다"},
+  {char:"钱",pinyin:"qián",meaning:"돈",example:"没有钱。",exPy:"méiyǒu qián",exKr:"돈이 없다"},
+  {char:"东西",pinyin:"dōngxi",meaning:"물건",example:"买东西。",exPy:"mǎi dōngxi",exKr:"물건을 사다"},
+  {char:"水",pinyin:"shuǐ",meaning:"물",example:"喝水。",exPy:"hē shuǐ",exKr:"물을 마시다"},
+  {char:"饭",pinyin:"fàn",meaning:"밥, 식사",example:"吃饭。",exPy:"chī fàn",exKr:"밥을 먹다"},
+  {char:"菜",pinyin:"cài",meaning:"요리, 채소",example:"做菜。",exPy:"zuò cài",exKr:"요리를 하다"},
+  {char:"水果",pinyin:"shuǐguǒ",meaning:"과일",example:"吃水果。",exPy:"chī shuǐguǒ",exKr:"과일을 먹다"},
+  {char:"苹果",pinyin:"píngguǒ",meaning:"사과",example:"一个苹果。",exPy:"yí gè píngguǒ",exKr:"사과 하나"},
+  {char:"猫",pinyin:"māo",meaning:"고양이",example:"一只猫。",exPy:"yì zhī māo",exKr:"고양이 한 마리"},
+  {char:"狗",pinyin:"gǒu",meaning:"개",example:"一只狗。",exPy:"yì zhī gǒu",exKr:"개 한 마리"},
+  {char:"茶",pinyin:"chá",meaning:"차",example:"喝茶。",exPy:"hē chá",exKr:"차를 마시다"},
+  {char:"咖啡",pinyin:"kāfēi",meaning:"커피",example:"喝咖啡。",exPy:"hē kāfēi",exKr:"커피를 마시다"},
+  // 부사·조사
+  {char:"不",pinyin:"bù",meaning:"아니다, 안",example:"我不去。",exPy:"Wǒ bù qù.",exKr:"나는 안 간다."},
+  {char:"没有",pinyin:"méiyǒu",meaning:"없다",example:"我没有钱。",exPy:"Wǒ méiyǒu qián.",exKr:"나는 돈이 없다."},
+  {char:"很",pinyin:"hěn",meaning:"매우",example:"我很好。",exPy:"Wǒ hěn hǎo.",exKr:"나는 잘 지낸다."},
+  {char:"太",pinyin:"tài",meaning:"너무",example:"太好了！",exPy:"Tài hǎo le!",exKr:"너무 좋아요!"},
+  {char:"也",pinyin:"yě",meaning:"~도",example:"我也去。",exPy:"Wǒ yě qù.",exKr:"나도 간다."},
+  {char:"都",pinyin:"dōu",meaning:"모두, 다",example:"我们都去。",exPy:"Wǒmen dōu qù.",exKr:"우리 모두 간다."},
+  {char:"吗",pinyin:"ma",meaning:"~요? (의문)",example:"你好吗？",exPy:"Nǐ hǎo ma?",exKr:"잘 지내요?"},
+  {char:"呢",pinyin:"ne",meaning:"~는요?",example:"你呢？",exPy:"Nǐ ne?",exKr:"너는요?"},
+  {char:"的",pinyin:"de",meaning:"~의 (관형격)",example:"我的书。",exPy:"wǒ de shū",exKr:"나의 책"},
+  {char:"了",pinyin:"le",meaning:"~했다 (완료)",example:"我吃了。",exPy:"Wǒ chī le.",exKr:"나는 먹었다."},
+  {char:"在",pinyin:"zài",meaning:"~에 있다, ~에서",example:"我在家。",exPy:"Wǒ zài jiā.",exKr:"나는 집에 있다."},
+  {char:"和",pinyin:"hé",meaning:"~와",example:"我和你。",exPy:"wǒ hé nǐ",exKr:"나와 너"},
+  {char:"请",pinyin:"qǐng",meaning:"청하다, 부탁하다",example:"请坐。",exPy:"Qǐng zuò.",exKr:"앉으세요."},
+  {char:"谢谢",pinyin:"xièxie",meaning:"감사합니다",example:"谢谢你！",exPy:"Xièxie nǐ!",exKr:"감사합니다!"},
+  {char:"对不起",pinyin:"duìbuqǐ",meaning:"미안합니다",example:"对不起！",exPy:"Duìbuqǐ!",exKr:"미안합니다!"},
+  {char:"不客气",pinyin:"bú kèqi",meaning:"천만에요",example:"不客气！",exPy:"Bú kèqi!",exKr:"천만에요!"},
+  {char:"再见",pinyin:"zàijiàn",meaning:"안녕히 가세요",example:"再见！",exPy:"Zàijiàn!",exKr:"안녕히 가세요!"},
+  {char:"认识",pinyin:"rènshi",meaning:"알다, 인식하다",example:"很高兴认识你。",exPy:"Hěn gāoxìng rènshi nǐ.",exKr:"만나서 반갑습니다."},
+  {char:"什么",pinyin:"shénme",meaning:"무엇",example:"这是什么？",exPy:"Zhè shì shénme?",exKr:"이것은 무엇이에요?"},
+  {char:"哪",pinyin:"nǎ",meaning:"어느",example:"哪个？",exPy:"Nǎ gè?",exKr:"어느 것?"},
+  {char:"哪儿",pinyin:"nǎr",meaning:"어디",example:"你在哪儿？",exPy:"Nǐ zài nǎr?",exKr:"어디에 있어요?"},
+  {char:"谁",pinyin:"shéi",meaning:"누구",example:"这是谁？",exPy:"Zhè shì shéi?",exKr:"이것은 누구야?"},
+  {char:"几",pinyin:"jǐ",meaning:"몇",example:"你几岁？",exPy:"Nǐ jǐ suì?",exKr:"몇 살이에요?"},
+  {char:"多少",pinyin:"duōshao",meaning:"얼마",example:"多少钱？",exPy:"Duōshao qián?",exKr:"얼마예요?"},
+  {char:"这",pinyin:"zhè",meaning:"이것",example:"这是书。",exPy:"Zhè shì shū.",exKr:"이것은 책이다."},
+  {char:"那",pinyin:"nà",meaning:"저것, 그것",example:"那是什么？",exPy:"Nà shì shénme?",exKr:"저것은 무엇이에요?"},
+  {char:"个",pinyin:"gè",meaning:"개 (양사)",example:"一个苹果",exPy:"yí gè píngguǒ",exKr:"사과 한 개"},
+  {char:"岁",pinyin:"suì",meaning:"살 (나이)",example:"我二十岁。",exPy:"Wǒ èrshí suì.",exKr:"나는 20살이다."},
+  {char:"块",pinyin:"kuài",meaning:"위안 (구어)",example:"五块钱",exPy:"wǔ kuài qián",exKr:"5위안"},
+  {char:"天气",pinyin:"tiānqì",meaning:"날씨",example:"今天天气好。",exPy:"Jīntiān tiānqì hǎo.",exKr:"오늘 날씨가 좋다."},
+  {char:"汉语",pinyin:"Hànyǔ",meaning:"중국어",example:"我学汉语。",exPy:"Wǒ xué Hànyǔ.",exKr:"나는 중국어를 배운다."},
+],
+
+// ════════════════════════════════════════
+// HSK 2급 — 150단어
+// ════════════════════════════════════════
+2: [
+  // 신체·건강
+  {char:"身体",pinyin:"shēntǐ",meaning:"몸, 건강",example:"身体好吗？",exPy:"Shēntǐ hǎo ma?",exKr:"건강하세요?"},
+  {char:"头",pinyin:"tóu",meaning:"머리",example:"头很痛。",exPy:"Tóu hěn tòng.",exKr:"머리가 아프다."},
+  {char:"眼睛",pinyin:"yǎnjing",meaning:"눈",example:"眼睛很大。",exPy:"Yǎnjing hěn dà.",exKr:"눈이 크다."},
+  {char:"耳朵",pinyin:"ěrduo",meaning:"귀",example:"耳朵很小。",exPy:"Ěrduo hěn xiǎo.",exKr:"귀가 작다."},
+  {char:"鼻子",pinyin:"bízi",meaning:"코",example:"鼻子不舒服。",exPy:"Bízi bù shūfu.",exKr:"코가 불편하다."},
+  {char:"嘴",pinyin:"zuǐ",meaning:"입",example:"嘴很甜。",exPy:"Zuǐ hěn tián.",exKr:"입이 달콤하다."},
+  {char:"手",pinyin:"shǒu",meaning:"손",example:"洗手。",exPy:"Xǐ shǒu.",exKr:"손을 씻다."},
+  {char:"脚",pinyin:"jiǎo",meaning:"발",example:"脚很痛。",exPy:"Jiǎo hěn tòng.",exKr:"발이 아프다."},
+  // 생활
+  {char:"起床",pinyin:"qǐchuáng",meaning:"일어나다",example:"我七点起床。",exPy:"Wǒ qī diǎn qǐchuáng.",exKr:"나는 7시에 일어난다."},
+  {char:"洗澡",pinyin:"xǐzǎo",meaning:"샤워하다",example:"我洗澡。",exPy:"Wǒ xǐzǎo.",exKr:"나는 샤워한다."},
+  {char:"穿",pinyin:"chuān",meaning:"입다",example:"我穿衣服。",exPy:"Wǒ chuān yīfu.",exKr:"나는 옷을 입는다."},
+  {char:"衣服",pinyin:"yīfu",meaning:"옷",example:"买衣服。",exPy:"mǎi yīfu",exKr:"옷을 사다"},
+  {char:"颜色",pinyin:"yánsè",meaning:"색깔",example:"什么颜色？",exPy:"Shénme yánsè?",exKr:"무슨 색이에요?"},
+  {char:"白",pinyin:"bái",meaning:"하얗다",example:"白色的。",exPy:"báisè de",exKr:"흰색의"},
+  {char:"黑",pinyin:"hēi",meaning:"검다",example:"黑色的。",exPy:"hēisè de",exKr:"검은색의"},
+  {char:"红",pinyin:"hóng",meaning:"빨갛다",example:"红色的。",exPy:"hóngsè de",exKr:"빨간색의"},
+  // 교통
+  {char:"出租车",pinyin:"chūzūchē",meaning:"택시",example:"坐出租车。",exPy:"zuò chūzūchē",exKr:"택시를 타다"},
+  {char:"公共汽车",pinyin:"gōnggòng qìchē",meaning:"버스",example:"坐公共汽车。",exPy:"zuò gōnggòng qìchē",exKr:"버스를 타다"},
+  {char:"地铁",pinyin:"dìtiě",meaning:"지하철",example:"坐地铁去。",exPy:"Zuò dìtiě qù.",exKr:"지하철로 간다."},
+  {char:"飞机",pinyin:"fēijī",meaning:"비행기",example:"坐飞机去北京。",exPy:"Zuò fēijī qù Běijīng.",exKr:"비행기로 베이징에 간다."},
+  {char:"火车",pinyin:"huǒchē",meaning:"기차",example:"坐火车去上海。",exPy:"Zuò huǒchē qù Shànghǎi.",exKr:"기차로 상하이에 간다."},
+  {char:"自行车",pinyin:"zìxíngchē",meaning:"자전거",example:"骑自行车。",exPy:"Qí zìxíngchē.",exKr:"자전거를 타다."},
+  {char:"走路",pinyin:"zǒulù",meaning:"걷다",example:"我走路去。",exPy:"Wǒ zǒulù qù.",exKr:"나는 걸어서 간다."},
+  // 쇼핑·돈
+  {char:"超市",pinyin:"chāoshì",meaning:"마트",example:"去超市买菜。",exPy:"Qù chāoshì mǎi cài.",exKr:"마트에 채소를 사러 간다."},
+  {char:"便宜",pinyin:"piányí",meaning:"싸다",example:"这个很便宜。",exPy:"Zhège hěn piányí.",exKr:"이것은 매우 싸다."},
+  {char:"贵",pinyin:"guì",meaning:"비싸다",example:"太贵了！",exPy:"Tài guì le!",exKr:"너무 비싸요!"},
+  {char:"元",pinyin:"yuán",meaning:"위안 (화폐)",example:"五十元。",exPy:"Wǔshí yuán.",exKr:"50위안."},
+  {char:"找",pinyin:"zhǎo",meaning:"찾다, 거스름돈",example:"找钱。",exPy:"zhǎo qián",exKr:"거스름돈"},
+  // 음식
+  {char:"米饭",pinyin:"mǐfàn",meaning:"쌀밥",example:"吃米饭。",exPy:"chī mǐfàn",exKr:"쌀밥을 먹다"},
+  {char:"面条",pinyin:"miàntiáo",meaning:"국수",example:"吃面条。",exPy:"chī miàntiáo",exKr:"국수를 먹다"},
+  {char:"面包",pinyin:"miànbāo",meaning:"빵",example:"吃面包。",exPy:"chī miànbāo",exKr:"빵을 먹다"},
+  {char:"鸡蛋",pinyin:"jīdàn",meaning:"달걀",example:"吃鸡蛋。",exPy:"chī jīdàn",exKr:"달걀을 먹다"},
+  {char:"肉",pinyin:"ròu",meaning:"고기",example:"吃肉。",exPy:"chī ròu",exKr:"고기를 먹다"},
+  {char:"鱼",pinyin:"yú",meaning:"물고기, 생선",example:"吃鱼。",exPy:"chī yú",exKr:"생선을 먹다"},
+  {char:"牛奶",pinyin:"niúnǎi",meaning:"우유",example:"喝牛奶。",exPy:"hē niúnǎi",exKr:"우유를 마시다"},
+  {char:"果汁",pinyin:"guǒzhī",meaning:"주스",example:"喝果汁。",exPy:"hē guǒzhī",exKr:"주스를 마시다"},
+  {char:"饿",pinyin:"è",meaning:"배고프다",example:"我很饿。",exPy:"Wǒ hěn è.",exKr:"나는 매우 배고프다."},
+  {char:"渴",pinyin:"kě",meaning:"목마르다",example:"我很渴。",exPy:"Wǒ hěn kě.",exKr:"나는 매우 목마르다."},
+  // 감정·상태
+  {char:"累",pinyin:"lèi",meaning:"피곤하다",example:"我很累。",exPy:"Wǒ hěn lèi.",exKr:"나는 매우 피곤하다."},
+  {char:"忙",pinyin:"máng",meaning:"바쁘다",example:"我很忙。",exPy:"Wǒ hěn máng.",exKr:"나는 매우 바쁘다."},
+  {char:"快乐",pinyin:"kuàilè",meaning:"행복하다",example:"我很快乐。",exPy:"Wǒ hěn kuàilè.",exKr:"나는 매우 행복하다."},
+  {char:"难过",pinyin:"nánguò",meaning:"슬프다",example:"我很难过。",exPy:"Wǒ hěn nánguò.",exKr:"나는 매우 슬프다."},
+  {char:"担心",pinyin:"dānxīn",meaning:"걱정하다",example:"我很担心。",exPy:"Wǒ hěn dānxīn.",exKr:"나는 매우 걱정된다."},
+  {char:"生气",pinyin:"shēngqì",meaning:"화내다",example:"别生气！",exPy:"Bié shēngqì!",exKr:"화내지 마!"},
+  // 공간·위치
+  {char:"旁边",pinyin:"pángbiān",meaning:"옆",example:"学校旁边。",exPy:"xuéxiào pángbiān",exKr:"학교 옆"},
+  {char:"左边",pinyin:"zuǒbiān",meaning:"왼쪽",example:"左边走。",exPy:"zuǒbiān zǒu",exKr:"왼쪽으로 가다"},
+  {char:"右边",pinyin:"yòubiān",meaning:"오른쪽",example:"右边走。",exPy:"yòubiān zǒu",exKr:"오른쪽으로 가다"},
+  {char:"后面",pinyin:"hòumiàn",meaning:"뒤",example:"学校后面。",exPy:"xuéxiào hòumiàn",exKr:"학교 뒤"},
+  {char:"下面",pinyin:"xiàmiàn",meaning:"아래",example:"桌子下面。",exPy:"zhuōzi xiàmiàn",exKr:"책상 아래"},
+  {char:"外",pinyin:"wài",meaning:"밖",example:"门外。",exPy:"mén wài",exKr:"문 밖"},
+  {char:"中间",pinyin:"zhōngjiān",meaning:"가운데",example:"中间坐。",exPy:"zhōngjiān zuò",exKr:"가운데 앉다"},
+  // 동사 확장
+  {char:"知道",pinyin:"zhīdào",meaning:"알다",example:"我知道。",exPy:"Wǒ zhīdào.",exKr:"나는 안다."},
+  {char:"觉得",pinyin:"juéde",meaning:"느끼다, 생각하다",example:"我觉得很好。",exPy:"Wǒ juéde hěn hǎo.",exKr:"나는 좋다고 생각한다."},
+  {char:"需要",pinyin:"xūyào",meaning:"필요하다",example:"我需要帮助。",exPy:"Wǒ xūyào bāngzhù.",exKr:"나는 도움이 필요하다."},
+  {char:"帮助",pinyin:"bāngzhù",meaning:"돕다",example:"帮助我。",exPy:"Bāngzhù wǒ.",exKr:"나를 도와줘."},
+  {char:"希望",pinyin:"xīwàng",meaning:"희망하다",example:"我希望去中国。",exPy:"Wǒ xīwàng qù Zhōngguó.",exKr:"나는 중국에 가고 싶다."},
+  {char:"告诉",pinyin:"gàosu",meaning:"알리다",example:"告诉我。",exPy:"Gàosu wǒ.",exKr:"나에게 알려줘."},
+  {char:"等",pinyin:"děng",meaning:"기다리다",example:"等一下。",exPy:"Děng yīxià.",exKr:"잠깐 기다려."},
+  {char:"玩",pinyin:"wán",meaning:"놀다",example:"出去玩。",exPy:"Chūqù wán.",exKr:"나가서 놀다."},
+  {char:"跑",pinyin:"pǎo",meaning:"달리다",example:"跑步。",exPy:"pǎobù",exKr:"달리기"},
+  {char:"游泳",pinyin:"yóuyǒng",meaning:"수영하다",example:"我喜欢游泳。",exPy:"Wǒ xǐhuan yóuyǒng.",exKr:"나는 수영을 좋아한다."},
+  {char:"唱歌",pinyin:"chànggē",meaning:"노래하다",example:"我唱歌。",exPy:"Wǒ chànggē.",exKr:"나는 노래한다."},
+  {char:"跳舞",pinyin:"tiàowǔ",meaning:"춤추다",example:"我跳舞。",exPy:"Wǒ tiàowǔ.",exKr:"나는 춤춘다."},
+  // 시간 확장
+  {char:"以前",pinyin:"yǐqián",meaning:"이전에",example:"以前我不知道。",exPy:"Yǐqián wǒ bù zhīdào.",exKr:"이전에는 몰랐다."},
+  {char:"以后",pinyin:"yǐhòu",meaning:"이후에",example:"以后再说。",exPy:"Yǐhòu zài shuō.",exKr:"나중에 말하다."},
+  {char:"早上",pinyin:"zǎoshang",meaning:"아침",example:"早上好！",exPy:"Zǎoshang hǎo!",exKr:"좋은 아침!"},
+  {char:"晚上",pinyin:"wǎnshang",meaning:"저녁",example:"晚上好！",exPy:"Wǎnshang hǎo!",exKr:"안녕하세요(저녁)!"},
+  {char:"中午",pinyin:"zhōngwǔ",meaning:"점심",example:"中午吃饭。",exPy:"Zhōngwǔ chīfàn.",exKr:"점심을 먹다."},
+  {char:"晚",pinyin:"wǎn",meaning:"늦다",example:"太晚了。",exPy:"Tài wǎn le.",exKr:"너무 늦었다."},
+  {char:"快",pinyin:"kuài",meaning:"빠르다",example:"快走！",exPy:"Kuài zǒu!",exKr:"빨리 가!"},
+  {char:"慢",pinyin:"màn",meaning:"느리다",example:"慢点儿。",exPy:"Màn diǎnr.",exKr:"천천히."},
+  // 기타 중요 단어
+  {char:"一起",pinyin:"yìqǐ",meaning:"함께",example:"一起去。",exPy:"Yìqǐ qù.",exKr:"함께 가다."},
+  {char:"一下",pinyin:"yīxià",meaning:"잠깐",example:"等一下。",exPy:"Děng yīxià.",exKr:"잠깐 기다려."},
+  {char:"一点儿",pinyin:"yīdiǎnr",meaning:"조금",example:"一点儿好了。",exPy:"Yīdiǎnr hǎo le.",exKr:"조금 좋아졌다."},
+  {char:"有点儿",pinyin:"yǒudiǎnr",meaning:"좀, 약간",example:"有点儿贵。",exPy:"Yǒudiǎnr guì.",exKr:"좀 비싸다."},
+  {char:"正在",pinyin:"zhèngzài",meaning:"~하고 있다",example:"我正在吃饭。",exPy:"Wǒ zhèngzài chīfàn.",exKr:"나는 지금 밥을 먹고 있다."},
+  {char:"已经",pinyin:"yǐjīng",meaning:"이미",example:"已经来了。",exPy:"Yǐjīng lái le.",exKr:"이미 왔다."},
+  {char:"还",pinyin:"hái",meaning:"아직, 또",example:"还没来。",exPy:"Hái méi lái.",exKr:"아직 안 왔다."},
+  {char:"就",pinyin:"jiù",meaning:"바로, 곧",example:"我就来。",exPy:"Wǒ jiù lái.",exKr:"나 곧 올게."},
+  {char:"再",pinyin:"zài",meaning:"다시",example:"再见。",exPy:"Zàijiàn.",exKr:"안녕히 가세요."},
+  {char:"只",pinyin:"zhǐ",meaning:"단지, 오직",example:"只有一个。",exPy:"Zhǐ yǒu yí gè.",exKr:"단지 하나만 있다."},
+  {char:"比",pinyin:"bǐ",meaning:"~보다",example:"我比你大。",exPy:"Wǒ bǐ nǐ dà.",exKr:"나는 너보다 크다."},
+  {char:"但是",pinyin:"dànshì",meaning:"하지만",example:"我喜欢，但是太贵。",exPy:"Wǒ xǐhuan, dànshì tài guì.",exKr:"좋아하지만 너무 비싸다."},
+  {char:"所以",pinyin:"suǒyǐ",meaning:"그래서",example:"下雨，所以在家。",exPy:"Xià yǔ, suǒyǐ zài jiā.",exKr:"비가 와서 집에 있다."},
+  {char:"如果",pinyin:"rúguǒ",meaning:"만약",example:"如果下雨，不去。",exPy:"Rúguǒ xià yǔ, bù qù.",exKr:"만약 비가 오면 안 간다."},
+  {char:"因为",pinyin:"yīnwèi",meaning:"왜냐하면",example:"因为忙，所以晚了。",exPy:"Yīnwèi máng, suǒyǐ wǎn le.",exKr:"바쁘기 때문에 늦었다."},
+  {char:"或者",pinyin:"huòzhě",meaning:"또는",example:"去或者不去？",exPy:"Qù huòzhě bù qù?",exKr:"가거나 안 가거나?"},
+  {char:"虽然",pinyin:"suīrán",meaning:"비록",example:"虽然累，但是高兴。",exPy:"Suīrán lèi, dànshì gāoxìng.",exKr:"비록 피곤하지만 기쁘다."},
+  {char:"当然",pinyin:"dāngrán",meaning:"물론",example:"当然可以！",exPy:"Dāngrán kěyǐ!",exKr:"물론 가능해요!"},
+  {char:"一共",pinyin:"yīgòng",meaning:"모두, 합계",example:"一共多少钱？",exPy:"Yīgòng duōshao qián?",exKr:"모두 얼마예요?"},
+  {char:"同学",pinyin:"tóngxué",meaning:"동창, 같은 반 친구",example:"这是我的同学。",exPy:"Zhè shì wǒ de tóngxué.",exKr:"이 사람은 내 학교 친구다."},
+  {char:"孩子",pinyin:"háizi",meaning:"아이",example:"这是我的孩子。",exPy:"Zhè shì wǒ de háizi.",exKr:"이 아이는 내 아이다."},
+  {char:"丈夫",pinyin:"zhàngfu",meaning:"남편",example:"我的丈夫。",exPy:"wǒ de zhàngfu",exKr:"나의 남편"},
+  {char:"妻子",pinyin:"qīzi",meaning:"아내",example:"我的妻子。",exPy:"wǒ de qīzi",exKr:"나의 아내"},
+  {char:"哥哥",pinyin:"gēge",meaning:"오빠, 형",example:"我哥哥。",exPy:"wǒ gēge",exKr:"나의 오빠/형"},
+  {char:"姐姐",pinyin:"jiějie",meaning:"언니, 누나",example:"我姐姐。",exPy:"wǒ jiějie",exKr:"나의 언니/누나"},
+  {char:"弟弟",pinyin:"dìdi",meaning:"남동생",example:"我弟弟。",exPy:"wǒ dìdi",exKr:"나의 남동생"},
+  {char:"妹妹",pinyin:"mèimei",meaning:"여동생",example:"我妹妹。",exPy:"wǒ mèimei",exKr:"나의 여동생"},
+  {char:"儿子",pinyin:"érzi",meaning:"아들",example:"我的儿子。",exPy:"wǒ de érzi",exKr:"나의 아들"},
+  {char:"女儿",pinyin:"nǚ'ér",meaning:"딸",example:"我的女儿。",exPy:"wǒ de nǚ'ér",exKr:"나의 딸"},
+  {char:"房间",pinyin:"fángjiān",meaning:"방",example:"我的房间。",exPy:"wǒ de fángjiān",exKr:"나의 방"},
+  {char:"门",pinyin:"mén",meaning:"문",example:"开门。",exPy:"kāi mén",exKr:"문을 열다"},
+  {char:"窗户",pinyin:"chuānghu",meaning:"창문",example:"开窗户。",exPy:"kāi chuānghu",exKr:"창문을 열다"},
+  {char:"桌子",pinyin:"zhuōzi",meaning:"책상, 탁자",example:"桌子上。",exPy:"zhuōzi shàng",exKr:"책상 위"},
+  {char:"椅子",pinyin:"yǐzi",meaning:"의자",example:"坐椅子。",exPy:"zuò yǐzi",exKr:"의자에 앉다"},
+  {char:"床",pinyin:"chuáng",meaning:"침대",example:"睡在床上。",exPy:"shuì zài chuáng shàng",exKr:"침대에서 자다"},
+  {char:"杯子",pinyin:"bēizi",meaning:"컵",example:"一个杯子。",exPy:"yí gè bēizi",exKr:"컵 하나"},
+  {char:"报纸",pinyin:"bàozhǐ",meaning:"신문",example:"看报纸。",exPy:"kàn bàozhǐ",exKr:"신문을 보다"},
+  {char:"照片",pinyin:"zhàopiàn",meaning:"사진",example:"看照片。",exPy:"kàn zhàopiàn",exKr:"사진을 보다"},
+  {char:"时间",pinyin:"shíjiān",meaning:"시간",example:"没有时间。",exPy:"méiyǒu shíjiān",exKr:"시간이 없다"},
+  {char:"问题",pinyin:"wèntí",meaning:"문제",example:"没问题！",exPy:"Méi wèntí!",exKr:"문제없어요!"},
+  {char:"事情",pinyin:"shìqing",meaning:"일, 사건",example:"有事情。",exPy:"yǒu shìqing",exKr:"일이 있다"},
+  {char:"地方",pinyin:"dìfang",meaning:"장소",example:"这个地方。",exPy:"zhège dìfang",exKr:"이 장소"},
+  {char:"天",pinyin:"tiān",meaning:"날, 하늘",example:"每天。",exPy:"měitiān",exKr:"매일"},
+  {char:"每",pinyin:"měi",meaning:"매, 각",example:"每天。",exPy:"měitiān",exKr:"매일"},
+  {char:"次",pinyin:"cì",meaning:"번, 횟수",example:"一次。",exPy:"yī cì",exKr:"한 번"},
+  {char:"第",pinyin:"dì",meaning:"제~, 번째",example:"第一名。",exPy:"dì yī míng",exKr:"1등"},
+],
+
+// ════════════════════════════════════════
+// HSK 3급 — 300단어
+// ════════════════════════════════════════
+3: [
+  // 직업·사회
+  {char:"医生",pinyin:"yīshēng",meaning:"의사",example:"他是医生。",exPy:"Tā shì yīshēng.",exKr:"그는 의사다."},
+  {char:"护士",pinyin:"hùshi",meaning:"간호사",example:"她是护士。",exPy:"Tā shì hùshi.",exKr:"그녀는 간호사다."},
+  {char:"经理",pinyin:"jīnglǐ",meaning:"매니저",example:"他是经理。",exPy:"Tā shì jīnglǐ.",exKr:"그는 매니저다."},
+  {char:"司机",pinyin:"sījī",meaning:"운전기사",example:"他是司机。",exPy:"Tā shì sījī.",exKr:"그는 운전기사다."},
+  {char:"厨师",pinyin:"chúshī",meaning:"요리사",example:"他是厨师。",exPy:"Tā shì chúshī.",exKr:"그는 요리사다."},
+  {char:"演员",pinyin:"yǎnyuán",meaning:"배우",example:"她是演员。",exPy:"Tā shì yǎnyuán.",exKr:"그녀는 배우다."},
+  {char:"记者",pinyin:"jìzhě",meaning:"기자",example:"他是记者。",exPy:"Tā shì jìzhě.",exKr:"그는 기자다."},
+  {char:"律师",pinyin:"lǜshī",meaning:"변호사",example:"她是律师。",exPy:"Tā shì lǜshī.",exKr:"그녀는 변호사다."},
+  // 교육
+  {char:"作业",pinyin:"zuòyè",meaning:"숙제",example:"做作业。",exPy:"zuò zuòyè",exKr:"숙제를 하다"},
+  {char:"考试",pinyin:"kǎoshì",meaning:"시험",example:"参加考试。",exPy:"cānjiā kǎoshì",exKr:"시험을 보다"},
+  {char:"成绩",pinyin:"chéngjì",meaning:"성적",example:"成绩很好。",exPy:"chéngjì hěn hǎo",exKr:"성적이 좋다"},
+  {char:"复习",pinyin:"fùxí",meaning:"복습하다",example:"复习汉语。",exPy:"fùxí Hànyǔ",exKr:"중국어를 복습하다"},
+  {char:"预习",pinyin:"yùxí",meaning:"예습하다",example:"预习课文。",exPy:"yùxí kèwén",exKr:"본문을 예습하다"},
+  {char:"词语",pinyin:"cíyǔ",meaning:"단어",example:"学词语。",exPy:"xué cíyǔ",exKr:"단어를 배우다"},
+  {char:"课文",pinyin:"kèwén",meaning:"교과서 본문",example:"读课文。",exPy:"dú kèwén",exKr:"본문을 읽다"},
+  {char:"黑板",pinyin:"hēibǎn",meaning:"칠판",example:"看黑板。",exPy:"kàn hēibǎn",exKr:"칠판을 보다"},
+  {char:"字典",pinyin:"zìdiǎn",meaning:"사전",example:"查字典。",exPy:"chá zìdiǎn",exKr:"사전을 찾다"},
+  // 음식·식당
+  {char:"好吃",pinyin:"hǎochī",meaning:"맛있다",example:"这个很好吃。",exPy:"Zhège hěn hǎochī.",exKr:"이것은 매우 맛있다."},
+  {char:"好喝",pinyin:"hǎohē",meaning:"(음료가) 맛있다",example:"这个茶好喝。",exPy:"Zhège chá hǎohē.",exKr:"이 차는 맛있다."},
+  {char:"辣",pinyin:"là",meaning:"맵다",example:"太辣了！",exPy:"Tài là le!",exKr:"너무 매워요!"},
+  {char:"甜",pinyin:"tián",meaning:"달다",example:"很甜。",exPy:"hěn tián",exKr:"달다"},
+  {char:"苦",pinyin:"kǔ",meaning:"쓰다",example:"有点苦。",exPy:"yǒudiǎn kǔ",exKr:"좀 쓰다"},
+  {char:"咸",pinyin:"xián",meaning:"짜다",example:"有点咸。",exPy:"yǒudiǎn xián",exKr:"좀 짜다"},
+  {char:"点菜",pinyin:"diǎncài",meaning:"주문하다",example:"点菜了吗？",exPy:"Diǎncài le ma?",exKr:"주문했어요?"},
+  {char:"服务员",pinyin:"fúwùyuán",meaning:"종업원",example:"服务员！",exPy:"Fúwùyuán!",exKr:"종업원!"},
+  {char:"账单",pinyin:"zhàngdān",meaning:"계산서",example:"拿账单。",exPy:"ná zhàngdān",exKr:"계산서를 가져오다"},
+  // 여행
+  {char:"旅游",pinyin:"lǚyóu",meaning:"여행하다",example:"我喜欢旅游。",exPy:"Wǒ xǐhuan lǚyóu.",exKr:"나는 여행을 좋아한다."},
+  {char:"酒店",pinyin:"jiǔdiàn",meaning:"호텔",example:"住酒店。",exPy:"zhù jiǔdiàn",exKr:"호텔에 묵다"},
+  {char:"宾馆",pinyin:"bīnguǎn",meaning:"호텔, 여관",example:"住宾馆。",exPy:"zhù bīnguǎn",exKr:"여관에 묵다"},
+  {char:"护照",pinyin:"hùzhào",meaning:"여권",example:"带护照。",exPy:"dài hùzhào",exKr:"여권을 지참하다"},
+  {char:"签证",pinyin:"qiānzhèng",meaning:"비자",example:"办签证。",exPy:"bàn qiānzhèng",exKr:"비자를 신청하다"},
+  {char:"地图",pinyin:"dìtú",meaning:"지도",example:"看地图。",exPy:"kàn dìtú",exKr:"지도를 보다"},
+  {char:"景色",pinyin:"jǐngsè",meaning:"경치",example:"景色很美。",exPy:"Jǐngsè hěn měi.",exKr:"경치가 아름답다."},
+  {char:"照相",pinyin:"zhàoxiàng",meaning:"사진 찍다",example:"照相留念。",exPy:"zhàoxiàng liúniàn",exKr:"기념사진을 찍다"},
+  // 날씨
+  {char:"下雨",pinyin:"xià yǔ",meaning:"비가 오다",example:"今天下雨。",exPy:"Jīntiān xià yǔ.",exKr:"오늘 비가 온다."},
+  {char:"下雪",pinyin:"xià xuě",meaning:"눈이 오다",example:"冬天下雪。",exPy:"Dōngtiān xià xuě.",exKr:"겨울에 눈이 온다."},
+  {char:"刮风",pinyin:"guā fēng",meaning:"바람이 불다",example:"今天刮风。",exPy:"Jīntiān guā fēng.",exKr:"오늘 바람이 분다."},
+  {char:"晴天",pinyin:"qíngtiān",meaning:"맑은 날",example:"今天是晴天。",exPy:"Jīntiān shì qíngtiān.",exKr:"오늘은 맑은 날이다."},
+  {char:"阴天",pinyin:"yīntiān",meaning:"흐린 날",example:"今天阴天。",exPy:"Jīntiān yīntiān.",exKr:"오늘은 흐린 날이다."},
+  {char:"温度",pinyin:"wēndù",meaning:"온도",example:"温度很低。",exPy:"Wēndù hěn dī.",exKr:"온도가 매우 낮다."},
+  {char:"季节",pinyin:"jìjié",meaning:"계절",example:"春天是好季节。",exPy:"Chūntiān shì hǎo jìjié.",exKr:"봄은 좋은 계절이다."},
+  {char:"春天",pinyin:"chūntiān",meaning:"봄",example:"我喜欢春天。",exPy:"Wǒ xǐhuan chūntiān.",exKr:"나는 봄을 좋아한다."},
+  {char:"夏天",pinyin:"xiàtiān",meaning:"여름",example:"夏天很热。",exPy:"Xiàtiān hěn rè.",exKr:"여름은 덥다."},
+  {char:"秋天",pinyin:"qiūtiān",meaning:"가을",example:"秋天很凉快。",exPy:"Qiūtiān hěn liángkuai.",exKr:"가을은 시원하다."},
+  {char:"冬天",pinyin:"dōngtiān",meaning:"겨울",example:"冬天很冷。",exPy:"Dōngtiān hěn lěng.",exKr:"겨울은 춥다."},
+  // 신체·건강 확장
+  {char:"生病",pinyin:"shēngbìng",meaning:"아프다, 병들다",example:"我生病了。",exPy:"Wǒ shēngbìng le.",exKr:"나는 아프다."},
+  {char:"感冒",pinyin:"gǎnmào",meaning:"감기",example:"我感冒了。",exPy:"Wǒ gǎnmào le.",exKr:"나는 감기에 걸렸다."},
+  {char:"发烧",pinyin:"fāshāo",meaning:"열이 나다",example:"我发烧了。",exPy:"Wǒ fāshāo le.",exKr:"나는 열이 났다."},
+  {char:"头疼",pinyin:"tóuténg",meaning:"두통",example:"我头疼。",exPy:"Wǒ tóuténg.",exKr:"나는 머리가 아프다."},
+  {char:"肚子",pinyin:"dùzi",meaning:"배",example:"肚子疼。",exPy:"Dùzi téng.",exKr:"배가 아프다."},
+  {char:"药",pinyin:"yào",meaning:"약",example:"吃药。",exPy:"chī yào",exKr:"약을 먹다"},
+  {char:"打针",pinyin:"dǎzhēn",meaning:"주사 맞다",example:"打针不舒服。",exPy:"Dǎzhēn bù shūfu.",exKr:"주사 맞는 것이 불편하다."},
+  {char:"手术",pinyin:"shǒushù",meaning:"수술",example:"做手术。",exPy:"zuò shǒushù",exKr:"수술을 하다"},
+  // 동사 확장
+  {char:"参加",pinyin:"cānjiā",meaning:"참가하다",example:"参加活动。",exPy:"cānjiā huódòng",exKr:"활동에 참가하다"},
+  {char:"结束",pinyin:"jiéshù",meaning:"끝나다",example:"比赛结束了。",exPy:"Bǐsài jiéshù le.",exKr:"경기가 끝났다."},
+  {char:"开始",pinyin:"kāishǐ",meaning:"시작하다",example:"开始工作。",exPy:"kāishǐ gōngzuò",exKr:"일을 시작하다"},
+  {char:"决定",pinyin:"juédìng",meaning:"결정하다",example:"已经决定了。",exPy:"Yǐjīng juédìng le.",exKr:"이미 결정했다."},
+  {char:"打算",pinyin:"dǎsuàn",meaning:"계획하다",example:"我打算去旅游。",exPy:"Wǒ dǎsuàn qù lǚyóu.",exKr:"나는 여행할 계획이다."},
+  {char:"出发",pinyin:"chūfā",meaning:"출발하다",example:"明天出发。",exPy:"Míngtiān chūfā.",exKr:"내일 출발한다."},
+  {char:"到达",pinyin:"dàodá",meaning:"도착하다",example:"到达北京。",exPy:"Dàodá Běijīng.",exKr:"베이징에 도착하다."},
+  {char:"迟到",pinyin:"chídào",meaning:"지각하다",example:"我迟到了。",exPy:"Wǒ chídào le.",exKr:"나는 지각했다."},
+  {char:"通知",pinyin:"tōngzhī",meaning:"알리다, 통보",example:"通知大家。",exPy:"tōngzhī dàjiā",exKr:"모두에게 알리다"},
+  {char:"介绍",pinyin:"jièshào",meaning:"소개하다",example:"自我介绍。",exPy:"zìwǒ jièshào",exKr:"자기소개"},
+  {char:"联系",pinyin:"liánxì",meaning:"연락하다",example:"联系你。",exPy:"liánxì nǐ",exKr:"너에게 연락하다"},
+  {char:"借",pinyin:"jiè",meaning:"빌리다",example:"借书。",exPy:"jiè shū",exKr:"책을 빌리다"},
+  {char:"还",pinyin:"huán",meaning:"돌려주다",example:"还书。",exPy:"huán shū",exKr:"책을 돌려주다"},
+  {char:"打",pinyin:"dǎ",meaning:"치다, 전화하다",example:"打电话。",exPy:"dǎ diànhuà",exKr:"전화를 하다"},
+  {char:"发",pinyin:"fā",meaning:"보내다",example:"发短信。",exPy:"fā duǎnxìn",exKr:"문자를 보내다"},
+  {char:"收",pinyin:"shōu",meaning:"받다",example:"收到信了。",exPy:"Shōu dào xìn le.",exKr:"편지를 받았다."},
+  {char:"准备",pinyin:"zhǔnbèi",meaning:"준비하다",example:"准备考试。",exPy:"zhǔnbèi kǎoshì",exKr:"시험을 준비하다"},
+  {char:"练习",pinyin:"liànxí",meaning:"연습하다",example:"练习汉语。",exPy:"liànxí Hànyǔ",exKr:"중국어를 연습하다"},
+  {char:"放",pinyin:"fàng",meaning:"놓다",example:"放下。",exPy:"fàng xià",exKr:"내려놓다"},
+  {char:"拿",pinyin:"ná",meaning:"들다, 가져오다",example:"拿来。",exPy:"ná lái",exKr:"가져오다"},
+  {char:"选择",pinyin:"xuǎnzé",meaning:"선택하다",example:"选择专业。",exPy:"xuǎnzé zhuānyè",exKr:"전공을 선택하다"},
+  {char:"相信",pinyin:"xiāngxìn",meaning:"믿다",example:"我相信你。",exPy:"Wǒ xiāngxìn nǐ.",exKr:"나는 너를 믿는다."},
+  {char:"感谢",pinyin:"gǎnxiè",meaning:"감사하다",example:"非常感谢！",exPy:"Fēicháng gǎnxiè!",exKr:"정말 감사합니다!"},
+  {char:"回答",pinyin:"huídá",meaning:"대답하다",example:"回答问题。",exPy:"huídá wèntí",exKr:"질문에 대답하다"},
+  {char:"提问",pinyin:"tíwèn",meaning:"질문하다",example:"学生提问。",exPy:"xuésheng tíwèn",exKr:"학생이 질문하다"},
+  // 형용사 확장
+  {char:"漂亮",pinyin:"piàoliang",meaning:"예쁘다",example:"很漂亮！",exPy:"Hěn piàoliang!",exKr:"매우 예쁘다!"},
+  {char:"帅",pinyin:"shuài",meaning:"잘생기다",example:"很帅！",exPy:"Hěn shuài!",exKr:"매우 잘생겼다!"},
+  {char:"可爱",pinyin:"kě'ài",meaning:"귀엽다",example:"很可爱！",exPy:"Hěn kě'ài!",exKr:"매우 귀엽다!"},
+  {char:"聪明",pinyin:"cōngming",meaning:"똑똑하다",example:"很聪明！",exPy:"Hěn cōngming!",exKr:"매우 똑똑하다!"},
+  {char:"认真",pinyin:"rènzhēn",meaning:"성실하다",example:"学习很认真。",exPy:"xuéxí hěn rènzhēn",exKr:"공부를 성실히 한다"},
+  {char:"努力",pinyin:"nǔlì",meaning:"열심히 하다",example:"努力学习。",exPy:"nǔlì xuéxí",exKr:"열심히 공부하다"},
+  {char:"奇怪",pinyin:"qíguài",meaning:"이상하다",example:"很奇怪！",exPy:"Hěn qíguài!",exKr:"매우 이상하다!"},
+  {char:"安全",pinyin:"ānquán",meaning:"안전하다",example:"这里很安全。",exPy:"Zhèlǐ hěn ānquán.",exKr:"여기는 안전하다."},
+  {char:"危险",pinyin:"wēixiǎn",meaning:"위험하다",example:"这里很危险。",exPy:"Zhèlǐ hěn wēixiǎn.",exKr:"여기는 위험하다."},
+  {char:"简单",pinyin:"jiǎndān",meaning:"간단하다",example:"很简单！",exPy:"Hěn jiǎndān!",exKr:"매우 간단하다!"},
+  {char:"复杂",pinyin:"fùzá",meaning:"복잡하다",example:"很复杂。",exPy:"Hěn fùzá.",exKr:"매우 복잡하다."},
+  {char:"方便",pinyin:"fāngbiàn",meaning:"편리하다",example:"很方便！",exPy:"Hěn fāngbiàn!",exKr:"매우 편리하다!"},
+  {char:"麻烦",pinyin:"máfan",meaning:"번거롭다",example:"太麻烦了。",exPy:"Tài máfan le.",exKr:"너무 번거롭다."},
+  {char:"有意思",pinyin:"yǒuyìsi",meaning:"재미있다",example:"很有意思！",exPy:"Hěn yǒuyìsi!",exKr:"매우 재미있다!"},
+  {char:"无聊",pinyin:"wúliáo",meaning:"지루하다",example:"太无聊了。",exPy:"Tài wúliáo le.",exKr:"너무 지루하다."},
+  {char:"重要",pinyin:"zhòngyào",meaning:"중요하다",example:"很重要！",exPy:"Hěn zhòngyào!",exKr:"매우 중요하다!"},
+  {char:"清楚",pinyin:"qīngchǔ",meaning:"명확하다",example:"说清楚。",exPy:"shuō qīngchǔ",exKr:"명확하게 말하다"},
+  // 부사·접속사 확장
+  {char:"非常",pinyin:"fēicháng",meaning:"매우, 非常",example:"非常好！",exPy:"Fēicháng hǎo!",exKr:"매우 좋다!"},
+  {char:"特别",pinyin:"tèbié",meaning:"특별히",example:"特别喜欢。",exPy:"tèbié xǐhuan",exKr:"특별히 좋아한다"},
+  {char:"总是",pinyin:"zǒngshì",meaning:"항상",example:"总是迟到。",exPy:"zǒngshì chídào",exKr:"항상 지각한다"},
+  {char:"有时候",pinyin:"yǒu shíhou",meaning:"때때로",example:"有时候下雨。",exPy:"Yǒu shíhou xià yǔ.",exKr:"때때로 비가 온다."},
+  {char:"最近",pinyin:"zuìjìn",meaning:"최근에",example:"最近很忙。",exPy:"Zuìjìn hěn máng.",exKr:"최근에 바쁘다."},
+  {char:"马上",pinyin:"mǎshàng",meaning:"즉시, 곧",example:"马上来！",exPy:"Mǎshàng lái!",exKr:"곧 올게!"},
+  {char:"一直",pinyin:"yīzhí",meaning:"계속, 줄곧",example:"一直等着。",exPy:"Yīzhí děngzhe.",exKr:"계속 기다리고 있다."},
+  {char:"突然",pinyin:"tūrán",meaning:"갑자기",example:"突然下雨了。",exPy:"Tūrán xià yǔ le.",exKr:"갑자기 비가 왔다."},
+  {char:"其实",pinyin:"qíshí",meaning:"사실은",example:"其实不难。",exPy:"Qíshí bù nán.",exKr:"사실 어렵지 않다."},
+  {char:"一般",pinyin:"yībān",meaning:"보통, 일반적으로",example:"一般来说。",exPy:"Yībān lái shuō.",exKr:"일반적으로 말하면."},
+  // 사물 확장
+  {char:"短信",pinyin:"duǎnxìn",meaning:"문자메시지",example:"发短信。",exPy:"fā duǎnxìn",exKr:"문자를 보내다"},
+  {char:"网络",pinyin:"wǎngluò",meaning:"인터넷",example:"用网络。",exPy:"yòng wǎngluò",exKr:"인터넷을 사용하다"},
+  {char:"密码",pinyin:"mìmǎ",meaning:"비밀번호",example:"输入密码。",exPy:"shūrù mìmǎ",exKr:"비밀번호를 입력하다"},
+  {char:"银行",pinyin:"yínháng",meaning:"은행",example:"去银行。",exPy:"qù yínháng",exKr:"은행에 가다"},
+  {char:"邮局",pinyin:"yóujú",meaning:"우체국",example:"去邮局寄信。",exPy:"qù yóujú jì xìn",exKr:"우체국에 편지를 보내러 가다"},
+  {char:"公司",pinyin:"gōngsī",meaning:"회사",example:"在公司工作。",exPy:"zài gōngsī gōngzuò",exKr:"회사에서 일하다"},
+  {char:"公园",pinyin:"gōngyuán",meaning:"공원",example:"去公园散步。",exPy:"qù gōngyuán sànbù",exKr:"공원에 산책하러 가다"},
+  {char:"图书馆",pinyin:"túshūguǎn",meaning:"도서관",example:"去图书馆学习。",exPy:"qù túshūguǎn xuéxí",exKr:"도서관에 공부하러 가다"},
+  {char:"电影院",pinyin:"diànyǐngyuàn",meaning:"영화관",example:"去电影院看电影。",exPy:"qù diànyǐngyuàn kàn diànyǐng",exKr:"영화관에 영화 보러 가다"},
+  {char:"音乐",pinyin:"yīnyuè",meaning:"음악",example:"听音乐。",exPy:"tīng yīnyuè",exKr:"음악을 듣다"},
+  {char:"电影",pinyin:"diànyǐng",meaning:"영화",example:"看电影。",exPy:"kàn diànyǐng",exKr:"영화를 보다"},
+  {char:"体育",pinyin:"tǐyù",meaning:"체육, 스포츠",example:"上体育课。",exPy:"shàng tǐyù kè",exKr:"체육 수업을 받다"},
+  {char:"篮球",pinyin:"lánqiú",meaning:"농구",example:"打篮球。",exPy:"dǎ lánqiú",exKr:"농구를 하다"},
+  {char:"足球",pinyin:"zúqiú",meaning:"축구",example:"踢足球。",exPy:"tī zúqiú",exKr:"축구를 하다"},
+  {char:"乒乓球",pinyin:"pīngpāngqiú",meaning:"탁구",example:"打乒乓球。",exPy:"dǎ pīngpāngqiú",exKr:"탁구를 치다"},
+  {char:"运动",pinyin:"yùndòng",meaning:"운동하다",example:"每天运动。",exPy:"měitiān yùndòng",exKr:"매일 운동하다"},
+  {char:"爱好",pinyin:"àihào",meaning:"취미",example:"我的爱好是音乐。",exPy:"Wǒ de àihào shì yīnyuè.",exKr:"나의 취미는 음악이다."},
+  // 감정·성격 확장
+  {char:"紧张",pinyin:"jǐnzhāng",meaning:"긴장하다",example:"考试前很紧张。",exPy:"kǎoshì qián hěn jǐnzhāng",exKr:"시험 전에 매우 긴장한다"},
+  {char:"放松",pinyin:"fàngsōng",meaning:"긴장을 풀다",example:"放松一下。",exPy:"Fàngsōng yīxià.",exKr:"좀 쉬어라."},
+  {char:"高兴",pinyin:"gāoxìng",meaning:"기쁘다",example:"很高兴！",exPy:"Hěn gāoxìng!",exKr:"매우 기쁘다!"},
+  {char:"伤心",pinyin:"shāngxīn",meaning:"상심하다",example:"很伤心。",exPy:"hěn shāngxīn",exKr:"매우 슬프다"},
+  {char:"开心",pinyin:"kāixīn",meaning:"즐겁다",example:"很开心！",exPy:"Hěn kāixīn!",exKr:"매우 즐겁다!"},
+  {char:"满意",pinyin:"mǎnyì",meaning:"만족하다",example:"很满意！",exPy:"Hěn mǎnyì!",exKr:"매우 만족한다!"},
+  {char:"后悔",pinyin:"hòuhuǐ",meaning:"후회하다",example:"很后悔。",exPy:"hěn hòuhuǐ",exKr:"매우 후회한다"},
+  {char:"害怕",pinyin:"hàipà",meaning:"두려워하다",example:"不用害怕。",exPy:"Bú yòng hàipà.",exKr:"두려워할 필요 없다."},
+  // 기타
+  {char:"礼物",pinyin:"lǐwù",meaning:"선물",example:"送礼物。",exPy:"sòng lǐwù",exKr:"선물을 주다"},
+  {char:"生日",pinyin:"shēngrì",meaning:"생일",example:"生日快乐！",exPy:"Shēngrì kuàilè!",exKr:"생일 축하해!"},
+  {char:"节日",pinyin:"jiérì",meaning:"명절",example:"庆祝节日。",exPy:"qìngzhù jiérì",exKr:"명절을 축하하다"},
+  {char:"新年",pinyin:"xīnnián",meaning:"새해",example:"新年快乐！",exPy:"Xīnnián kuàilè!",exKr:"새해 복 많이 받으세요!"},
+  {char:"结婚",pinyin:"jiéhūn",meaning:"결혼하다",example:"他们结婚了。",exPy:"Tāmen jiéhūn le.",exKr:"그들은 결혼했다."},
+  {char:"离婚",pinyin:"líhūn",meaning:"이혼하다",example:"他们离婚了。",exPy:"Tāmen líhūn le.",exKr:"그들은 이혼했다."},
+  {char:"搬家",pinyin:"bānjiā",meaning:"이사하다",example:"我搬家了。",exPy:"Wǒ bānjiā le.",exKr:"나는 이사했다."},
+  {char:"成功",pinyin:"chénggōng",meaning:"성공하다",example:"你成功了！",exPy:"Nǐ chénggōng le!",exKr:"너 성공했어!"},
+  {char:"失败",pinyin:"shībài",meaning:"실패하다",example:"不怕失败。",exPy:"Bú pà shībài.",exKr:"실패를 두려워하지 않는다."},
+  {char:"机会",pinyin:"jīhuì",meaning:"기회",example:"抓住机会。",exPy:"zhuāzhù jīhuì",exKr:"기회를 잡다"},
+  {char:"经验",pinyin:"jīngyàn",meaning:"경험",example:"有经验。",exPy:"yǒu jīngyàn",exKr:"경험이 있다"},
+  {char:"理由",pinyin:"lǐyóu",meaning:"이유",example:"有什么理由？",exPy:"Yǒu shénme lǐyóu?",exKr:"무슨 이유가 있어요?"},
+  {char:"办法",pinyin:"bànfǎ",meaning:"방법",example:"有办法吗？",exPy:"Yǒu bànfǎ ma?",exKr:"방법이 있어요?"},
+  {char:"作用",pinyin:"zuòyòng",meaning:"작용, 효과",example:"有很大的作用。",exPy:"Yǒu hěn dà de zuòyòng.",exKr:"큰 효과가 있다."},
+  {char:"感觉",pinyin:"gǎnjué",meaning:"느낌",example:"感觉很好。",exPy:"Gǎnjué hěn hǎo.",exKr:"느낌이 좋다."},
+  {char:"声音",pinyin:"shēngyīn",meaning:"소리, 목소리",example:"声音很好听。",exPy:"Shēngyīn hěn hǎotīng.",exKr:"목소리가 듣기 좋다."},
+  {char:"样子",pinyin:"yàngzi",meaning:"모습, 모양",example:"样子很好看。",exPy:"Yàngzi hěn hǎokàn.",exKr:"모습이 보기 좋다."},
+  {char:"心情",pinyin:"xīnqíng",meaning:"기분",example:"心情很好。",exPy:"Xīnqíng hěn hǎo.",exKr:"기분이 좋다."},
+  {char:"态度",pinyin:"tàidu",meaning:"태도",example:"态度很好。",exPy:"Tàidu hěn hǎo.",exKr:"태도가 좋다."},
+  {char:"内容",pinyin:"nèiróng",meaning:"내용",example:"内容很好。",exPy:"Nèiróng hěn hǎo.",exKr:"내용이 좋다."},
+  {char:"水平",pinyin:"shuǐpíng",meaning:"수준",example:"水平很高。",exPy:"Shuǐpíng hěn gāo.",exKr:"수준이 높다."},
+  {char:"关系",pinyin:"guānxi",meaning:"관계",example:"关系很好。",exPy:"Guānxi hěn hǎo.",exKr:"관계가 좋다."},
+],
+
+// ════════════════════════════════════════
+// HSK 4급 — 600단어 (핵심 300개 선별)
+// ════════════════════════════════════════
+4: [
+  // 사회·직장
+  {char:"社会",pinyin:"shèhuì",meaning:"사회",example:"现代社会。",exPy:"xiàndài shèhuì",exKr:"현대 사회"},
+  {char:"政府",pinyin:"zhèngfǔ",meaning:"정부",example:"政府规定。",exPy:"zhèngfǔ guīdìng",exKr:"정부 규정"},
+  {char:"法律",pinyin:"fǎlǜ",meaning:"법률",example:"遵守法律。",exPy:"zūnshǒu fǎlǜ",exKr:"법률을 준수하다"},
+  {char:"权利",pinyin:"quánlì",meaning:"권리",example:"保护权利。",exPy:"bǎohù quánlì",exKr:"권리를 보호하다"},
+  {char:"责任",pinyin:"zérèn",meaning:"책임",example:"承担责任。",exPy:"chéngdān zérèn",exKr:"책임을 지다"},
+  {char:"制度",pinyin:"zhìdù",meaning:"제도",example:"建立制度。",exPy:"jiànlì zhìdù",exKr:"제도를 수립하다"},
+  {char:"文化",pinyin:"wénhuà",meaning:"문화",example:"中国文化。",exPy:"Zhōngguó wénhuà",exKr:"중국 문화"},
+  {char:"传统",pinyin:"chuántǒng",meaning:"전통",example:"中国传统。",exPy:"Zhōngguó chuántǒng",exKr:"중국 전통"},
+  {char:"发展",pinyin:"fāzhǎn",meaning:"발전하다",example:"快速发展。",exPy:"kuàisù fāzhǎn",exKr:"빠르게 발전하다"},
+  {char:"改变",pinyin:"gǎibiàn",meaning:"변화시키다",example:"改变想法。",exPy:"gǎibiàn xiǎngfǎ",exKr:"생각을 바꾸다"},
+  {char:"影响",pinyin:"yǐngxiǎng",meaning:"영향",example:"产生影响。",exPy:"chǎnshēng yǐngxiǎng",exKr:"영향을 미치다"},
+  {char:"现象",pinyin:"xiànxiàng",meaning:"현상",example:"社会现象。",exPy:"shèhuì xiànxiàng",exKr:"사회 현상"},
+  {char:"问题",pinyin:"wèntí",meaning:"문제",example:"解决问题。",exPy:"jiějué wèntí",exKr:"문제를 해결하다"},
+  {char:"原因",pinyin:"yuányīn",meaning:"원인",example:"分析原因。",exPy:"fēnxī yuányīn",exKr:"원인을 분석하다"},
+  {char:"结果",pinyin:"jiéguǒ",meaning:"결과",example:"期待结果。",exPy:"qīdài jiéguǒ",exKr:"결과를 기대하다"},
+  // 경제·비즈니스
+  {char:"经济",pinyin:"jīngjì",meaning:"경제",example:"经济发展。",exPy:"jīngjì fāzhǎn",exKr:"경제 발전"},
+  {char:"市场",pinyin:"shìchǎng",meaning:"시장",example:"市场竞争。",exPy:"shìchǎng jìngzhēng",exKr:"시장 경쟁"},
+  {char:"价格",pinyin:"jiàgé",meaning:"가격",example:"价格合理。",exPy:"jiàgé hélǐ",exKr:"가격이 합리적이다"},
+  {char:"质量",pinyin:"zhìliàng",meaning:"품질",example:"质量很好。",exPy:"zhìliàng hěn hǎo",exKr:"품질이 좋다"},
+  {char:"产品",pinyin:"chǎnpǐn",meaning:"제품",example:"新产品。",exPy:"xīn chǎnpǐn",exKr:"신제품"},
+  {char:"服务",pinyin:"fúwù",meaning:"서비스",example:"服务很好。",exPy:"fúwù hěn hǎo",exKr:"서비스가 좋다"},
+  {char:"合同",pinyin:"hétong",meaning:"계약서",example:"签合同。",exPy:"qiān hétong",exKr:"계약서에 서명하다"},
+  {char:"投资",pinyin:"tóuzī",meaning:"투자하다",example:"投资股票。",exPy:"tóuzī gǔpiào",exKr:"주식에 투자하다"},
+  {char:"利润",pinyin:"lìrùn",meaning:"이윤",example:"获得利润。",exPy:"huòdé lìrùn",exKr:"이윤을 얻다"},
+  {char:"竞争",pinyin:"jìngzhēng",meaning:"경쟁하다",example:"市场竞争。",exPy:"shìchǎng jìngzhēng",exKr:"시장 경쟁"},
+  // 교육·학문
+  {char:"大学",pinyin:"dàxué",meaning:"대학교",example:"上大学。",exPy:"shàng dàxué",exKr:"대학에 다니다"},
+  {char:"专业",pinyin:"zhuānyè",meaning:"전공",example:"选专业。",exPy:"xuǎn zhuānyè",exKr:"전공을 선택하다"},
+  {char:"毕业",pinyin:"bìyè",meaning:"졸업하다",example:"大学毕业。",exPy:"dàxué bìyè",exKr:"대학을 졸업하다"},
+  {char:"入学",pinyin:"rùxué",meaning:"입학하다",example:"入学考试。",exPy:"rùxué kǎoshì",exKr:"입학 시험"},
+  {char:"奖学金",pinyin:"jiǎngxuéjīn",meaning:"장학금",example:"获得奖学金。",exPy:"huòdé jiǎngxuéjīn",exKr:"장학금을 받다"},
+  {char:"论文",pinyin:"lùnwén",meaning:"논문",example:"写论文。",exPy:"xiě lùnwén",exKr:"논문을 쓰다"},
+  {char:"知识",pinyin:"zhīshi",meaning:"지식",example:"增长知识。",exPy:"zēngzhǎng zhīshi",exKr:"지식을 늘리다"},
+  {char:"能力",pinyin:"nénglì",meaning:"능력",example:"提高能力。",exPy:"tígāo nénglì",exKr:"능력을 향상시키다"},
+  {char:"方法",pinyin:"fāngfǎ",meaning:"방법",example:"学习方法。",exPy:"xuéxí fāngfǎ",exKr:"학습 방법"},
+  {char:"目标",pinyin:"mùbiāo",meaning:"목표",example:"实现目标。",exPy:"shíxiàn mùbiāo",exKr:"목표를 실현하다"},
+  // 환경·자연
+  {char:"环境",pinyin:"huánjìng",meaning:"환경",example:"保护环境。",exPy:"bǎohù huánjìng",exKr:"환경을 보호하다"},
+  {char:"污染",pinyin:"wūrǎn",meaning:"오염",example:"环境污染。",exPy:"huánjìng wūrǎn",exKr:"환경 오염"},
+  {char:"能源",pinyin:"néngyuán",meaning:"에너지",example:"节约能源。",exPy:"jiéyuē néngyuán",exKr:"에너지를 절약하다"},
+  {char:"气候",pinyin:"qìhòu",meaning:"기후",example:"气候变化。",exPy:"qìhòu biànhuà",exKr:"기후 변화"},
+  {char:"地球",pinyin:"dìqiú",meaning:"지구",example:"保护地球。",exPy:"bǎohù dìqiú",exKr:"지구를 보호하다"},
+  {char:"自然",pinyin:"zìrán",meaning:"자연",example:"自然环境。",exPy:"zìrán huánjìng",exKr:"자연 환경"},
+  {char:"森林",pinyin:"sēnlín",meaning:"숲",example:"保护森林。",exPy:"bǎohù sēnlín",exKr:"숲을 보호하다"},
+  {char:"资源",pinyin:"zīyuán",meaning:"자원",example:"自然资源。",exPy:"zìrán zīyuán",exKr:"천연 자원"},
+  // 과학기술
+  {char:"科学",pinyin:"kēxué",meaning:"과학",example:"科学研究。",exPy:"kēxué yánjiū",exKr:"과학 연구"},
+  {char:"技术",pinyin:"jìshù",meaning:"기술",example:"高科技技术。",exPy:"gāo kējì jìshù",exKr:"첨단 기술"},
+  {char:"互联网",pinyin:"hùliánwǎng",meaning:"인터넷",example:"上互联网。",exPy:"shàng hùliánwǎng",exKr:"인터넷을 하다"},
+  {char:"软件",pinyin:"ruǎnjiàn",meaning:"소프트웨어",example:"开发软件。",exPy:"kāifā ruǎnjiàn",exKr:"소프트웨어를 개발하다"},
+  {char:"数据",pinyin:"shùjù",meaning:"데이터",example:"分析数据。",exPy:"fēnxī shùjù",exKr:"데이터를 분석하다"},
+  {char:"人工智能",pinyin:"réngōng zhìnéng",meaning:"인공지능",example:"人工智能发展。",exPy:"réngōng zhìnéng fāzhǎn",exKr:"인공지능 발전"},
+  {char:"智能手机",pinyin:"zhìnéng shǒujī",meaning:"스마트폰",example:"用智能手机。",exPy:"yòng zhìnéng shǒujī",exKr:"스마트폰을 사용하다"},
+  {char:"应用",pinyin:"yìngyòng",meaning:"앱, 응용",example:"手机应用。",exPy:"shǒujī yìngyòng",exKr:"핸드폰 앱"},
+  // 건강·의학
+  {char:"健康",pinyin:"jiànkāng",meaning:"건강",example:"保持健康。",exPy:"bǎochí jiànkāng",exKr:"건康을 유지하다"},
+  {char:"治疗",pinyin:"zhìliáo",meaning:"치료하다",example:"接受治疗。",exPy:"jiēshòu zhìliáo",exKr:"치료를 받다"},
+  {char:"预防",pinyin:"yùfáng",meaning:"예방하다",example:"预防疾病。",exPy:"yùfáng jíbìng",exKr:"질병을 예방하다"},
+  {char:"症状",pinyin:"zhèngzhuàng",meaning:"증상",example:"有症状。",exPy:"yǒu zhèngzhuàng",exKr:"증상이 있다"},
+  {char:"手术",pinyin:"shǒushù",meaning:"수술",example:"做手术。",exPy:"zuò shǒushù",exKr:"수술을 하다"},
+  {char:"营养",pinyin:"yíngyǎng",meaning:"영양",example:"营养均衡。",exPy:"yíngyǎng jūnhéng",exKr:"영양 균형"},
+  {char:"睡眠",pinyin:"shuìmián",meaning:"수면",example:"保证睡眠。",exPy:"bǎozhèng shuìmián",exKr:"수면을 보장하다"},
+  {char:"锻炼",pinyin:"duànliàn",meaning:"단련하다",example:"坚持锻炼。",exPy:"jiānchí duànliàn",exKr:"꾸준히 단련하다"},
+  // 심리·사고
+  {char:"思想",pinyin:"sīxiǎng",meaning:"사상, 생각",example:"思想开放。",exPy:"sīxiǎng kāifàng",exKr:"사상이 개방적이다"},
+  {char:"观点",pinyin:"guāndiǎn",meaning:"관점",example:"不同观点。",exPy:"bùtóng guāndiǎn",exKr:"다른 관점"},
+  {char:"判断",pinyin:"pànduàn",meaning:"판단하다",example:"做出判断。",exPy:"zuòchū pànduàn",exKr:"판단을 내리다"},
+  {char:"分析",pinyin:"fēnxī",meaning:"분석하다",example:"分析问题。",exPy:"fēnxī wèntí",exKr:"문제를 분석하다"},
+  {char:"解决",pinyin:"jiějué",meaning:"해결하다",example:"解决困难。",exPy:"jiějué kùnnan",exKr:"어려움을 해결하다"},
+  {char:"计划",pinyin:"jìhuà",meaning:"계획",example:"制定计划。",exPy:"zhìdìng jìhuà",exKr:"계획을 세우다"},
+  {char:"考虑",pinyin:"kǎolǜ",meaning:"고려하다",example:"仔细考虑。",exPy:"zǐxì kǎolǜ",exKr:"신중히 고려하다"},
+  {char:"了解",pinyin:"liǎojiě",meaning:"이해하다, 파악하다",example:"了解情况。",exPy:"liǎojiě qíngkuàng",exKr:"상황을 파악하다"},
+  {char:"理解",pinyin:"lǐjiě",meaning:"이해하다",example:"理解你。",exPy:"lǐjiě nǐ",exKr:"너를 이해한다"},
+  {char:"表达",pinyin:"biǎodá",meaning:"표현하다",example:"表达想法。",exPy:"biǎodá xiǎngfǎ",exKr:"생각을 표현하다"},
+  // 인간관계
+  {char:"尊重",pinyin:"zūnzhòng",meaning:"존중하다",example:"尊重他人。",exPy:"zūnzhòng tārén",exKr:"타인을 존중하다"},
+  {char:"信任",pinyin:"xìnrèn",meaning:"신뢰하다",example:"互相信任。",exPy:"hùxiāng xìnrèn",exKr:"서로 신뢰하다"},
+  {char:"合作",pinyin:"hézuò",meaning:"협력하다",example:"团队合作。",exPy:"tuánduì hézuò",exKr:"팀워크"},
+  {char:"竞争",pinyin:"jìngzhēng",meaning:"경쟁하다",example:"激烈竞争。",exPy:"jīliè jìngzhēng",exKr:"치열하게 경쟁하다"},
+  {char:"交流",pinyin:"jiāoliú",meaning:"교류하다",example:"文化交流。",exPy:"wénhuà jiāoliú",exKr:"문화 교류"},
+  {char:"沟通",pinyin:"gōutōng",meaning:"소통하다",example:"加强沟通。",exPy:"jiāqiáng gōutōng",exKr:"소통을 강화하다"},
+  {char:"支持",pinyin:"zhīchí",meaning:"지지하다",example:"我支持你！",exPy:"Wǒ zhīchí nǐ!",exKr:"나는 너를 지지한다!"},
+  {char:"反对",pinyin:"fǎnduì",meaning:"반대하다",example:"我反对！",exPy:"Wǒ fǎnduì!",exKr:"나는 반대한다!"},
+  {char:"同意",pinyin:"tóngyì",meaning:"동의하다",example:"我同意。",exPy:"Wǒ tóngyì.",exKr:"나는 동의한다."},
+  {char:"拒绝",pinyin:"jùjué",meaning:"거절하다",example:"礼貌拒绝。",exPy:"lǐmào jùjué",exKr:"예의 바르게 거절하다"},
+  // 부사·표현 고급
+  {char:"尽管",pinyin:"jǐnguǎn",meaning:"비록~이지만",example:"尽管很难，我坚持。",exPy:"Jǐnguǎn hěn nán, wǒ jiānchí.",exKr:"비록 어렵지만 나는 버틴다."},
+  {char:"宁可",pinyin:"nìngkě",meaning:"차라리",example:"宁可慢，也不出错。",exPy:"Nìngkě màn, yě bù chūcuò.",exKr:"차라리 느릴지언정 실수하지 않겠다."},
+  {char:"不得不",pinyin:"bùdébù",meaning:"어쩔 수 없이",example:"不得不去。",exPy:"bùdébù qù",exKr:"어쩔 수 없이 가다"},
+  {char:"一旦",pinyin:"yīdàn",meaning:"일단 ~하면",example:"一旦决定就坚持。",exPy:"Yīdàn juédìng jiù jiānchí.",exKr:"일단 결정하면 지속한다."},
+  {char:"即使",pinyin:"jíshǐ",meaning:"설령 ~이라도",example:"即使困难也坚持。",exPy:"Jíshǐ kùnnan yě jiānchí.",exKr:"설령 어려워도 버틴다."},
+  {char:"既然",pinyin:"jìrán",meaning:"이미 ~인 이상",example:"既然决定了就不后悔。",exPy:"Jìrán juédìng le jiù bù hòuhuǐ.",exKr:"이미 결정한 이상 후회하지 않는다."},
+  {char:"毕竟",pinyin:"bìjìng",meaning:"결국, 어쨌든",example:"毕竟是朋友。",exPy:"Bìjìng shì péngyou.",exKr:"어쨌든 친구다."},
+  {char:"逐渐",pinyin:"zhújiàn",meaning:"점점, 차차",example:"逐渐进步。",exPy:"zhújiàn jìnbù",exKr:"점점 발전하다"},
+  {char:"确实",pinyin:"quèshí",meaning:"확실히",example:"确实不错。",exPy:"quèshí búcuò",exKr:"확실히 좋다"},
+  {char:"究竟",pinyin:"jiūjìng",meaning:"도대체",example:"究竟是什么？",exPy:"Jiūjìng shì shénme?",exKr:"도대체 무엇이야?"},
+  // 동사 고급
+  {char:"实现",pinyin:"shíxiàn",meaning:"실현하다",example:"实现梦想。",exPy:"shíxiàn mèngxiǎng",exKr:"꿈을 실현하다"},
+  {char:"坚持",pinyin:"jiānchí",meaning:"지속하다",example:"坚持学习。",exPy:"jiānchí xuéxí",exKr:"공부를 지속하다"},
+  {char:"放弃",pinyin:"fàngqì",meaning:"포기하다",example:"不要放弃！",exPy:"Bú yào fàngqì!",exKr:"포기하지 마!"},
+  {char:"克服",pinyin:"kèfú",meaning:"극복하다",example:"克服困难。",exPy:"kèfú kùnnan",exKr:"어려움을 극복하다"},
+  {char:"承担",pinyin:"chéngdān",meaning:"부담하다",example:"承担责任。",exPy:"chéngdān zérèn",exKr:"책임을 지다"},
+  {char:"提高",pinyin:"tígāo",meaning:"향상시키다",example:"提高水平。",exPy:"tígāo shuǐpíng",exKr:"수준을 향상시키다"},
+  {char:"降低",pinyin:"jiàngdī",meaning:"낮추다",example:"降低成本。",exPy:"jiàngdī chéngběn",exKr:"비용을 낮추다"},
+  {char:"增加",pinyin:"zēngjiā",meaning:"증가하다",example:"增加收入。",exPy:"zēngjiā shōurù",exKr:"수입을 증가시키다"},
+  {char:"减少",pinyin:"jiǎnshǎo",meaning:"감소하다",example:"减少浪费。",exPy:"jiǎnshǎo làngfèi",exKr:"낭비를 줄이다"},
+  {char:"建立",pinyin:"jiànlì",meaning:"세우다, 설립하다",example:"建立关系。",exPy:"jiànlì guānxi",exKr:"관계를 맺다"},
+  {char:"保证",pinyin:"bǎozhèng",meaning:"보증하다",example:"保证质量。",exPy:"bǎozhèng zhìliàng",exKr:"품질을 보증하다"},
+  {char:"证明",pinyin:"zhèngmíng",meaning:"증명하다",example:"证明自己。",exPy:"zhèngmíng zìjǐ",exKr:"자신을 증명하다"},
+  {char:"表示",pinyin:"biǎoshì",meaning:"나타내다",example:"表示感谢。",exPy:"biǎoshì gǎnxiè",exKr:"감사를 표하다"},
+  {char:"说明",pinyin:"shuōmíng",meaning:"설명하다",example:"请说明。",exPy:"Qǐng shuōmíng.",exKr:"설명해 주세요."},
+  {char:"讨论",pinyin:"tǎolùn",meaning:"토론하다",example:"讨论问题。",exPy:"tǎolùn wèntí",exKr:"문제를 토론하다"},
+  {char:"描述",pinyin:"miáoshù",meaning:"묘사하다",example:"描述情况。",exPy:"miáoshù qíngkuàng",exKr:"상황을 묘사하다"},
+  {char:"比较",pinyin:"bǐjiào",meaning:"비교하다",example:"比较两个。",exPy:"bǐjiào liǎng gè",exKr:"둘을 비교하다"},
+  {char:"总结",pinyin:"zǒngjié",meaning:"정리하다",example:"总结经验。",exPy:"zǒngjié jīngyàn",exKr:"경험을 정리하다"},
+  {char:"执行",pinyin:"zhíxíng",meaning:"실행하다",example:"执行计划。",exPy:"zhíxíng jìhuà",exKr:"계획을 실행하다"},
+  {char:"管理",pinyin:"guǎnlǐ",meaning:"관리하다",example:"管理时间。",exPy:"guǎnlǐ shíjiān",exKr:"시간을 관리하다"},
+  // 형용사 고급
+  {char:"积极",pinyin:"jījí",meaning:"적극적이다",example:"态度积极。",exPy:"tàidu jījí",exKr:"태도가 적극적이다"},
+  {char:"消极",pinyin:"xiāojí",meaning:"소극적이다",example:"不要消极。",exPy:"Bú yào xiāojí.",exKr:"소극적이지 마라."},
+  {char:"主动",pinyin:"zhǔdòng",meaning:"능동적이다",example:"主动出击。",exPy:"zhǔdòng chūjī",exKr:"능동적으로 행동하다"},
+  {char:"被动",pinyin:"bèidòng",meaning:"피동적이다",example:"不要被动。",exPy:"Bú yào bèidòng.",exKr:"피동적이지 마라."},
+  {char:"严格",pinyin:"yángé",meaning:"엄격하다",example:"要求严格。",exPy:"yāoqiú yángé",exKr:"요구가 엄격하다"},
+  {char:"灵活",pinyin:"línghuó",meaning:"유연하다",example:"思维灵活。",exPy:"sīwéi línghuó",exKr:"사고가 유연하다"},
+  {char:"合理",pinyin:"hélǐ",meaning:"합리적이다",example:"安排合理。",exPy:"ānpái hélǐ",exKr:"배치가 합리적이다"},
+  {char:"客观",pinyin:"kèguān",meaning:"객관적이다",example:"客观评价。",exPy:"kèguān píngjià",exKr:"객관적으로 평가하다"},
+  {char:"主观",pinyin:"zhǔguān",meaning:"주관적이다",example:"主观判断。",exPy:"zhǔguān pànduàn",exKr:"주관적으로 판단하다"},
+  {char:"相对",pinyin:"xiāngduì",meaning:"상대적이다",example:"相对来说。",exPy:"xiāngduì lái shuō",exKr:"상대적으로 말하면"},
+  // 기타 중요 명사
+  {char:"信息",pinyin:"xìnxī",meaning:"정보",example:"获取信息。",exPy:"huòqǔ xìnxī",exKr:"정보를 얻다"},
+  {char:"消息",pinyin:"xiāoxi",meaning:"소식",example:"好消息！",exPy:"Hǎo xiāoxi!",exKr:"좋은 소식!"},
+  {char:"新闻",pinyin:"xīnwén",meaning:"뉴스",example:"看新闻。",exPy:"kàn xīnwén",exKr:"뉴스를 보다"},
+  {char:"广告",pinyin:"guǎnggào",meaning:"광고",example:"做广告。",exPy:"zuò guǎnggào",exKr:"광고를 하다"},
+  {char:"节目",pinyin:"jiémù",meaning:"프로그램",example:"电视节目。",exPy:"diànshì jiémù",exKr:"TV 프로그램"},
+  {char:"活动",pinyin:"huódòng",meaning:"활동",example:"参加活动。",exPy:"cānjiā huódòng",exKr:"활동에 참가하다"},
+  {char:"比赛",pinyin:"bǐsài",meaning:"경기",example:"参加比赛。",exPy:"cānjiā bǐsài",exKr:"경기에 참가하다"},
+  {char:"冠军",pinyin:"guànjūn",meaning:"챔피언",example:"获得冠军。",exPy:"huòdé guànjūn",exKr:"챔피언이 되다"},
+  {char:"记录",pinyin:"jìlù",meaning:"기록하다",example:"打破记录。",exPy:"dǎpò jìlù",exKr:"기록을 깨다"},
+  {char:"梦想",pinyin:"mèngxiǎng",meaning:"꿈",example:"实现梦想。",exPy:"shíxiàn mèngxiǎng",exKr:"꿈을 실현하다"},
+  {char:"未来",pinyin:"wèilái",meaning:"미래",example:"美好未来。",exPy:"měihǎo wèilái",exKr:"아름다운 미래"},
+  {char:"历史",pinyin:"lìshǐ",meaning:"역사",example:"中国历史。",exPy:"Zhōngguó lìshǐ",exKr:"중국 역사"},
+  {char:"故事",pinyin:"gùshi",meaning:"이야기",example:"讲故事。",exPy:"jiǎng gùshi",exKr:"이야기를 하다"},
+  {char:"生活",pinyin:"shēnghuó",meaning:"생활하다, 생활",example:"日常生活。",exPy:"rìcháng shēnghuó",exKr:"일상생활"},
+  {char:"工资",pinyin:"gōngzī",meaning:"월급",example:"发工资。",exPy:"fā gōngzī",exKr:"월급을 주다"},
+  {char:"收入",pinyin:"shōurù",meaning:"수입",example:"月收入。",exPy:"yuè shōurù",exKr:"월 수입"},
+  {char:"消费",pinyin:"xiāofèi",meaning:"소비하다",example:"理性消费。",exPy:"lǐxìng xiāofèi",exKr:"합리적으로 소비하다"},
+  {char:"节约",pinyin:"jiéyuē",meaning:"절약하다",example:"节约资源。",exPy:"jiéyuē zīyuán",exKr:"자원을 절약하다"},
+  {char:"浪费",pinyin:"làngfèi",meaning:"낭비하다",example:"不要浪费。",exPy:"Bú yào làngfèi.",exKr:"낭비하지 마라."},
+  {char:"机器",pinyin:"jīqì",meaning:"기계",example:"操作机器。",exPy:"cāozuò jīqì",exKr:"기계를 조작하다"},
+  {char:"设备",pinyin:"shèbèi",meaning:"설비",example:"先进设备。",exPy:"xiānjìn shèbèi",exKr:"첨단 설비"},
+  {char:"材料",pinyin:"cáiliào",meaning:"재료",example:"准备材料。",exPy:"zhǔnbèi cáiliào",exKr:"재료를 준비하다"},
+  {char:"方向",pinyin:"fāngxiàng",meaning:"방향",example:"找方向。",exPy:"zhǎo fāngxiàng",exKr:"방향을 찾다"},
+  {char:"条件",pinyin:"tiáojiàn",meaning:"조건",example:"满足条件。",exPy:"mǎnzú tiáojiàn",exKr:"조건을 만족하다"},
+  {char:"标准",pinyin:"biāozhǔn",meaning:"기준",example:"达到标准。",exPy:"dádào biāozhǔn",exKr:"기준에 달하다"},
+  {char:"范围",pinyin:"fànwéi",meaning:"범위",example:"扩大范围。",exPy:"kuòdà fànwéi",exKr:"범위를 확대하다"},
+  {char:"步骤",pinyin:"bùzhòu",meaning:"순서, 단계",example:"按步骤做。",exPy:"àn bùzhòu zuò",exKr:"순서대로 하다"},
+  {char:"过程",pinyin:"guòchéng",meaning:"과정",example:"学习过程。",exPy:"xuéxí guòchéng",exKr:"학습 과정"},
+  {char:"程度",pinyin:"chéngdù",meaning:"정도",example:"不同程度。",exPy:"bùtóng chéngdù",exKr:"다른 정도"},
+  {char:"规则",pinyin:"guīzé",meaning:"규칙",example:"遵守规则。",exPy:"zūnshǒu guīzé",exKr:"규칙을 지키다"},
+  {char:"规律",pinyin:"guīlǜ",meaning:"법칙, 규율",example:"自然规律。",exPy:"zìrán guīlǜ",exKr:"자연 법칙"},
+],
+};
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// HSK MODULE — 1~4급 필수 단어 + 시험 모드
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const STORE_KEY_HSK = "hsk-module-v1";
+let PH = {wordMastery:{}, examHistory:[], lastStudied:null};
+function saveHSK(){try{localStorage.setItem(STORE_KEY_HSK,JSON.stringify(PH));}catch(e){}}
+function loadHSK(){try{const r=localStorage.getItem(STORE_KEY_HSK);if(r)PH=JSON.parse(r);}catch(e){}}
+loadHSK();
+
+let hskView='home'; // home | level | vocab | quiz | exam | examResult
+let hskLevel=1;     // 1~4
+let hskTab='vocab'; // vocab | example | quiz | pronun
+let hskQuiz=null;
+let hskExam=null;
+let hskVocabPage=0;
+const HSK_PER_PAGE=20;
+
+const HSK_COLORS={1:'#1D9E75',2:'#1D4ED8',3:'#B45309',4:'#9333EA'};
+const HSK_NAMES={1:'HSK 1급',2:'HSK 2급',3:'HSK 3급',4:'HSK 4급'};
+
+// ── Main render dispatcher ────────────────
+function renderHSK(){
+  const el=document.getElementById('view-hsk');
+  if(!el)return;
+  if(hskView==='home')    renderHSKHome(el);
+  else if(hskView==='level')  renderHSKLevel(el);
+  else if(hskView==='quiz')   renderHSKQuiz(el);
+  else if(hskView==='exam')   renderHSKExam(el);
+  else if(hskView==='examResult') renderHSKExamResult(el);
+}
+
+// ── HOME — 급별 카드 ─────────────────────
+function renderHSKHome(el){
+  const totalAll=Object.values(HSK_DATA).flat().length;
+  const mastAll=Object.values(HSK_DATA).flat().filter(v=>(PH.wordMastery[v.char]?.level||0)>=4).length;
+  const pctAll=Math.round(mastAll/totalAll*100)||0;
+
+  const cards=[1,2,3,4].map(lv=>{
+    const words=HSK_DATA[lv];
+    const mastered=words.filter(v=>(PH.wordMastery[v.char]?.level||0)>=4).length;
+    const pct=Math.round(mastered/words.length*100)||0;
+    const examBests=PH.examHistory.filter(e=>e.level===lv);
+    const best=examBests.length?Math.max(...examBests.map(e=>e.score)):null;
+    const c=HSK_COLORS[lv];
+    return `
+    <div onclick="hskLevel=${lv};hskView='level';hskTab='vocab';hskVocabPage=0;renderHSK()"
+      style="background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;border-left:4px solid ${c};box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:16px;font-weight:600;color:${c}">${HSK_NAMES[lv]}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">${words.length}개 단어</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:700;color:${c}">${pct}%</div>
+          <div style="font-size:10px;color:var(--text3)">마스터율</div>
+          ${best!==null?`<div style="font-size:10px;color:var(--text3);margin-top:2px">최고 ${best}점</div>`:''}
+        </div>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px">
+        <div style="height:6px;background:${c};border-radius:3px;width:${pct}%;transition:width .4s"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button onclick="event.stopPropagation();hskLevel=${lv};hskView='level';hskTab='vocab';hskVocabPage=0;renderHSK()"
+          style="flex:1;border:none;border-radius:8px;padding:7px;cursor:pointer;background:${c}22;color:${c};font-family:inherit;font-size:12px;font-weight:500">📖 학습</button>
+        <button onclick="event.stopPropagation();hskLevel=${lv};startHSKQuiz(${lv},'practice')"
+          style="flex:1;border:none;border-radius:8px;padding:7px;cursor:pointer;background:var(--bg2);color:var(--text1);font-family:inherit;font-size:12px">🎯 연습</button>
+        <button onclick="event.stopPropagation();hskLevel=${lv};startHSKExam(${lv})"
+          style="flex:1;border:none;border-radius:8px;padding:7px;cursor:pointer;background:#9333EA22;color:#9333EA;font-family:inherit;font-size:12px;font-weight:500">📝 시험</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+<div style="margin-bottom:1rem">
+  <div style="font-size:18px;font-weight:600">📚 HSK 필수 단어</div>
+  <div style="font-size:12px;color:var(--text2);margin-top:2px">1급~4급 · 총 ${totalAll}개 단어</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center">
+  <div style="background:var(--card);border-radius:10px;padding:10px">
+    <div style="font-size:18px;font-weight:700;color:#1D4ED8">${totalAll}</div>
+    <div style="font-size:10px;color:var(--text3)">전체 단어</div>
+  </div>
+  <div style="background:var(--card);border-radius:10px;padding:10px">
+    <div style="font-size:18px;font-weight:700;color:#1D9E75">${mastAll}</div>
+    <div style="font-size:10px;color:var(--text3)">마스터</div>
+  </div>
+  <div style="background:var(--card);border-radius:10px;padding:10px">
+    <div style="font-size:18px;font-weight:700;color:#B45309">${pctAll}%</div>
+    <div style="font-size:10px;color:var(--text3)">진행률</div>
+  </div>
+</div>
+${cards}
+<button onclick="startHSKExam('all')"
+  style="width:100%;border:none;border-radius:12px;padding:13px;cursor:pointer;background:linear-gradient(135deg,#9333EA,#1D4ED8);color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-top:4px">
+  🏆 전급 통합 시험 (1~4급)
+</button>`;
+}
+
+// ── LEVEL VIEW — 단어 탭·예문·퀴즈·발음 ─
+function renderHSKLevel(el){
+  const lv=hskLevel;
+  const c=HSK_COLORS[lv];
+  const words=HSK_DATA[lv];
+  const mastered=words.filter(v=>(PH.wordMastery[v.char]?.level||0)>=4).length;
+  const pct=Math.round(mastered/words.length*100)||0;
+
+  const tabStyle=t=>hskTab===t?`color:#fff;background:${c};border-bottom:2px solid ${c}`:'';
+
+  let content='';
+  if(hskTab==='vocab'){
+    const totalPages=Math.ceil(words.length/HSK_PER_PAGE);
+    const start=hskVocabPage*HSK_PER_PAGE;
+    const page=words.slice(start,start+HSK_PER_PAGE);
+    const LVL_C=['#B4B2A9','#E24B4A','#BA7517','#1D4ED8','#1D9E75','#9333EA'];
+    const LVL_L=['미학습','입문','기초','중급','고급','마스터'];
+    const cards=page.map((v,i)=>{
+      const lv2=PH.wordMastery[v.char]?.level||0;
+      return `<div style="background:var(--bg2);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center"
+        onclick="speak('${v.char.replace(/'/g,"\\'")}')">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:${c};cursor:pointer">${v.char}
+            <span style="font-size:11px;font-weight:400;color:#1D4ED8;margin-left:6px">${v.pinyin}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">${v.meaning}</div>
+        </div>
+        <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${LVL_C[lv2]}22;color:${LVL_C[lv2]};white-space:nowrap">${LVL_L[lv2]}</span>
+      </div>`;
+    }).join('');
+    const pager=totalPages>1?`<div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+      ${hskVocabPage>0?`<button onclick="hskVocabPage--;renderHSK()" style="border:1px solid var(--border);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit">← 이전</button>`:''}
+      <span style="padding:6px 12px;font-size:13px;color:var(--text2)">${hskVocabPage+1}/${totalPages}</span>
+      ${hskVocabPage<totalPages-1?`<button onclick="hskVocabPage++;renderHSK()" style="border:1px solid var(--border);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit">다음 →</button>`:''}
+    </div>`:'';
+    content=cards+pager;
+  } else if(hskTab==='example'){
+    const totalPages=Math.ceil(words.length/HSK_PER_PAGE);
+    const start=hskVocabPage*HSK_PER_PAGE;
+    const page=words.slice(start,start+HSK_PER_PAGE);
+    content=page.map(v=>`
+    <div style="background:var(--bg2);border-radius:10px;padding:11px 13px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:16px;font-weight:700;color:${c};cursor:pointer" onclick="speak('${v.char.replace(/'/g,"\\'")}'">${v.char}</span>
+        <span style="font-size:11px;color:#1D4ED8">${v.pinyin}</span>
+        <span style="font-size:11px;color:var(--text2)">${v.meaning}</span>
+        <button onclick="speak('${v.char.replace(/'/g,"\\'")}')" style="margin-left:auto;border:none;background:transparent;cursor:pointer;font-size:14px">🔊</button>
+      </div>
+      <div style="font-size:14px;font-weight:500;cursor:pointer" onclick="speak('${v.example.replace(/'/g,"\\'")}')">${v.example}</div>
+      <div style="font-size:11px;color:#1D4ED8;margin-top:2px">${v.exPy}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:1px">${v.exKr}</div>
+    </div>`).join('')+(totalPages>1?`<div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+      ${hskVocabPage>0?`<button onclick="hskVocabPage--;renderHSK()" style="border:1px solid var(--border);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit">← 이전</button>`:''}
+      <span style="padding:6px 12px;font-size:13px;color:var(--text2)">${hskVocabPage+1}/${totalPages}</span>
+      ${hskVocabPage<totalPages-1?`<button onclick="hskVocabPage++;renderHSK()" style="border:1px solid var(--border);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit">다음 →</button>`:''}
+    </div>`:'');
+  } else if(hskTab==='quiz'){
+    content=`<div style="padding:.5rem 0">
+      <button onclick="startHSKQuiz(${lv},'practice')"
+        style="width:100%;border:none;border-radius:12px;padding:14px;cursor:pointer;background:${c};color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-bottom:10px">
+        🎯 연습 퀴즈 (20문제)</button>
+      <button onclick="startHSKQuiz(${lv},'hard')"
+        style="width:100%;border:none;border-radius:12px;padding:14px;cursor:pointer;background:var(--bg2);color:var(--text1);font-family:inherit;font-size:14px;margin-bottom:10px">
+        🔥 약한 단어만 (틀린 것 위주)</button>
+      <button onclick="startHSKExam(${lv})"
+        style="width:100%;border:none;border-radius:12px;padding:14px;cursor:pointer;background:#9333EA;color:#fff;font-family:inherit;font-size:14px;font-weight:600">
+        📝 HSK ${lv}급 모의시험 (50문제)</button>
+    </div>`;
+  } else if(hskTab==='pronun'){
+    const pV=words[Math.floor(Math.random()*words.length)];
+    const pEsc=pV.char.replace(/'/g,"\\'");
+    content=`<div style="padding:.5rem 0">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:.5rem">단어를 듣고 따라 말해보세요</div>
+      <div style="background:var(--bg2);border-radius:12px;padding:1.2rem;text-align:center;margin-bottom:1rem">
+        <div style="font-size:36px;font-weight:700;color:${c};cursor:pointer" onclick="speak('${pEsc}')">${pV.char}</div>
+        <div style="font-size:13px;color:#1D4ED8;margin-top:4px">${pV.pinyin}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${pV.meaning}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">"${pV.example}"</div>
+        <button onclick="speak('${pEsc}',0.6)" style="margin-top:10px;border:none;background:var(--border);border-radius:20px;padding:6px 16px;cursor:pointer;font-family:inherit;font-size:12px">🐢 천천히 듣기</button>
+      </div>
+      <div id="hsk-mic-area"></div>
+      <button onclick="hskTab='pronun';renderHSK()" style="margin-top:12px;width:100%;border:1px solid var(--border);background:transparent;border-radius:8px;padding:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text2)">🔀 다른 단어</button>
+    </div>`;
+  }
+
+  el.innerHTML=`
+<button onclick="hskView='home';renderHSK()" style="border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--text2);padding:0;margin-bottom:12px">← 목록으로</button>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+  <div style="font-size:18px;font-weight:600;color:${c}">${HSK_NAMES[lv]}</div>
+  <div style="font-size:13px;color:${c};font-weight:500">${pct}% 마스터</div>
+</div>
+<div style="height:5px;background:var(--border);border-radius:3px;margin-bottom:14px">
+  <div style="height:5px;background:${c};border-radius:3px;width:${pct}%"></div>
+</div>
+<div class="tab-bar" style="margin-bottom:1rem">
+  <button class="tab-item" onclick="hskTab='vocab';hskVocabPage=0;renderHSK()" style="${tabStyle('vocab')}">단어 (${words.length})</button>
+  <button class="tab-item" onclick="hskTab='example';hskVocabPage=0;renderHSK()" style="${tabStyle('example')}">예문</button>
+  <button class="tab-item" onclick="hskTab='quiz';renderHSK()" style="${tabStyle('quiz')}">퀴즈</button>
+  <button class="tab-item" onclick="hskTab='pronun';renderHSK()" style="${tabStyle('pronun')}">🎤 발음</button>
+</div>
+<div id="hsk-tab-content">${content}</div>`;
+
+  if(hskTab==='pronun'){
+    const pV=words[Math.floor(Math.random()*words.length)];
+    const pEsc=pV.char.replace(/'/g,"\\'");
+    setTimeout(()=>{
+      speak(pEsc);
+      const ma=document.getElementById('hsk-mic-area');
+      if(ma&&typeof renderMicBtn==='function') renderMicBtn(ma,pEsc,c);
+    },400);
+  }
+}
+
+// ── QUIZ — 연습 퀴즈 ─────────────────────
+function startHSKQuiz(lv,mode){
+  hskLevel=typeof lv==='number'?lv:1;
+  let pool=HSK_DATA[hskLevel];
+  if(mode==='hard'){
+    const hard=pool.filter(v=>{const m=PH.wordMastery[v.char];return !m||m.level<=1;});
+    if(hard.length>=4) pool=hard;
+  }
+  const shuffled=[...pool].sort(()=>Math.random()-.5).slice(0,20);
+  hskQuiz={
+    cards:shuffled.map(v=>{
+      const allWords=HSK_DATA[hskLevel];
+      const wrongs=[...allWords].filter(w=>w.meaning!==v.meaning).sort(()=>Math.random()-.5).slice(0,3);
+      const opts=[...wrongs,v].sort(()=>Math.random()-.5);
+      return{...v,opts};
+    }),
+    idx:0,phase:'question',results:[],chosen:null,wasCorrect:null
+  };
+  hskView='quiz';
+  renderHSK();
+}
+
+function renderHSKQuiz(el){
+  if(!hskQuiz){hskView='home';renderHSK();return;}
+  const lv=hskLevel;
+  const c=HSK_COLORS[lv];
+
+  if(hskQuiz.phase==='done'){
+    const correct=hskQuiz.results.filter(r=>r.ok).length;
+    const total=hskQuiz.results.length;
+    const score=Math.round(correct/total*100);
+    const emoji=score>=80?'🎉':score>=60?'👍':'💪';
+    const rows=hskQuiz.results.map(r=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--border)">
+        <span style="font-size:15px;font-weight:500;color:${c}">${r.char}</span>
+        <span style="font-size:12px;color:var(--text2)">${r.meaning}</span>
+        <span>${r.ok?'✅':'❌'}</span>
+      </div>`).join('');
+    el.innerHTML=`<div style="padding:1rem 0;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">${emoji}</div>
+      <div style="font-size:22px;font-weight:600;margin-bottom:4px">${total}문제 중 ${correct}개 정답</div>
+      <div style="font-size:28px;font-weight:700;color:${c};margin-bottom:20px">${score}점</div>
+      <div style="text-align:left;margin-bottom:20px">${rows}</div>
+      <button onclick="startHSKQuiz(${lv},'practice')"
+        style="width:100%;border:none;border-radius:12px;padding:13px;cursor:pointer;background:${c};color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-bottom:8px">다시 연습</button>
+      <button onclick="hskView='level';renderHSK()"
+        style="width:100%;border:1px solid var(--border);border-radius:12px;padding:13px;cursor:pointer;background:transparent;font-family:inherit;font-size:14px">목록으로</button>
+    </div>`;
+    return;
+  }
+
+  const q=hskQuiz.cards[hskQuiz.idx];
+  const pct=Math.round(hskQuiz.idx/hskQuiz.cards.length*100);
+  let charBg='var(--bg2)';
+  if(hskQuiz.phase==='reveal') charBg=hskQuiz.wasCorrect?'#EAF3DE':'#FCEBEB';
+
+  const opts=q.opts.map(o=>{
+    let style='width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;background:var(--card);font-family:inherit;font-size:13px;text-align:left;margin-bottom:8px;display:block';
+    if(hskQuiz.phase==='reveal'){
+      if(o.meaning===q.meaning) style=style.replace('var(--border)','#1D9E75').replace('var(--card)','#EAF3DE');
+      else if(o.meaning===hskQuiz.chosen) style=style.replace('var(--border)','#E24B4A').replace('var(--card)','#FCEBEB');
+    }
+    const esc=o.meaning.replace(/'/g,"\\'");
+    const disabled=hskQuiz.phase==='reveal'?' disabled':'';
+    return `<button${disabled} onclick="answerHSKQuiz('${esc}')" style="${style}">${o.meaning}</button>`;
+  }).join('');
+
+  el.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <button onclick="hskView='level';renderHSK()" style="border:none;background:transparent;cursor:pointer;font-size:18px;color:var(--text2)">✕</button>
+  <span style="font-size:12px;color:var(--text2)">${HSK_NAMES[lv]} · ${hskQuiz.idx+1}/${hskQuiz.cards.length}</span>
+  <span style="font-size:12px;color:${c};font-weight:500">${hskQuiz.results.filter(r=>r.ok).length}정답</span>
+</div>
+<div style="height:4px;background:var(--border);border-radius:2px;margin-bottom:16px">
+  <div style="height:4px;background:${c};border-radius:2px;width:${pct}%"></div>
+</div>
+<div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:8px">올바른 뜻을 고르세요</div>
+<div style="background:${charBg};border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
+  <div style="font-size:40px;font-weight:700;color:${c};cursor:pointer" onclick="speak('${q.char.replace(/'/g,"\\'")}')">${q.char}</div>
+  ${hskQuiz.phase==='reveal'?`
+  <div style="margin-top:10px">
+    <div style="font-size:16px;color:#1D4ED8;font-weight:500">${q.pinyin}</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:3px">${q.meaning}</div>
+    <div style="font-size:22px;margin-top:8px">${hskQuiz.wasCorrect?'✅ 정답!':'❌ 틀렸어요'}</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:6px;font-style:italic">${q.example}</div>
+  </div>`:'<div style="font-size:13px;color:var(--text3);margin-top:8px">클릭하면 발음을 들을 수 있어요 🔊</div>'}
+</div>
+${opts}
+${hskQuiz.phase==='reveal'?`<button onclick="nextHSKQuiz()" style="width:100%;border:none;border-radius:12px;padding:13px;cursor:pointer;background:${c};color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-top:4px">${hskQuiz.idx===hskQuiz.cards.length-1?'결과 보기':'다음 문제 →'}</button>`:''}`;
+}
+
+function answerHSKQuiz(choice){
+  if(!hskQuiz||hskQuiz.phase!=='question')return;
+  const q=hskQuiz.cards[hskQuiz.idx];
+  const ok=choice===q.meaning;
+  const wm=PH.wordMastery[q.char]||{level:0};
+  wm.level=ok?Math.min(wm.level+1,5):Math.max(wm.level-1,0);
+  PH.wordMastery[q.char]=wm;
+  hskQuiz.results.push({char:q.char,meaning:q.meaning,ok});
+  hskQuiz.phase='reveal';
+  hskQuiz.chosen=choice;
+  hskQuiz.wasCorrect=ok;
+  saveHSK();
+  speak(q.char);
+  renderHSK();
+}
+
+function nextHSKQuiz(){
+  if(!hskQuiz)return;
+  if(hskQuiz.idx===hskQuiz.cards.length-1){
+    hskQuiz.phase='done';
+  } else {
+    hskQuiz.idx++;
+    hskQuiz.phase='question';
+    hskQuiz.chosen=null;
+    hskQuiz.wasCorrect=null;
+  }
+  renderHSK();
+}
+
+// ── EXAM — 급별 모의시험 ─────────────────
+function startHSKExam(lv){
+  const levels=lv==='all'?[1,2,3,4]:[lv];
+  const allWords=levels.flatMap(l=>HSK_DATA[l]);
+  const pool=[...allWords].sort(()=>Math.random()-.5).slice(0,50);
+  hskExam={
+    level:lv, levels,
+    cards:pool.map(v=>{
+      // 4지선다: 뜻 맞추기
+      const wrongs=[...allWords].filter(w=>w.meaning!==v.meaning).sort(()=>Math.random()-.5).slice(0,3);
+      const opts=[...wrongs,v].sort(()=>Math.random()-.5);
+      return{...v,opts,type:'meaning'};
+    }),
+    idx:0,phase:'question',results:[],
+    startTime:Date.now(),chosen:null,wasCorrect:null
+  };
+  hskView='exam';
+  renderHSK();
+}
+
+function renderHSKExam(el){
+  if(!hskExam){hskView='home';renderHSK();return;}
+  const lv=hskExam.level;
+  const c=lv==='all'?'#9333EA':(HSK_COLORS[lv]||'#1D4ED8');
+  const name=lv==='all'?'HSK 1~4급 통합':HSK_NAMES[lv];
+
+  if(hskExam.phase==='done'){
+    renderHSKExamResult(el); return;
+  }
+
+  const q=hskExam.cards[hskExam.idx];
+  const pct=Math.round(hskExam.idx/hskExam.cards.length*100);
+  const elapsed=Math.round((Date.now()-hskExam.startTime)/1000);
+  const mins=Math.floor(elapsed/60);
+  const secs=elapsed%60;
+  let charBg='var(--bg2)';
+  if(hskExam.phase==='reveal') charBg=hskExam.wasCorrect?'#EAF3DE':'#FCEBEB';
+
+  const opts=q.opts.map(o=>{
+    let style='width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--card);font-family:inherit;font-size:13px;text-align:left;margin-bottom:8px;display:block';
+    if(hskExam.phase==='reveal'){
+      if(o.meaning===q.meaning) style=style.replace('var(--border)','#1D9E75').replace('var(--card)','#EAF3DE');
+      else if(o.meaning===hskExam.chosen) style=style.replace('var(--border)','#E24B4A').replace('var(--card)','#FCEBEB');
+    }
+    const esc=o.meaning.replace(/'/g,"\\'");
+    const disabled=hskExam.phase==='reveal'?' disabled':'';
+    return `<button${disabled} onclick="answerHSKExam('${esc}')" style="${style}">${o.meaning}</button>`;
+  }).join('');
+
+  el.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+  <div style="font-size:12px;font-weight:600;color:${c}">📝 ${name} 모의시험</div>
+  <div style="font-size:12px;color:var(--text3)">${mins}:${String(secs).padStart(2,'0')} ⏱</div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-bottom:6px">
+  <span style="font-size:12px;color:var(--text2)">${hskExam.idx+1} / ${hskExam.cards.length}</span>
+  <span style="font-size:12px;color:#1D9E75">✅ ${hskExam.results.filter(r=>r.ok).length}</span>
+</div>
+<div style="height:4px;background:var(--border);border-radius:2px;margin-bottom:14px">
+  <div style="height:4px;background:${c};border-radius:2px;width:${pct}%"></div>
+</div>
+<div style="background:${charBg};border-radius:16px;padding:22px;text-align:center;margin-bottom:14px">
+  <div style="font-size:11px;color:var(--text3);margin-bottom:6px">뜻을 고르세요</div>
+  <div style="font-size:42px;font-weight:700;color:${c};cursor:pointer" onclick="speak('${q.char.replace(/'/g,"\\'")}')">${q.char}</div>
+  ${hskExam.phase==='reveal'?`
+  <div style="margin-top:8px">
+    <div style="font-size:15px;color:#1D4ED8;font-weight:500">${q.pinyin}</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:2px">${q.meaning}</div>
+    <div style="font-size:20px;margin-top:6px">${hskExam.wasCorrect?'✅':'❌'}</div>
+  </div>`:''}
+</div>
+${opts}
+${hskExam.phase==='reveal'?`<button onclick="nextHSKExam()" style="width:100%;border:none;border-radius:12px;padding:13px;cursor:pointer;background:${c};color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-top:4px">${hskExam.idx===hskExam.cards.length-1?'결과 보기':'다음 문제 →'}</button>`:''}`;
+}
+
+function answerHSKExam(choice){
+  if(!hskExam||hskExam.phase!=='question')return;
+  const q=hskExam.cards[hskExam.idx];
+  const ok=choice===q.meaning;
+  hskExam.results.push({char:q.char,meaning:q.meaning,ok});
+  hskExam.phase='reveal';
+  hskExam.chosen=choice;
+  hskExam.wasCorrect=ok;
+  // update mastery
+  const wm=PH.wordMastery[q.char]||{level:0};
+  wm.level=ok?Math.min(wm.level+1,5):Math.max(wm.level-1,0);
+  PH.wordMastery[q.char]=wm;
+  saveHSK();
+  speak(q.char);
+  renderHSK();
+}
+
+function nextHSKExam(){
+  if(!hskExam)return;
+  if(hskExam.idx===hskExam.cards.length-1){
+    hskExam.phase='done';
+    const score=Math.round(hskExam.results.filter(r=>r.ok).length/hskExam.results.length*100);
+    const elapsed=Math.round((Date.now()-hskExam.startTime)/1000);
+    PH.examHistory=PH.examHistory||[];
+    PH.examHistory.push({level:hskExam.level,score,date:new Date().toLocaleDateString('ko'),elapsed});
+    if(PH.examHistory.length>50) PH.examHistory=PH.examHistory.slice(-50);
+    saveHSK();
+  } else {
+    hskExam.idx++;
+    hskExam.phase='question';
+    hskExam.chosen=null;
+    hskExam.wasCorrect=null;
+  }
+  renderHSK();
+}
+
+function renderHSKExamResult(el){
+  const lv=hskExam.level;
+  const c=lv==='all'?'#9333EA':(HSK_COLORS[lv]||'#1D4ED8');
+  const name=lv==='all'?'HSK 1~4급 통합':HSK_NAMES[lv];
+  const correct=hskExam.results.filter(r=>r.ok).length;
+  const total=hskExam.results.length;
+  const score=Math.round(correct/total*100);
+  const elapsed=Math.round((Date.now()-hskExam.startTime)/1000);
+  const pass=score>=60;
+  const emoji=score>=90?'🏆':score>=80?'🎉':score>=60?'👍':'💪';
+  const levelMsg=score>=90?'최우수!':score>=80?'우수':score>=60?'합격':'다시 도전!';
+  const history=(PH.examHistory||[]).filter(e=>e.level===lv).slice(-5);
+  const rows=hskExam.results.map(r=>`
+    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--border)">
+      <span style="font-size:14px;font-weight:600;color:${c}">${r.char}</span>
+      <span style="font-size:11px;color:var(--text2)">${r.meaning}</span>
+      <span>${r.ok?'✅':'❌'}</span>
+    </div>`).join('');
+  const histRows=history.map(h=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0">
+    <span>${h.date}</span><span style="font-weight:600;color:${h.score>=60?'#1D9E75':'#E24B4A'}">${h.score}점</span>
+  </div>`).join('');
+
+  el.innerHTML=`<div style="text-align:center;padding:1rem 0">
+    <div style="font-size:48px;margin-bottom:8px">${emoji}</div>
+    <div style="font-size:14px;color:${c};font-weight:500;margin-bottom:4px">${name} 모의시험</div>
+    <div style="font-size:36px;font-weight:700;color:${c};margin-bottom:4px">${score}점</div>
+    <div style="font-size:14px;color:${pass?'#1D9E75':'#E24B4A'};font-weight:600;margin-bottom:2px">${pass?'✅ 합격':'❌ 불합격'} — ${levelMsg}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">${total}문제 중 ${correct}개 정답 · ${Math.floor(elapsed/60)}분 ${elapsed%60}초</div>
+    ${history.length>1?`<div style="text-align:left;background:var(--bg2);border-radius:10px;padding:10px 12px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">최근 시험 기록</div>${histRows}</div>`:''}
+    <div style="text-align:left;margin-bottom:20px;max-height:300px;overflow-y:auto">${rows}</div>
+    <button onclick="startHSKExam(${JSON.stringify(lv)})"
+      style="width:100%;border:none;border-radius:12px;padding:13px;cursor:pointer;background:${c};color:#fff;font-family:inherit;font-size:14px;font-weight:600;margin-bottom:8px">🔄 다시 시험</button>
+    <button onclick="hskView='home';renderHSK()"
+      style="width:100%;border:1px solid var(--border);border-radius:12px;padding:13px;cursor:pointer;background:transparent;font-family:inherit;font-size:14px">홈으로</button>
+  </div>`;
+}
+
 </script>
 </body>
 </html>

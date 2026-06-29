@@ -197,61 +197,6 @@ textarea{resize:vertical;min-height:54px}
 .inv-print th{background:#f4f4f4;padding:7px 9px;font-size:10px;text-align:left;border-bottom:2px solid #ddd}
 .inv-print td{padding:7px 9px;border-bottom:1px solid #eee}
 
-/* ── BILLING CALCULATOR ── */
-.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.pkg-card{border:2px solid var(--b1);border-radius:var(--rl);padding:16px 18px;cursor:pointer;transition:all .15s;background:#fff;position:relative}
-.pkg-card:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(26,107,181,.10)}
-.pkg-card.selected{border-color:var(--blue);background:var(--blue-dim)}
-.pkg-badge{position:absolute;top:-9px;left:16px;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:var(--blue);color:#fff}
-.pkg-badge.popular{background:var(--green)}
-.pkg-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px;margin-top:4px}
-.pkg-price{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--blue);margin:6px 0 4px}
-.pkg-includes{font-size:11px;color:var(--t3);line-height:1.6}
-.pkg-includes span{display:block}
-.calc-section{background:#fff;border:1px solid var(--b1);border-radius:var(--rl);padding:18px 20px;margin-bottom:14px}
-.calc-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-.calc-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--s3)}
-.calc-row:last-child{border-bottom:none}
-.calc-row-label{color:var(--t2)}
-.calc-row-val{font-family:var(--mono);font-weight:600;color:var(--t1)}
-.calc-row-val.green{color:var(--green)}
-.calc-row-val.gold{color:var(--gold)}
-.calc-row-val.muted{color:var(--t4)}
-.calc-total{background:var(--blue);color:#fff;border-radius:var(--rl);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.calc-total-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;opacity:.8}
-.calc-total-val{font-family:var(--mono);font-size:22px;font-weight:700}
-.disbursement-note{background:var(--gold-dim);border:1px solid rgba(176,125,16,.25);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--gold);margin-top:8px}
-.addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.addon-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:8px 10px;border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .12s;background:#fff}
-.addon-item:hover{border-color:var(--blue)}
-.addon-item.checked{background:var(--blue-dim);border-color:var(--blue)}
-.addon-item input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
-.addon-price{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue)}
-.addon-disabled{opacity:.35;cursor:not-allowed !important;pointer-events:none;filter:grayscale(1)}
-.addon-included{pointer-events:none;border-color:var(--green) !important;background:var(--green-dim) !important;opacity:.75}
-.addon-included span:first-of-type::after{content:' (included)';font-size:10px;color:var(--green);font-weight:500}
-
-/* ── NEW INVOICE PRINT (2-section) ── */
-.inv2{background:#fff;color:#111;font-family:'Inter','Segoe UI',sans-serif;font-size:12px;max-width:760px;margin:0 auto}
-.inv2-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #1A5FAA}
-.inv2-logo{font-size:18px;font-weight:700;color:#1A5FAA;letter-spacing:-.01em}
-.inv2-logo-sub{font-size:10px;color:#888;margin-top:2px}
-.inv2-meta{text-align:right;font-size:11px;color:#555}
-.inv2-meta strong{display:block;font-size:16px;color:#111;margin-bottom:4px}
-.inv2-bill{background:#f7f9fc;border:1px solid #dde4ee;border-radius:6px;padding:12px 16px;margin-bottom:18px;font-size:11px}
-.inv2-bill-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#888;margin-bottom:4px}
-.inv2-section-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1A5FAA;margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid #dde4ee}
-.inv2 table{width:100%;border-collapse:collapse;margin-bottom:6px}
-.inv2 thead th{background:#1A5FAA;color:#fff;padding:7px 10px;font-size:10px;text-align:left;font-weight:600}
-.inv2 tbody td{padding:7px 10px;border-bottom:1px solid #eef1f6;font-size:11px}
-.inv2 tbody tr:last-child td{border-bottom:none}
-.inv2-disbursement-note{background:#fffbf0;border:1px solid #f0d070;border-radius:4px;padding:8px 12px;font-size:10px;color:#886600;margin-top:6px}
-.inv2-subtotal-row td{background:#f0f4fa;font-weight:600;font-size:11px}
-.inv2-total-box{background:#1A5FAA;color:#fff;border-radius:6px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
-.inv2-total-label{font-size:11px;opacity:.8;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.inv2-total-val{font-size:22px;font-weight:700;font-family:monospace}
-.inv2-footer{margin-top:18px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:10px;text-align:center}
-
 /* CATEGORY BARS */
 .cat-list{display:flex;flex-direction:column;gap:9px}
 .cat-row{display:flex;align-items:center;gap:10px}
@@ -636,6 +581,17 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   .kanban-board { grid-template-columns:1fr }
 }
 
+
+/* ── Action KPI Row (서류항 스타일) ── */
+.kpi-action-row .kpi-card { padding:14px 18px }
+.kpi-action-row .kpi-value { font-size:28px }
+.kpi-action-row .kpi-label { font-size:10px; font-weight:700 }
+.kpi-action-row .kpi-card.green .kpi-value { font-size:20px }
+.kpi-action-row .kpi-card.clickable { cursor:pointer; transition:all .15s }
+.kpi-action-row .kpi-card.clickable:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.12) }
+/* Tooltip-style label for action cards */
+.kpi-action-row .kpi-card::after { display:none }
+
 </style>
 </head>
 <body>
@@ -676,7 +632,6 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <div class="nav-sect">Operations</div>
     <div class="nav-item" onclick="showPage('entries',this)"><span class="nav-icon">⊞</span> Entries</div>
     <div class="nav-item" onclick="showPage('invoices',this)"><span class="nav-icon">◻</span> Invoices</div>
-    <div class="nav-item" onclick="showPage('billing-calc',this)"><span class="nav-icon">⊟</span> Billing Calc</div>
     <div class="nav-item" onclick="showPage('clients',this)"><span class="nav-icon">◯</span> Clients</div>
     <div class="nav-sect">Finance</div>
     <div class="nav-item" onclick="showPage('ar',this)"><span class="nav-icon">$</span> Receivables</div>
@@ -738,11 +693,35 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     </div>
     <button class="btn btn-sm" style="border-color:var(--gold);color:var(--gold);flex-shrink:0" onclick="goToSheets()">Set Up Sheets →</button>
   </div>
-  <div class="kpi-grid">
+  <!-- Row 1: Financial KPIs -->
+  <div class="kpi-grid" style="margin-bottom:12px">
     <div class="kpi-card green"><div class="kpi-label">Broker Revenue (MTD)</div><div class="kpi-value" id="m-revenue">$0</div><div class="kpi-sub" id="m-rev-sub">0 entries this month</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Total Billed (MTD)</div><div class="kpi-value" id="m-billed">$0</div><div class="kpi-sub">duty + MPF + HMF + fees</div></div>
     <div class="kpi-card gold"><div class="kpi-label">Outstanding AR</div><div class="kpi-value" id="m-ar">$0</div><div class="kpi-sub" id="m-ar-sub">0 open invoices</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Active Clients</div><div class="kpi-value" id="m-clients">0</div><div class="kpi-sub">importers of record</div></div>
+  </div>
+  <!-- Row 2: Action KPIs (서류항 스타일 — 지금 뭘 해야 하는지) -->
+  <div class="kpi-grid kpi-action-row" style="margin-bottom:22px">
+    <div class="kpi-card red clickable" onclick="showPage('clients',document.querySelector('.nav-item[onclick*=clients]'))" title="POA가 없거나 만료된 클라이언트">
+      <div class="kpi-label">⚠ POA 미확인</div>
+      <div class="kpi-value" id="a-poa">0</div>
+      <div class="kpi-sub" id="a-poa-sub">clients need POA</div>
+    </div>
+    <div class="kpi-card gold clickable" onclick="showPage('entries',document.querySelector('.nav-item[onclick*=entries]'))" title="서류 미첨부 Entry">
+      <div class="kpi-label">📄 서류 미제출</div>
+      <div class="kpi-value" id="a-docs">0</div>
+      <div class="kpi-sub" id="a-docs-sub">entries need docs</div>
+    </div>
+    <div class="kpi-card blue clickable" onclick="showPage('entries',document.querySelector('.nav-item[onclick*=entries]'))" title="ACE 제출 대기 중인 Entry">
+      <div class="kpi-label">⚓ ACE 제출 대기</div>
+      <div class="kpi-value" id="a-ace">0</div>
+      <div class="kpi-sub" id="a-ace-sub">ready to file</div>
+    </div>
+    <div class="kpi-card red clickable" onclick="showPage('ar',document.querySelector('.nav-item[onclick*=ar]'))" title="30일 이상 미수금">
+      <div class="kpi-label">💰 AR 30일 초과</div>
+      <div class="kpi-value" id="a-ar30">0</div>
+      <div class="kpi-sub" id="a-ar30-sub">overdue invoices</div>
+    </div>
   </div>
   <div class="two-col" style="margin-bottom:18px">
     <div class="card"><div style="padding:14px 18px"><div class="card-header"><div class="card-title">📋 Today's Tasks</div><button class="btn btn-sm" style="font-size:10px;padding:3px 8px" onclick="addTask()">+ Add</button></div><div class="tasks-list" id="tasks-list"></div></div></div>
@@ -781,7 +760,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <div class="tt"><span class="ttl">Entry Log</span><div class="ttr"><input class="si" placeholder="Search entries…" oninput="renderEntries(this.value)"/><button class="btn btn-sm" style="font-size:10px" onclick="exportBrokerCSV()">↓ CSV</button></div></div>
     <table><thead><tr>
       <th>Entry #</th><th>Client</th><th>Port</th><th>Mode</th><th>Date</th>
-      <th>Duty</th><th>MPF</th><th>HMF</th><th>Entry Fee</th><th>Total</th>
+      <th>Duty</th><th>MPF</th><th>HMF</th><th>Broker Fee</th><th>Total</th>
       <th>Status</th><th></th>
     </tr></thead>
     <tbody id="entries-tbody"></tbody></table>
@@ -800,209 +779,6 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <tbody id="invoices-tbody"></tbody></table>
   </div>
 </div>
-
-<!-- ═══════════════════════════════════════════
-     BILLING CALCULATOR PAGE
-═══════════════════════════════════════════ -->
-<div id="page-billing-calc" class="page">
-  <div class="ph">
-    <div><div class="ph-t">Billing Calculator</div><div class="ph-s">Auto-calculate fees · Generate professional invoice</div></div>
-    <div class="ph-r">
-      <button class="btn btn-sm" onclick="calcReset()">Reset</button>
-      <button class="btn btn-p btn-sm" onclick="calcGenerateInvoice()">⬇ Generate Invoice</button>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start">
-
-    <!-- LEFT: Input Panel -->
-    <div>
-      <!-- Package Selection -->
-      <div class="calc-section">
-        <div class="calc-label">① Select Package</div>
-        <div class="pkg-grid">
-          <div class="pkg-card" id="pkg-air" onclick="selectPkg('air')">
-            <div class="pkg-badge">Air / Informal</div>
-            <div class="pkg-name">Air Clearance</div>
-            <div class="pkg-price" id="pkg-air-price">$125</div>
-            <div class="pkg-includes">
-              <span>✓ Formal Entry (Air)</span>
-              <span>✓ Up to 3 HTS lines</span>
-            </div>
-          </div>
-          <div class="pkg-card selected" id="pkg-ocean" onclick="selectPkg('ocean')">
-            <div class="pkg-badge popular">Most Popular</div>
-            <div class="pkg-name">Ocean Basic</div>
-            <div class="pkg-price" id="pkg-ocean-price">$170</div>
-            <div class="pkg-includes">
-              <span>✓ Formal Entry</span>
-              <span>✓ ISF 10+2 Filing</span>
-              <span>✓ Up to 3 HTS lines</span>
-            </div>
-          </div>
-          <div class="pkg-card" id="pkg-fda" onclick="selectPkg('fda')">
-            <div class="pkg-badge">K-Food / Regulated</div>
-            <div class="pkg-name">FDA Bundle</div>
-            <div class="pkg-price" id="pkg-fda-price">$235</div>
-            <div class="pkg-includes">
-              <span>✓ Formal Entry + ISF</span>
-              <span>✓ FDA Prior Notice</span>
-              <span>✓ Up to 3 HTS lines</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shipment Details -->
-      <div class="calc-section">
-        <div class="calc-label">② Shipment Details</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Client</div>
-            <select class="df-select" id="calc-client" style="width:100%;font-size:12px" onchange="calcUpdate()">
-              <option value="">— Select —</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Transport Mode</div>
-            <select class="df-select" id="calc-mode" style="width:100%;font-size:12px" onchange="onModeChange(this)">
-              <option value="Ocean FCL">Ocean FCL</option>
-              <option value="Ocean LCL">Ocean LCL</option>
-              <option value="Air">Air</option>
-              <option value="Truck">Truck</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Entry Date</div>
-            <input type="date" class="df-input" id="calc-date" style="width:100%;font-size:12px" onchange="calcUpdate()"/>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Dutiable Value ($)</div>
-            <input type="number" class="df-input" id="calc-value" placeholder="0" style="width:100%;font-size:12px" oninput="calcUpdate()"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Duty Rate (%)</div>
-            <input type="number" class="df-input" id="calc-duty-rate" placeholder="0" style="width:100%;font-size:12px" oninput="calcUpdate()"/>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">HTS Lines</div>
-            <input type="number" class="df-input" id="calc-lines" placeholder="1" min="1" max="50" style="width:100%;font-size:12px" oninput="calcUpdate()"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add-ons -->
-      <div class="calc-section">
-        <div class="calc-label">③ Add-on Services</div>
-        <div class="addon-grid">
-          <div class="addon-item" id="addon-fda" onclick="toggleAddon('fda')">
-            <input type="checkbox" id="chk-fda"/>
-            <span>FDA Prior Notice</span>
-            <span class="addon-price">+$65</span>
-          </div>
-          <div class="addon-item" id="addon-rush" onclick="toggleAddon('rush')">
-            <input type="checkbox" id="chk-rush"/>
-            <span>Rush / Same-day</span>
-            <span class="addon-price">+$75</span>
-          </div>
-          <div class="addon-item" id="addon-isf" onclick="toggleAddon('isf')">
-            <input type="checkbox" id="chk-isf"/>
-            <span>ISF Filing (standalone)</span>
-            <span class="addon-price">+$60</span>
-          </div>
-          <div class="addon-item" id="addon-amendment" onclick="toggleAddon('amendment')">
-            <input type="checkbox" id="chk-amendment"/>
-            <span>Amendment / PSC</span>
-            <span class="addon-price">+$100</span>
-          </div>
-          <div class="addon-item" id="addon-inbond" onclick="toggleAddon('inbond')">
-            <input type="checkbox" id="chk-inbond"/>
-            <span>In-Bond (T&E)</span>
-            <span class="addon-price">+$100</span>
-          </div>
-          <div class="addon-item" id="addon-setup" onclick="toggleAddon('setup')">
-            <input type="checkbox" id="chk-setup"/>
-            <span>New Client Setup</span>
-            <span class="addon-price">+$75</span>
-          </div>
-          <div style="grid-column:span 2;font-size:10px;color:var(--t3);margin-top:4px;margin-bottom:-2px;letter-spacing:.04em;text-transform:uppercase;font-weight:600">Bond — choose one</div>
-          <div class="addon-item" id="addon-stb" onclick="toggleAddon('stb')">
-            <input type="checkbox" id="chk-stb"/>
-            <span>Single Transaction Bond</span>
-            <span class="addon-price">+$60</span>
-          </div>
-          <div class="addon-item" id="addon-bonduw" onclick="toggleAddon('bonduw')">
-            <input type="checkbox" id="chk-bonduw"/>
-            <span>Continuous Bond Setup</span>
-            <span class="addon-price">+$300</span>
-          </div>
-          <div class="addon-item" id="addon-examcoord" onclick="toggleAddon('examcoord')">
-            <input type="checkbox" id="chk-examcoord"/>
-            <span>Exam Coordination</span>
-            <span class="addon-price">+$100</span>
-          </div>
-          <div class="addon-item" id="addon-courier" onclick="toggleAddon('courier')">
-            <input type="checkbox" id="chk-courier"/>
-            <span>Courier / Document</span>
-            <span class="addon-price">+$35</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT: Live Calculator -->
-    <div style="position:sticky;top:16px">
-      <div class="calc-section" style="margin-bottom:0">
-        <div class="calc-label">Live Estimate</div>
-
-        <!-- Section A: Brokerage Fees -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--b1)">
-          A — Brokerage Services
-        </div>
-        <div id="calc-fee-rows"></div>
-
-        <div style="height:12px"></div>
-
-        <!-- Section B: Disbursements -->
-        <div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--b1)">
-          B — Disbursements (Pass-Through)
-        </div>
-        <div id="calc-disbursement-rows"></div>
-        <div class="disbursement-note">
-          ⚠ Disbursements are paid directly to CBP on your behalf. These are <strong>not</strong> brokerage income.
-        </div>
-
-        <div style="height:10px"></div>
-
-        <!-- Subtotals -->
-        <div class="calc-row">
-          <span class="calc-row-label">Brokerage subtotal</span>
-          <span class="calc-row-val green" id="calc-sub-broker">$0</span>
-        </div>
-        <div class="calc-row">
-          <span class="calc-row-label">Disbursements subtotal</span>
-          <span class="calc-row-val gold" id="calc-sub-disb">$0</span>
-        </div>
-
-        <div class="calc-total">
-          <div>
-            <div class="calc-total-label">Total Due from Client</div>
-            <div style="font-size:10px;opacity:.6;margin-top:2px">Duties not included until liquidation</div>
-          </div>
-          <div class="calc-total-val" id="calc-grand-total">$0</div>
-        </div>
-
-        <button class="btn btn-p btn-sm" style="width:100%;margin-top:12px;padding:9px" onclick="calcGenerateInvoice()">
-          Generate Invoice →
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 
 <!-- CLIENTS -->
 <div id="page-clients" class="page">
@@ -1042,7 +818,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   </div>
   <div class="tw">
     <div class="tt"><span class="ttl">Fee Breakdown</span></div>
-    <table><thead><tr><th>Entry #</th><th>Client</th><th>Date</th><th>Dutiable Value</th><th>Duty</th><th>MPF</th><th>HMF</th><th>Entry Fee</th><th>Total</th></tr></thead>
+    <table><thead><tr><th>Entry #</th><th>Client</th><th>Date</th><th>Dutiable Value</th><th>Duty</th><th>MPF</th><th>HMF</th><th>Broker Fee</th><th>Total</th></tr></thead>
     <tbody id="report-tbody"></tbody></table>
   </div>
 </div>
@@ -1056,11 +832,11 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     ondrop="handleDrop(event)">
     <div style="font-size:32px;margin-bottom:10px">⬆</div>
     <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:var(--t1);margin-bottom:5px">Drop CustomsCity CSV or click to browse</div>
-    <div style="font-size:11px;color:var(--t3);font-family:var(--mono)">Entry fees auto-post to Bookkeeping on import</div>
+    <div style="font-size:11px;color:var(--t3);font-family:var(--mono)">Broker fees auto-post to Bookkeeping on import</div>
     <input type="file" id="csv-file-input" accept=".csv" onchange="handleFileSelect(event)" style="display:none"/>
   </div>
   <div class="csv-ref"><div class="csv-rt">Expected columns (case-insensitive)</div>
-  entry_number, client_name, port_of_entry, transport_mode, entry_date, hts_code, description, dutiable_value, duty_rate, duty_amount, mpf, hmf, entry_fee, status</div>
+  entry_number, client_name, port_of_entry, transport_mode, entry_date, hts_code, description, dutiable_value, duty_rate, duty_amount, mpf, hmf, broker_fee, status</div>
   <div id="import-results" style="margin-top:14px"></div>
 </div>
 
@@ -1098,7 +874,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   <!-- Bridge from brokerage -->
   <div class="bb" id="bkg-bridge-note">
     <span class="bb-icon">⚓</span>
-    <span id="bkg-bridge-text">Entry fee revenue is automatically reflected in your income transactions.</span>
+    <span id="bkg-bridge-text">Broker fee revenue is automatically reflected in your income transactions.</span>
   </div>
   <!-- Split panels -->
   <div class="two-col" id="bkg-cat-panels"></div>
@@ -1157,13 +933,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
 
 <!-- BKG SETUP -->
 <div id="page-bkg-setup" class="page">
-  <div class="ph">
-    <div><div class="ph-t">Setup</div><div class="ph-s">Categories & monthly goals</div></div>
-    <div class="ph-r">
-      <button class="btn btn-sm" onclick="resetCategoriesToDefault()" title="Reset categories to customs broker defaults (keeps existing transactions)">↺ Reset Categories</button>
-      <button class="btn btn-danger btn-sm" onclick="resetAllData()" title="Delete ALL data — auto-downloads backup first">🗑 Reset All Data</button>
-    </div>
-  </div>
+  <div class="ph"><div><div class="ph-t">Setup</div><div class="ph-s">Categories & monthly goals</div></div></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
     <div class="sc">
       <div class="sc-hdr"><span class="sc-title" style="color:var(--green)">Income Categories</span><span style="font-size:10px;color:var(--t3)" id="inc-cat-count"></span></div>
@@ -1211,7 +981,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     </div>
     <div id="pl-bridge-rows">
       <div class="bc-row"><span class="bc-label">Extracted records pushed to Brokerage</span><span class="bc-val" id="pl-bridge-pushed" style="color:var(--green)">0 entries</span></div>
-      <div class="bc-row"><span class="bc-label">Entry fees auto-posted to Bookkeeping</span><span class="bc-val" id="pl-bridge-fees" style="color:var(--green)">$0</span></div>
+      <div class="bc-row"><span class="bc-label">Broker fees auto-posted to Bookkeeping</span><span class="bc-val" id="pl-bridge-fees" style="color:var(--green)">$0</span></div>
       <div class="bc-row"><span class="bc-label">Records awaiting review</span><span class="bc-val" id="pl-bridge-pending" style="color:var(--gold)">0</span></div>
       <div class="bc-row"><span class="bc-label">Last pipeline run</span><span class="bc-val" id="pl-bridge-last" style="color:var(--t3)">Never</span></div>
     </div>
@@ -1598,20 +1368,6 @@ function testWrite() {
 </div>
 </div><!-- close code-block div -->
 
-
-<!-- INVOICE PREVIEW MODAL -->
-<div class="mo" id="invoice-modal">
-  <div class="md" style="max-width:820px;width:95%;max-height:90vh;overflow-y:auto">
-    <div class="md-t" style="display:flex;align-items:center;justify-content:space-between">
-      <span>Invoice Preview</span>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-sm btn-p" onclick="printInvoice()">&#9113; Print / Save PDF</button>
-        <button class="btn btn-sm" style="border-color:var(--b2)" onclick="closeModal('invoice-modal')">Close</button>
-      </div>
-    </div>
-    <div id="invoice-preview-content" style="margin-top:12px"></div>
-  </div>
-</div>
 <div class="mo" id="inv-edit-modal">
 <div class="md">
   <div class="md-t" id="inv-edit-title">Edit Invoice</div>
@@ -2156,12 +1912,12 @@ let db = {
   clients:[], entries:[], invoices:[],
   nextEntryId:1, nextInvoiceId:1, nextClientId:1,
   bkgTransactions:[], bkgGoals:{},
-  bkgIncCategories:['ENTRY FEE','AMENDMENT FEE','ISF FEE','IN-BOND FEE','FDA FEE','CONSULTING','STB FEE','BOND UNDERWRITING','EXAM COORDINATION','COURIER FEE','SETUP FEE','CBP EXAM FEE','RUSH FEE','LINE ITEM FEE','OTHER INCOME'],
-  bkgExpCategories:['ABI SOFTWARE','OFFICE SUPPLIES','PROFESSIONAL FEES','CBP PERMIT FEE','INSURANCE','ADVERTISING','BANK FEES','MEALS & ENTERTAINMENT','AUTO / MILEAGE','OTHER EXPENSE'],
+  bkgIncCategories:['NHG','NPA','KOREX','START SEED MONEY','TGL','ALLRIDE','UNIX CCTV','GOODFEET KOREA','BROKER FEES'],
+  bkgExpCategories:['SALARY','OFFICE RENT','CAR PAYMENT','FHL','ETS CHECK'],
   nextBkgId:1,
   plEmails:[], plResults:[], plQueue:[], plLastRun:null, plPushedCount:0
 };
-const BROKER_FEE_CATEGORY = 'ENTRY FEE';
+const BROKER_FEE_CATEGORY = 'BROKER FEES';
 
 function save(){
   try{localStorage.setItem('ets_ledgerpro',JSON.stringify(db));}
@@ -2196,25 +1952,14 @@ function importBackupJSON(input){
   };
   reader.readAsText(f);
 }
-function resetCategoriesToDefault(){
-  if(!confirm('Reset categories to customs broker defaults?\n\nExisting transactions are kept. Only the category lists will be replaced.'))return;
-  db.bkgIncCategories=['ENTRY FEE','AMENDMENT FEE','ISF FEE','IN-BOND FEE','FDA FEE','CONSULTING','STB FEE','BOND UNDERWRITING','EXAM COORDINATION','COURIER FEE','SETUP FEE','CBP EXAM FEE','RUSH FEE','LINE ITEM FEE','OTHER INCOME'];
-  db.bkgExpCategories=['ABI SOFTWARE','OFFICE SUPPLIES','PROFESSIONAL FEES','CBP PERMIT FEE','INSURANCE','ADVERTISING','BANK FEES','MEALS & ENTERTAINMENT','AUTO / MILEAGE','OTHER EXPENSE'];
-  save();
-  // Navigate to bkg-setup page so renderSetup targets a visible DOM
-  const navEl=document.querySelector('.nav-item[onclick*="bkg-setup"]');
-  showPage('bkg-setup', navEl);
-  toast('✓ Categories reset to customs broker defaults');
-}
-
 function resetAllData(){
   if(!confirm('⚠ RESET ALL DATA?\nAll entries, clients, invoices and transactions will be deleted.\nA backup file will be downloaded automatically first.'))return;
   if(!confirm('Final confirmation — are you absolutely sure?'))return;
   exportBackupJSON();
   db={clients:[],entries:[],invoices:[],nextEntryId:1,nextInvoiceId:1,nextClientId:1,
     bkgTransactions:[],bkgGoals:{},
-    bkgIncCategories:db.bkgIncCategories&&db.bkgIncCategories.length?db.bkgIncCategories:['ENTRY FEE','AMENDMENT FEE','ISF FEE','IN-BOND FEE','FDA FEE','CONSULTING','STB FEE','BOND UNDERWRITING','EXAM COORDINATION','COURIER FEE','SETUP FEE','CBP EXAM FEE','RUSH FEE','LINE ITEM FEE','OTHER INCOME'],
-    bkgExpCategories:db.bkgExpCategories&&db.bkgExpCategories.length?db.bkgExpCategories:['ABI SOFTWARE','OFFICE SUPPLIES','PROFESSIONAL FEES','CBP PERMIT FEE','INSURANCE','ADVERTISING','BANK FEES','MEALS & ENTERTAINMENT','AUTO / MILEAGE','OTHER EXPENSE'],
+    bkgIncCategories:db.bkgIncCategories&&db.bkgIncCategories.length?db.bkgIncCategories:[BROKER_FEE_CATEGORY],
+    bkgExpCategories:db.bkgExpCategories&&db.bkgExpCategories.length?db.bkgExpCategories:['OFFICE RENT'],
     nextBkgId:1,plEmails:[],plResults:[],plQueue:[],plLastRun:null,plPushedCount:0};
   try{localStorage.setItem('ets_no_demo','1');}catch(e){}
   save();populateClientDropdown();renderDashboard();
@@ -2240,17 +1985,14 @@ function seedDemo(){
     {id:2,number:'INV-2025-002',clientId:3,clientName:'SunWave Distribution',entryIds:[4],issueDate:ago(18),dueDate:future(-12),amount:calcEntryTotal(db.entries[3]),status:'Overdue'}
   ]; db.nextInvoiceId=3;
   db.bkgTransactions=[
-    {id:1,date:ago(25),inv:'BK-001',type:'INCOME',cat:'ENTRY FEE',net:175,tax:0,fees:0,total:175,desc:'Entry Fee — 231-4892011-3 / Pacific Trade Co.',note:'Auto-posted',auto:true,entryRef:'231-4892011-3'},
-    {id:2,date:ago(20),inv:'BK-002',type:'INCOME',cat:'ENTRY FEE',net:150,tax:0,fees:0,total:150,desc:'Entry Fee — 231-4892012-1 / Apex Imports LLC',note:'Auto-posted',auto:true,entryRef:'231-4892012-1'},
-    {id:3,date:ago(18),inv:'BK-003',type:'INCOME',cat:'ISF FEE',net:60,tax:0,fees:0,total:60,desc:'ISF 10+2 Filing — Pacific Trade Co.',note:'',auto:false},
-    {id:4,date:ago(15),inv:'BK-004',type:'INCOME',cat:'FDA FEE',net:65,tax:0,fees:0,total:65,desc:'FDA Prior Notice — K-food shipment',note:'',auto:false},
-    {id:5,date:ago(12),inv:'BK-005',type:'INCOME',cat:'ENTRY FEE',net:175,tax:0,fees:0,total:175,desc:'Entry Fee — 231-4892013-9 / Pacific Trade Co.',note:'Auto-posted',auto:true,entryRef:'231-4892013-9'},
-    {id:6,date:ago(10),inv:'BK-006',type:'INCOME',cat:'SETUP FEE',net:75,tax:0,fees:0,total:75,desc:'New client setup / POA — SunWave Distribution',note:'',auto:false},
-    {id:7,date:ago(8),inv:'BK-007',type:'INCOME',cat:'CONSULTING',net:150,tax:0,fees:0,total:150,desc:'HTS Classification — K-beauty new SKUs',note:'',auto:false},
-    {id:8,date:ago(5),inv:'BK-008',type:'INCOME',cat:'ENTRY FEE',net:200,tax:0,fees:0,total:200,desc:'Entry Fee — 231-4892014-7 / SunWave Distribution',note:'Auto-posted',auto:true,entryRef:'231-4892014-7'},
-    {id:9,date:ago(3),inv:'BK-009',type:'EXPENSE',cat:'ABI SOFTWARE',net:49,tax:0,fees:0,total:49,desc:'ABI software monthly fee',note:'',auto:false},
-    {id:10,date:ago(2),inv:'BK-010',type:'EXPENSE',cat:'CBP PERMIT FEE',net:185.38,tax:0,fees:0,total:185.38,desc:'CBP Annual Permit User Fee 2026',note:'Due Jan 30',auto:false}
-  ]; db.nextBkgId=11;
+    {id:1,date:'2024-02-01',inv:'00001',type:'INCOME',cat:'START SEED MONEY',net:1000,tax:0,fees:0,total:1000,desc:'Initial capital',note:'',auto:false},
+    {id:2,date:'2024-02-02',inv:'00002',type:'INCOME',cat:'NHG',net:420,tax:0,fees:0,total:420,desc:'NHG service',note:'',auto:false},
+    {id:3,date:'2024-02-08',inv:'00003',type:'EXPENSE',cat:'FHL',net:1428.90,tax:0,fees:0,total:1428.90,desc:'FHL operating cost',note:'',auto:false},
+    {id:4,date:ago(5),inv:'BK-001',type:'INCOME',cat:BROKER_FEE_CATEGORY,net:175,tax:0,fees:0,total:175,desc:'Broker fee — 231-4892011-3',note:'Auto-posted',auto:true,entryRef:'231-4892011-3'},
+    {id:5,date:ago(12),inv:'BK-002',type:'INCOME',cat:BROKER_FEE_CATEGORY,net:150,tax:0,fees:0,total:150,desc:'Broker fee — 231-4892012-1',note:'Auto-posted',auto:true,entryRef:'231-4892012-1'},
+    {id:6,date:ago(3),inv:'BK-003',type:'INCOME',cat:BROKER_FEE_CATEGORY,net:175,tax:0,fees:0,total:175,desc:'Broker fee — 231-4892013-9',note:'Auto-posted',auto:true,entryRef:'231-4892013-9'},
+    {id:7,date:ago(20),inv:'BK-004',type:'INCOME',cat:BROKER_FEE_CATEGORY,net:200,tax:0,fees:0,total:200,desc:'Broker fee — 231-4892014-7',note:'Auto-posted',auto:true,entryRef:'231-4892014-7'}
+  ]; db.nextBkgId=8;
   ['2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10'].forEach(m=>db.bkgGoals[m]=5000);
   save();
 }
@@ -2310,7 +2052,7 @@ function showPage(id,el){
   if(el)el.classList.add('active');
   const renders={
     'dashboard':renderDashboard,'entries':()=>renderEntries(),'invoices':()=>renderInvoices(),
-    'billing-calc':()=>initCalc(),'clients':renderClients,'ar':renderAR,'reports':renderReports,
+    'clients':renderClients,'ar':renderAR,'reports':renderReports,
     'bkg-dashboard':renderBkgDashboard,'bkg-transactions':renderBkgTx,
     'bkg-categories':renderBkgCategories,'bkg-monthly':renderBkgMonthly,'bkg-setup':renderSetup,
     'pipeline-dashboard':renderPlDashboard,'pipeline-scan':renderPlScan,
@@ -2341,6 +2083,41 @@ function renderDashboard(){
   gid('m-ar').textContent=fmtM(arAmt);
   gid('m-ar-sub').textContent=open.length+' open invoices';
   gid('m-clients').textContent=db.clients.length;
+  // ── Action KPIs (서류항 스타일)
+  // POA 미확인: POA 필드가 없거나 'Pending'/'Expired'인 클라이언트
+  const poaNeeded = db.clients.filter(c => !c.poa || c.poa === 'Pending' || c.poa === 'Expired');
+  const el_poa = gid('a-poa');
+  if(el_poa){
+    el_poa.textContent = poaNeeded.length;
+    el_poa.closest('.kpi-card').className = 'kpi-card clickable ' + (poaNeeded.length > 0 ? 'red' : 'green');
+    gid('a-poa-sub').textContent = poaNeeded.length > 0 ? poaNeeded.length + ' client(s) need POA' : 'All POAs verified ✓';
+  }
+  // 서류 미제출: status가 Draft이거나 description이 없는 Entry
+  const docsNeeded = db.entries.filter(e => !e.status || e.status === 'Draft' || !e.description || !e.hts);
+  const el_docs = gid('a-docs');
+  if(el_docs){
+    el_docs.textContent = docsNeeded.length;
+    el_docs.closest('.kpi-card').className = 'kpi-card clickable ' + (docsNeeded.length > 0 ? 'gold' : 'green');
+    gid('a-docs-sub').textContent = docsNeeded.length > 0 ? docsNeeded.length + ' entries need info' : 'All entries complete ✓';
+  }
+  // ACE 제출 대기: Filed 상태 중 오늘 날짜인 것
+  const aceReady = db.entries.filter(e => e.status === 'Filed' || e.status === 'In Transit');
+  const el_ace = gid('a-ace');
+  if(el_ace){
+    el_ace.textContent = aceReady.length;
+    el_ace.closest('.kpi-card').className = 'kpi-card clickable ' + (aceReady.length > 0 ? 'blue' : 'green');
+    gid('a-ace-sub').textContent = aceReady.length > 0 ? aceReady.length + ' entries in progress' : 'No pending filings';
+  }
+  // AR 30일 초과
+  const now30 = new Date(); now30.setDate(now30.getDate() - 30);
+  const ar30 = db.invoices.filter(i => i.status !== 'Paid' && new Date(i.dueDate||i.issueDate) < now30);
+  const el_ar30 = gid('a-ar30');
+  if(el_ar30){
+    el_ar30.textContent = ar30.length;
+    el_ar30.closest('.kpi-card').className = 'kpi-card clickable ' + (ar30.length > 0 ? 'red' : 'green');
+    gid('a-ar30-sub').textContent = ar30.length > 0 ? ar30.length + ' overdue 30+ days' : 'No overdue invoices ✓';
+  }
+
   const banner=gid('gs-setup-banner');
   if(banner)banner.style.display=(gsConfig.url&&gsConfig.token)?'none':'flex';
   const allFees=db.entries.reduce((s,e)=>s+(e.brokerFee||0),0);
@@ -2349,7 +2126,7 @@ function renderDashboard(){
   const bkgExp=bkgSum(db.bkgTransactions,'EXPENSE');
   const bridgeEl=gid('bridge-rows');
   if(bridgeEl)bridgeEl.innerHTML=`
-    <div class="bc-row"><span class="bc-label">Total entry fee revenue</span><span class="bc-val" style="color:var(--green)">${fmtM(allFees)}</span></div>
+    <div class="bc-row"><span class="bc-label">Total broker fee revenue</span><span class="bc-val" style="color:var(--green)">${fmtM(allFees)}</span></div>
     <div class="bc-row"><span class="bc-label">Auto-posted to Bookkeeping</span><span class="bc-val" style="color:var(--green)">${autoTx.length} tx / ${fmtM(autoTx.reduce((s,t)=>s+t.total,0))}</span></div>
     <div class="bc-row"><span class="bc-label">Bookkeeping gross income</span><span class="bc-val" style="color:var(--blue)">${fmtM(bkgInc)}</span></div>
     <div class="bc-row"><span class="bc-label">Net P/L</span><span class="bc-val" style="color:${bkgInc-bkgExp>=0?'var(--green)':'var(--red)'}">${fmtM(bkgInc-bkgExp)}</span></div>`;
@@ -2422,7 +2199,7 @@ function renderEntries(filter=''){
 function deleteEntry(id){
   const e=db.entries.find(x=>x.id===id);
   if(!e)return;
-  if(!confirm('Delete entry '+e.number+'?\nIts auto-posted entry fee transaction will also be removed.'))return;
+  if(!confirm('Delete entry '+e.number+'?\nIts auto-posted broker fee transaction will also be removed.'))return;
   db.bkgTransactions=db.bkgTransactions.filter(t=>t.entryRef!==e.number);db.entries=db.entries.filter(x=>x.id!==id);
   save();renderEntries();renderDashboard();toast('Entry removed');
 }
@@ -2433,17 +2210,16 @@ function renderInvoices(filter=''){
   if(filter){const f=filter.toLowerCase();invs=invs.filter(i=>i.number.toLowerCase().includes(f)||i.clientName.toLowerCase().includes(f));}
   const sb={Paid:'bg-g',Sent:'bg-b',Draft:'bg-x',Overdue:'bg-r'};
   gid('invoices-tbody').innerHTML=invs.length?invs.map(i=>`<tr class="clickable" onclick="if(event.target.tagName!=='BUTTON')openDrawer('invoice',${i.id})">
-    <td class="mn hi">${i.number}</td>
-    <td>${i.clientName}${i._fromCalc?` <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:var(--purple-dim);color:var(--purple);font-weight:600;vertical-align:middle">Calc</span>`:''}</td>
+    <td class="mn hi">${i.number}</td><td>${i.clientName}</td>
     <td class="mn">${i.issueDate}</td><td class="mn">${i.dueDate}</td>
-    <td class="mn">${i._fromCalc?`<span style="color:var(--t4);font-size:10px">—</span>`:i.entryIds.length}</td>
+    <td class="mn">${i.entryIds.length}</td>
     <td class="mn" style="color:var(--green)">${fmtM(i.amount)}</td>
     <td><span class="badge ${sb[i.status]||'bg-x'}">${i.status}</span></td>
     <td style="display:flex;gap:5px;padding:8px 14px">
       <button class="btn btn-sm" onclick="previewInvoice(${i.id})">View</button>
       ${i.status!=='Paid'?`<button class="btn btn-sm btn-inc" onclick="markPaid(${i.id})">Mark Paid</button>`:''}
     </td>
-  </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-t">No invoices yet — use Billing Calc or Generate Invoices</div></div></td></tr>`;
+  </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-t">No invoices</div></div></td></tr>`;
 }
 
 function createInvoices(){
@@ -2469,397 +2245,32 @@ function markPaid(id){
   if(inv){inv.status='Paid';save();renderInvoices();renderAR();toast('Invoice marked paid');}
 }
 
-// ── BILLING CALCULATOR ──
-const BILLING_PKGS = {
-  air:   { name:'Air Clearance',   invoiceLabel:'Air Clearance Package (Formal Entry + Up to 3 HTS Lines)',                                                  base:125, includes:['Formal Entry (Air)','Up to 3 HTS lines'], hasISF:false, hasFDA:false },
-  ocean: { name:'Ocean Basic',     invoiceLabel:'Ocean Basic Package (Formal Entry + ISF 10+2 + Up to 3 HTS Lines)',                                         base:170, includes:['Formal Entry','ISF 10+2','Up to 3 HTS lines'], hasISF:true, hasFDA:false },
-  fda:   { name:'FDA Bundle',      invoiceLabel:'FDA Bundle Package (Formal Entry + ISF 10+2 + FDA Prior Notice + Up to 3 HTS Lines)',                       base:235, includes:['Formal Entry + ISF','FDA Prior Notice','Up to 3 HTS lines'], hasISF:true, hasFDA:true }
-};
-const ADDON_PRICES = { fda:65, rush:75, isf:60, amendment:100, inbond:100, setup:75, stb:60, bonduw:300, examcoord:100, courier:35 };
-const LINE_ITEM_FEE = 8; // per extra line over 3
-let calcState = { pkg:'ocean', addons:new Set(), value:0, dutyRate:0, lines:1, mode:'Ocean FCL', clientId:null };
-
-function initCalc(){
-  const sel=gid('calc-client');
-  if(!sel)return;
-  sel.innerHTML='<option value="">— Select Client —</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  sel.onchange=()=>{calcState.clientId=parseInt(sel.value)||null;calcUpdate();};
-  const d=new Date();gid('calc-date').value=today();
-  calcUpdate();
-}
-
-function selectPkg(pkg){
-  calcState.pkg=pkg;
-
-  // ── Air: ISF N/A (air shipments don't require ISF), auto-set mode to Air
-  if(pkg==='air'){
-    calcState.addons.delete('isf');
-    const modeEl=gid('calc-mode');
-    if(modeEl){modeEl.value='Air';calcState.mode='Air';}
-    // Disable ISF add-on visually
-    const isfItem=gid('addon-isf');if(isfItem){isfItem.classList.add('addon-disabled');isfItem.onclick=null;}
-    const isfCb=gid('chk-isf');if(isfCb){isfCb.checked=false;isfCb.disabled=true;}
-  } else {
-    // Re-enable ISF add-on when switching away from Air
-    const isfItem=gid('addon-isf');
-    if(isfItem){isfItem.classList.remove('addon-disabled');isfItem.onclick=()=>toggleAddon('isf');}
-    const isfCb=gid('chk-isf');if(isfCb)isfCb.disabled=false;
-    // Restore mode if it was locked to Air
-    const modeEl=gid('calc-mode');
-    if(modeEl&&modeEl.value==='Air'&&(pkg==='ocean'||pkg==='fda')){modeEl.value='Ocean FCL';calcState.mode='Ocean FCL';}
-  }
-
-  if(pkg==='fda'){
-    // FDA Bundle: ISF + FDA both included — lock both
-    calcState.addons.delete('fda');
-    calcState.addons.delete('isf');
-    ['isf','fda'].forEach(k=>{
-      const item=gid('addon-'+k);const cb=gid('chk-'+k);
-      if(item){item.classList.add('addon-included');item.classList.remove('addon-disabled','checked');item.onclick=null;}
-      if(cb){cb.checked=true;cb.disabled=true;}
-    });
-  } else if(pkg==='ocean'){
-    // Ocean Basic: ISF included — lock ISF only, restore FDA
-    calcState.addons.delete('isf');
-    const isfItem=gid('addon-isf');const isfCb=gid('chk-isf');
-    if(isfItem){isfItem.classList.add('addon-included');isfItem.classList.remove('addon-disabled','checked');isfItem.onclick=null;}
-    if(isfCb){isfCb.checked=true;isfCb.disabled=true;}
-    // Restore FDA add-on (free to select)
-    const fdaItem=gid('addon-fda');const fdaCb=gid('chk-fda');
-    if(fdaItem){fdaItem.classList.remove('addon-included','addon-disabled');fdaItem.onclick=()=>toggleAddon('fda');}
-    if(fdaCb){fdaCb.checked=calcState.addons.has('fda');fdaCb.disabled=false;}
-  } else {
-    // Air or other: restore all
-    ['isf','fda'].forEach(k=>{
-      const item=gid('addon-'+k);const cb=gid('chk-'+k);
-      if(item){item.classList.remove('addon-included');}
-      if(cb){cb.checked=calcState.addons.has(k);cb.disabled=false;}
-    });
-    const fdaItem=gid('addon-fda');if(fdaItem)fdaItem.onclick=()=>toggleAddon('fda');
-  }
-
-  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('selected'));
-  const el=gid('pkg-'+pkg);if(el)el.classList.add('selected');
-
-  // sync checkboxes
-  ['fda','isf'].forEach(k=>{const cb=gid('chk-'+k);if(cb&&!cb.disabled)cb.checked=calcState.addons.has(k);});
-  ['fda','isf'].forEach(k=>{const el=gid('addon-'+k);if(el){if(calcState.addons.has(k))el.classList.add('checked');else el.classList.remove('checked');}});
-  calcUpdate();
-}
-
-function toggleAddon(key){
-  // Mutual exclusion: stb ↔ bonduw (하나 선택 시 다른 것 자동 해제)
-  const MUTEX = { stb:'bonduw', bonduw:'stb' };
-  if(calcState.addons.has(key)){
-    calcState.addons.delete(key);
-  } else {
-    calcState.addons.add(key);
-    if(MUTEX[key]){
-      const rival=MUTEX[key];
-      calcState.addons.delete(rival);
-      const rivalCb=gid('chk-'+rival);if(rivalCb)rivalCb.checked=false;
-      const rivalEl=gid('addon-'+rival);if(rivalEl)rivalEl.classList.remove('checked');
-    }
-  }
-  const cb=gid('chk-'+key);if(cb)cb.checked=calcState.addons.has(key);
-  const el=gid('addon-'+key);
-  if(el){if(calcState.addons.has(key))el.classList.add('checked');else el.classList.remove('checked');}
-  calcUpdate();
-}
-
-function onModeChange(sel){
-  const mode=sel.value;
-  if(/^air$/i.test(mode)&&calcState.pkg!=='air'){
-    // Air 모드 선택 시 Air 패키지로 자동 전환
-    selectPkg('air');
-    return;
-  }
-  if(!/^air$/i.test(mode)&&calcState.pkg==='air'){
-    // Air 이외 모드로 바꾸면 Ocean Basic으로 전환
-    selectPkg('ocean');
-    return;
-  }
-  calcUpdate();
-}
-
-function calcUpdate(){
-  const mode=gid('calc-mode')?gid('calc-mode').value:'Ocean FCL';
-  const val=parseFloat(gid('calc-value')&&gid('calc-value').value)||0;
-  const rate=parseFloat(gid('calc-duty-rate')&&gid('calc-duty-rate').value)||0;
-  const lines=Math.max(1,parseInt(gid('calc-lines')&&gid('calc-lines').value)||1);
-  calcState={...calcState,mode,value:val,dutyRate:rate,lines};
-
-  const pkg=BILLING_PKGS[calcState.pkg];
-  let brokerFees=[{label:pkg.invoiceLabel||pkg.name+' Package',amt:pkg.base}];
-  const extraLines=Math.max(0,lines-3);
-  if(extraLines>0) brokerFees.push({label:`Extra HTS lines (${extraLines} × $${LINE_ITEM_FEE})`,amt:extraLines*LINE_ITEM_FEE});
-  calcState.addons.forEach(k=>{
-    const labels={fda:'FDA Prior Notice',rush:'Rush / Same-day',isf:'ISF Filing',amendment:'Amendment / PSC',inbond:'In-Bond (T&E)',setup:'New Client Setup',stb:'Single Transaction Bond',bonduw:'Continuous Bond Setup',examcoord:'Exam Coordination Fee',courier:'Courier / Document Fee'};
-    brokerFees.push({label:labels[k],amt:ADDON_PRICES[k]});
-  });
-
-  const isAir = calcState.pkg==='air' || /^air$/i.test(mode);
-  const duty=val*(rate/100);
-  // Air: MPF still applies to air formal entries; HMF does NOT (ocean only)
-  // Air package: ISF N/A, HMF N/A — MPF applies to all formal entries incl. air
-  const mpf=(!isAir&&val>0)?Math.min(651.50,Math.max(33.58,val*0.003464)):0;
-  const hmf=(!isAir&&/ocean/i.test(mode)&&val>0)?val*0.00125:0;
-  const disbursements=[];
-  if(duty>0) disbursements.push({label:`Duty (${rate}%)`,amt:duty});
-  if(mpf>0)  disbursements.push({label:'MPF (0.3464%)',amt:mpf});
-  if(hmf>0)  disbursements.push({label:'HMF (0.125%)',amt:hmf});
-  if(isAir)  disbursements.push({label:'ISF — N/A (air shipment)',amt:0,na:true});
-  if(isAir)  disbursements.push({label:'HMF — N/A (air shipment)',amt:0,na:true});
-
-  const brokerTotal=brokerFees.reduce((s,r)=>s+r.amt,0);
-  const disbTotal=disbursements.reduce((s,r)=>s+r.amt,0);
-
-  const feeEl=gid('calc-fee-rows');
-  if(feeEl) feeEl.innerHTML=brokerFees.map(r=>`<div class="calc-row"><span class="calc-row-label">${r.label}</span><span class="calc-row-val green">${fmtM(r.amt)}</span></div>`).join('');
-  const disbEl=gid('calc-disbursement-rows');
-  if(disbEl) disbEl.innerHTML=disbursements.length?disbursements.map(r=>r.na
-    ?`<div class="calc-row"><span class="calc-row-label" style="color:var(--t4)">${r.label}</span><span class="calc-row-val muted" style="color:var(--t4);font-size:11px">$0</span></div>`
-    :`<div class="calc-row"><span class="calc-row-label">${r.label}</span><span class="calc-row-val gold">${fmtM(r.amt)}</span></div>`).join('')
-    :`<div class="calc-row"><span class="calc-row-label muted" style="font-size:11px;color:var(--t4)">Enter shipment value to calculate</span></div>`;
-  if(gid('calc-sub-broker')) gid('calc-sub-broker').textContent=fmtM(brokerTotal);
-  if(gid('calc-sub-disb'))   gid('calc-sub-disb').textContent=fmtM(disbTotal);
-  if(gid('calc-grand-total')) gid('calc-grand-total').textContent=fmtM(brokerTotal+disbTotal);
-  return {brokerFees,disbursements,brokerTotal,disbTotal,pkg,lines,extraLines};
-}
-
-function calcReset(){
-  calcState={pkg:'ocean',addons:new Set(),value:0,dutyRate:0,lines:1,mode:'Ocean FCL',clientId:null};
-  ['calc-value','calc-duty-rate'].forEach(id=>{const el=gid(id);if(el)el.value='';});
-  const li=gid('calc-lines');if(li)li.value='1';
-  const mo=gid('calc-mode');if(mo)mo.value='Ocean FCL';
-  const cl=gid('calc-client');if(cl)cl.value='';
-  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('selected'));
-  const ocean=gid('pkg-ocean');if(ocean)ocean.classList.add('selected');
-  document.querySelectorAll('.addon-item').forEach(c=>c.classList.remove('checked'));
-  document.querySelectorAll('.addon-item input[type=checkbox]').forEach(c=>c.checked=false);
-  gid('calc-date').value=today();
-  calcUpdate();
-}
-
-function calcGenerateInvoice(){
-  const result=calcUpdate();
-  const client=db.clients.find(c=>c.id===calcState.clientId);
-  const clientName=client?client.name:'[Client Name]';
-  const issueDate=gid('calc-date')?gid('calc-date').value:today();
-  const dueDate=future(30);
-  const grandTotal=result.brokerTotal+result.disbTotal;
-
-  // ── Save to db.invoices ──────────────────────────────────────
-  const invId = db.nextInvoiceId++;
-  const invNum = 'INV-'+new Date().getFullYear()+'-'+String(invId).padStart(3,'0');
-
-  // Store breakdown as metadata for future previewInvoice calls
-  const invRecord = {
-    id: invId,
-    number: invNum,
-    clientId: client?client.id:0,
-    clientName: clientName,
-    entryIds: [],                   // Billing Calc invoices have no entry refs
-    issueDate: issueDate,
-    dueDate: dueDate,
-    amount: grandTotal,
-    status: 'Draft',
-    notes: BILLING_PKGS[calcState.pkg].name + (calcState.addons.size?' + '+[...calcState.addons].join(', '):''),
-    _brokerFees: result.brokerFees,       // stored for re-render
-    _disbursements: result.disbursements,
-    _brokerTotal: result.brokerTotal,
-    _disbTotal: result.disbTotal,
-    _fromCalc: true
-  };
-  db.invoices.push(invRecord);
-  save();
-  // ── Refresh Invoices & AR pages if they were rendered ──────
-  renderInvoices&&renderInvoices();
-  renderAR&&renderAR();
-  toast('Invoice '+invNum+' saved — Draft');
-
-  // ── Build and show preview ──────────────────────────────────
-  const brokerRows=result.brokerFees.map(r=>`
-    <tr>
-      <td>${r.label}</td>
-      <td style="text-align:right;font-family:monospace">${fmtM(r.amt)}</td>
-    </tr>`).join('');
-  const disbRows=result.disbursements.length?result.disbursements.map(r=>`
-    <tr>
-      <td>${r.label}</td>
-      <td style="text-align:right;font-family:monospace">${fmtM(r.amt)}</td>
-    </tr>`).join(''):`<tr><td colspan="2" style="color:#aaa;font-style:italic">No disbursements entered</td></tr>`;
-
-  gid('invoice-preview-content').innerHTML=buildInv2HTML({
-    invNum, issueDate, dueDate, clientName, client,
-    brokerRows, disbRows,
-    brokerTotal:result.brokerTotal,
-    disbTotal:result.disbTotal,
-    disbursements:result.disbursements,
-    grandTotal
-  });
-  openModal('invoice-modal');
-}
-
-// ── Shared Invoice HTML builder ─────────────────────────────────
-function buildInv2HTML({invNum,issueDate,dueDate,clientName,client,brokerRows,disbRows,brokerTotal,disbTotal,disbursements,grandTotal}){
-  return `
-  <div class="inv2" id="inv-printable">
-    <div class="inv2-header">
-      <div>
-        <div class="inv2-logo">Justin Nam Customs Brokerage</div>
-        <div class="inv2-logo-sub">Licensed Customs Broker &middot; CBP License #42913<br>Gardena, CA &middot; Exel Logistics Inc.</div>
-      </div>
-      <div class="inv2-meta">
-        <strong>INVOICE</strong>
-        <div>${invNum}</div>
-        <div style="margin-top:6px">Issue Date: <strong>${issueDate}</strong></div>
-        <div>Due Date: <strong>${dueDate}</strong></div>
-      </div>
-    </div>
-    <div class="inv2-bill">
-      <div class="inv2-bill-label">Bill To</div>
-      <div style="font-weight:600;font-size:13px">${clientName}</div>
-      ${client&&client.ein?`<div style="color:#777;margin-top:2px">EIN: ${client.ein}</div>`:''}
-      ${client&&client.email?`<div style="color:#777">${client.email}</div>`:''}
-      ${client&&client.contact?`<div style="color:#777">${client.contact}</div>`:''}
-    </div>
-    <div class="inv2-section-label">A &mdash; Brokerage Services &amp; Professional Fees</div>
-    <table>
-      <thead><tr><th>Service Description</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>
-        ${brokerRows}
-        <tr class="inv2-subtotal-row">
-          <td>Brokerage Subtotal</td>
-          <td style="text-align:right;font-family:monospace">${fmtM(brokerTotal)}</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="inv2-section-label">B &mdash; Disbursements (Government Fees &mdash; Paid to CBP on Your Behalf)</div>
-    <table>
-      <thead><tr><th>Fee Description</th><th style="text-align:right">Amount</th></tr></thead>
-      <tbody>
-        ${disbRows}
-        ${disbursements.length?`<tr class="inv2-subtotal-row">
-          <td>Disbursements Subtotal</td>
-          <td style="text-align:right;font-family:monospace">${fmtM(disbTotal)}</td>
-        </tr>`:''}
-      </tbody>
-    </table>
-    <div class="inv2-disbursement-note">
-      &#9888; Disbursements (Duty, MPF, HMF) are government fees collected by U.S. Customs &amp; Border Protection.
-      They are remitted directly to CBP and are <strong>not</strong> part of our brokerage income.
-      Final duty amounts are determined at liquidation.
-    </div>
-    <div class="inv2-total-box">
-      <div>
-        <div class="inv2-total-label">Total Amount Due</div>
-        <div style="font-size:10px;opacity:.6;margin-top:3px">Please remit within 30 days of invoice date</div>
-      </div>
-      <div class="inv2-total-val">${fmtM(grandTotal)}</div>
-    </div>
-    <div class="inv2-footer">
-      Payment terms: Net 30 days &nbsp;|&nbsp; Make checks payable to Exel Logistics Inc.
-      <br>Questions? Contact Justin Nam &middot; CBP License #42913
-    </div>
-  </div>`;
-}
-
-
 function previewInvoice(id){
   const inv=db.invoices.find(i=>i.id===id);if(!inv)return;
   const client=db.clients.find(c=>c.id===inv.clientId);
-  const invNum=inv.number;
-  const issueDate=inv.issueDate;
-  const dueDate=inv.dueDate;
-  const clientName=inv.clientName;
-
-  let html='';
-
-  if(inv._fromCalc){
-    // ── Billing Calc invoice: use stored breakdown ──────────────
-    const brokerRows=(inv._brokerFees||[]).map(r=>`
-      <tr>
-        <td>${r.label}</td>
-        <td style="text-align:right;font-family:monospace">${fmtM(r.amt)}</td>
-      </tr>`).join('');
-    const disbRows=(inv._disbursements||[]).length?(inv._disbursements||[]).map(r=>`
-      <tr>
-        <td>${r.label}</td>
-        <td style="text-align:right;font-family:monospace">${fmtM(r.amt)}</td>
-      </tr>`).join(''):`<tr><td colspan="2" style="color:#aaa;font-style:italic">No disbursements</td></tr>`;
-    html=buildInv2HTML({
-      invNum,issueDate,dueDate,clientName,client,
-      brokerRows,disbRows,
-      brokerTotal:inv._brokerTotal||0,
-      disbTotal:inv._disbTotal||0,
-      disbursements:inv._disbursements||[],
-      grandTotal:inv.amount
-    });
-  } else {
-    // ── Entry-based invoice: build from linked entries ──────────
-    const entries=db.entries.filter(e=>inv.entryIds.includes(e.id));
-    const brokerRows=entries.map(e=>`<tr>
-      <td style="font-family:monospace;font-size:10px">${e.number}</td>
-      <td>${e.description||'—'} (${e.mode||''})</td>
-      <td>${e.date}</td>
-      <td style="text-align:right;font-family:monospace">${fmtM(e.brokerFee)}</td>
-    </tr>`).join('');
-    const disbData=[];
-    entries.forEach(e=>{
-      if(e.duty>0) disbData.push({label:`Duty — ${e.number}`,amt:e.duty});
-      if(e.mpf>0)  disbData.push({label:`MPF — ${e.number}`,amt:e.mpf});
-      if(e.hmf>0)  disbData.push({label:`HMF — ${e.number}`,amt:e.hmf});
-    });
-    const disbRows=disbData.length?disbData.map(r=>`<tr>
-      <td>${r.label}</td>
-      <td style="text-align:right;font-family:monospace">${fmtM(r.amt)}</td>
-    </tr>`).join(''):`<tr><td colspan="2" style="color:#aaa;font-style:italic">No disbursements</td></tr>`;
-    const brokerTotal=entries.reduce((s,e)=>s+(e.brokerFee||0),0);
-    const disbTotal=disbData.reduce((s,r)=>s+r.amt,0);
-    html=buildInv2HTML({
-      invNum,issueDate,dueDate,clientName,client,
-      brokerRows,disbRows,
-      brokerTotal,disbTotal,
-      disbursements:disbData,
-      grandTotal:brokerTotal+disbTotal
-    });
-  }
-
-  gid('invoice-preview-content').innerHTML=html;
+  const entries=db.entries.filter(e=>inv.entryIds.includes(e.id));
+  gid('invoice-preview-content').innerHTML=`<div class="inv-print" id="inv-printable">
+    <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+      <div><h1>INVOICE</h1><div style="font-size:12px;color:#555">${inv.number}</div></div>
+      <div style="text-align:right;font-size:12px"><div style="font-weight:700;font-size:15px">ETS LedgerPro</div><div>Issue: ${inv.issueDate}</div><div>Due: ${inv.dueDate}</div></div>
+    </div>
+    <div style="background:#f9f9f9;padding:12px;border-radius:5px;margin-bottom:18px;font-size:12px">
+      <div style="font-weight:700">Bill To:</div><div>${inv.clientName}</div>
+      ${client?`<div>${client.contact||''}</div><div>${client.email||''}</div>`:''}
+    </div>
+    <table><thead><tr><th>Entry #</th><th>Description</th><th>Date</th><th>Duty</th><th>MPF</th><th>HMF</th><th>Broker Fee</th><th>Total</th></tr></thead>
+    <tbody>${entries.map(e=>`<tr><td style="font-family:monospace">${e.number}</td><td>${e.description||'—'}</td><td>${e.date}</td>
+      <td>${fmtS(e.duty)}</td><td>${fmtS(e.mpf)}</td><td>${fmtS(e.hmf)}</td><td>${fmtS(e.brokerFee)}</td><td><strong>${fmtS(calcEntryTotal(e))}</strong></td></tr>`).join('')}
+    </tbody><tfoot><tr><td colspan="7" style="text-align:right;font-weight:700;padding:10px">TOTAL DUE:</td><td><strong>${fmtS(inv.amount)}</strong></td></tr></tfoot></table>
+  </div>`;
   openModal('invoice-modal');
 }
-
 
 function printInvoice(){
   const c=gid('inv-printable');if(!c)return;
   const w=window.open('','_blank');
-  w.document.write(`<html><head><title>Invoice</title><style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#111;padding:36px;max-width:800px;margin:0 auto}
-    .inv2-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #1A5FAA}
-    .inv2-logo{font-size:18px;font-weight:700;color:#1A5FAA}
-    .inv2-logo-sub{font-size:10px;color:#888;margin-top:2px}
-    .inv2-meta{text-align:right;font-size:11px;color:#555}
-    .inv2-meta strong{display:block;font-size:16px;color:#111;margin-bottom:4px}
-    .inv2-bill{background:#f7f9fc;border:1px solid #dde4ee;border-radius:6px;padding:12px 16px;margin-bottom:18px;font-size:11px}
-    .inv2-bill-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#888;margin-bottom:4px}
-    .inv2-section-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1A5FAA;margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid #dde4ee}
-    table{width:100%;border-collapse:collapse;margin-bottom:6px}
-    thead th{background:#1A5FAA;color:#fff;padding:7px 10px;font-size:10px;text-align:left;font-weight:600}
-    tbody td{padding:7px 10px;border-bottom:1px solid #eef1f6;font-size:11px}
-    .inv2-subtotal-row td{background:#f0f4fa;font-weight:600}
-    .inv2-disbursement-note{background:#fffbf0;border:1px solid #f0d070;border-radius:4px;padding:8px 12px;font-size:10px;color:#886600;margin-top:6px}
-    .inv2-total-box{background:#1A5FAA;color:#fff;border-radius:6px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
-    .inv2-total-label{font-size:11px;opacity:.8;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-    .inv2-total-val{font-size:22px;font-weight:700;font-family:monospace}
-    .inv2-footer{margin-top:18px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:10px;text-align:center}
-    @media print{body{padding:0}}
-  </style></head><body>`);
-  w.document.write(c.outerHTML);
-  w.document.write('</body></html>');
-  w.document.close();
-  setTimeout(()=>w.print(),400);
+  w.document.write('<html><head><title>Invoice</title><style>body{font-family:sans-serif;margin:36px}table{width:100%;border-collapse:collapse}th{background:#f4f4f4;padding:7px;font-size:11px;text-align:left}td{padding:7px;border-bottom:1px solid #eee}</style></head><body>');
+  w.document.write(c.outerHTML);w.document.write('</body></html>');w.document.close();w.print();
 }
 
 // ── BROKERAGE: CLIENTS ──
@@ -2947,7 +2358,7 @@ function autoPostBrokerFee(entry){
   if(!db.bkgIncCategories.includes(BROKER_FEE_CATEGORY))db.bkgIncCategories.push(BROKER_FEE_CATEGORY);
   db.bkgTransactions.push({id:db.nextBkgId++,date:entry.date,inv:'BK-'+String(db.nextBkgId-1).padStart(3,'0'),
     type:'INCOME',cat:BROKER_FEE_CATEGORY,net:entry.brokerFee,tax:0,fees:0,total:entry.brokerFee,
-    desc:`Entry Fee — ${entry.number} / ${entry.clientName}`,note:'Auto-posted',auto:true,entryRef:entry.number});
+    desc:`Broker fee — ${entry.number} / ${entry.clientName}`,note:'Auto-posted',auto:true,entryRef:entry.number});
 }
 
 function saveClient(){
@@ -3013,7 +2424,7 @@ function processCSV(file){
 }
 
 function exportBrokerCSV(){
-  const hdr='Entry #,Client,Date,Dutiable Value,Duty,MPF,HMF,Entry Fee,Total\n';
+  const hdr='Entry #,Client,Date,Dutiable Value,Duty,MPF,HMF,Broker Fee,Total\n';
   const rows=db.entries.map(e=>`${e.number},${e.clientName},${e.date},${e.value||0},${e.duty||0},${e.mpf||0},${e.hmf||0},${e.brokerFee||0},${calcEntryTotal(e)}`).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([hdr+rows],{type:'text/csv'}));a.download='ets-brokerage-'+today()+'.csv';a.click();toast('Exported');
 }
@@ -3045,7 +2456,7 @@ function renderBkgDashboard(){
       <span>${Math.max(0,goal-mtdPL)>0?fmtM(Math.max(0,goal-mtdPL))+' remaining':'🎉 Goal reached!'}</span></div></div>`:'';
   const autoFees=db.bkgTransactions.filter(t=>t.auto&&t.cat===BROKER_FEE_CATEGORY);
   const autoTotal=autoFees.reduce((s,t)=>s+t.total,0);
-  gid('bkg-bridge-text').textContent=`⚓ ${autoFees.length} entry fee transactions (${fmtM(autoTotal)}) auto-posted from Brokerage entries.`;
+  gid('bkg-bridge-text').textContent=`⚓ ${autoFees.length} broker fee transactions (${fmtM(autoTotal)}) auto-posted from Brokerage entries.`;
   const incCats=catTotals(txs,'INCOME',db.bkgIncCategories);
   const expCats=catTotals(txs,'EXPENSE',db.bkgExpCategories);
   const buildPanel=(cats,total,cls,title)=>`<div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);overflow:hidden">
@@ -3142,13 +2553,6 @@ function renderBkgMonthly(){
 }
 
 function renderSetup(){
-  // Safety: ensure arrays exist before rendering
-  if(!db.bkgIncCategories||!db.bkgIncCategories.length){
-    db.bkgIncCategories=['ENTRY FEE','AMENDMENT FEE','ISF FEE','IN-BOND FEE','FDA FEE','CONSULTING','STB FEE','BOND UNDERWRITING','EXAM COORDINATION','COURIER FEE','SETUP FEE','CBP EXAM FEE','RUSH FEE','LINE ITEM FEE','OTHER INCOME'];
-  }
-  if(!db.bkgExpCategories||!db.bkgExpCategories.length){
-    db.bkgExpCategories=['ABI SOFTWARE','OFFICE SUPPLIES','PROFESSIONAL FEES','CBP PERMIT FEE','INSURANCE','ADVERTISING','BANK FEES','MEALS & ENTERTAINMENT','AUTO / MILEAGE','OTHER EXPENSE'];
-  }
   gid('inc-cat-count').textContent=db.bkgIncCategories.length+' categories';
   gid('inc-cats-list').innerHTML=db.bkgIncCategories.map((c,i)=>{
     const isProtected = c===BROKER_FEE_CATEGORY;
@@ -3637,14 +3041,12 @@ function renderEntryDrawer(id){
       <div class="dfr"><span>Duty (${(e.dutyRate||0).toFixed(2)}%)</span><span>${fmtM(e.duty)}</span></div>
       ${!isAir?`<div class="dfr"><span>MPF</span><span>${fmtM(e.mpf)}</span></div>`:'<div class="dfr" style="opacity:.45"><span>MPF</span><span>N/A (Air)</span></div>'}
       ${isOcean?`<div class="dfr"><span>HMF (0.125%)</span><span>${fmtM(e.hmf)}</span></div>`:'<div class="dfr" style="opacity:.45"><span>HMF</span><span>N/A (Air/Truck)</span></div>'}
-      <div class="dfr"><span>Entry Fee</span><span style="color:var(--gold)">${fmtM(e.brokerFee)}</span></div>
+      <div class="dfr"><span>Broker Fee</span><span style="color:var(--gold)">${fmtM(e.brokerFee)}</span></div>
       <div class="dfr dft"><span>Total Billed</span><span>${fmtM(calcEntryTotal(e))}</span></div>
     </div>`;
 
-    const caseNotesUrl = 'case_notes.html' + (e.hts ? '?hts='+encodeURIComponent(e.hts) : '');
     footer.innerHTML=`<button class="btn btn-danger btn-sm" onclick="deleteEntry(${e.id});closeDrawer()">Delete</button>
       <button class="btn" onclick="closeDrawer()">Close</button>
-      <button class="btn btn-sm" style="border-color:#0F6E56;color:#0F6E56;background:rgba(10,138,92,.07)" onclick="window.open('${caseNotesUrl}','_blank')" title="Case Notes에서 이 HTS 코드 검색">📋 Case Notes${e.hts?' · '+e.hts:''}</button>
       <button class="btn btn-p btn-sm" onclick="toggleEditMode()">✏ Edit</button>`;
 
   } else {
@@ -3693,7 +3095,7 @@ function renderEntryDrawer(id){
       <div class="df"><div class="df-label">Duty ($)</div><input type="number" class="df-input" id="de-duty" value="${e.duty||0}"/></div>
       <div class="df"><div class="df-label">MPF ($)</div><input type="number" class="df-input" id="de-mpf" value="${e.mpf||0}"/></div>
       <div class="df"><div class="df-label">HMF ($)</div><input type="number" class="df-input" id="de-hmf" value="${e.hmf||0}"/></div>
-      <div class="df"><div class="df-label">Entry Fee ($)</div><input type="number" class="df-input" id="de-broker-fee" value="${e.brokerFee||0}"/></div>
+      <div class="df"><div class="df-label">Broker Fee ($)</div><input type="number" class="df-input" id="de-broker-fee" value="${e.brokerFee||0}"/></div>
       ${oceanEdit}
     </div>`;
     footer.innerHTML=`<button class="btn btn-danger btn-sm" onclick="deleteEntry(${e.id});closeDrawer()">Delete</button>

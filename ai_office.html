@@ -311,7 +311,13 @@ function build(){
         <div class="nametag">${a.name}</div>`;
       const open = ()=>{
         if(missing.has(a.id)){ showBubble(a.id, '아직 제 자리가 없어요… url을 고쳐주세요! 🙏', true); return; }
-        if(a.url) window.open(a.url, '_blank');
+        if(!a.url) return;
+        const w = window.open(a.url, '_blank');
+        if(!w){
+          // 팝업이 차단됐거나 iframe 안이면 현재 창(최상위)에서 이동
+          try{ window.top.location.href = a.url; }
+          catch(e){ location.href = a.url; }
+        }
       };
       c.addEventListener('click', open);
       c.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });

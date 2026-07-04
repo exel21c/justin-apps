@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/neodgm-webfont@1.530/neodgm/style.css" rel="stylesheet">
 <style>
 :root{
+  --tilt:38deg;          /* 3D 기울기 (2D 모드에선 0deg) */
   --bg:#241b12;          /* 사무실 바닥 어두운 우드 */
   --plank:#2c2217;
   --room:#3b2e1f;        /* 방 내부 */
@@ -44,6 +45,13 @@ header h1{font-size:17px;letter-spacing:2px;color:#e8dcae}
 header h1 .dot{color:var(--gold)}
 .hud{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:13px}
 .hud .clock{color:#cfd3ff}
+#viewToggle{
+  font-family:inherit;font-size:12px;cursor:pointer;
+  background:var(--cream);color:var(--ink);
+  border:none;border-radius:5px;padding:3px 9px;
+  box-shadow:0 2px 0 rgba(0,0,0,.45);
+}
+#viewToggle:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
 .hud .count{display:flex;gap:10px}
 .hud .count span::before{content:'●';margin-right:4px}
 .hud .c-work::before{color:var(--green)} .hud .c-ready::before{color:var(--yellow)} .hud .c-err::before{color:var(--red)}
@@ -54,6 +62,7 @@ header h1 .dot{color:var(--gold)}
   max-width:1080px;margin:22px auto;padding:0 16px;
   display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;
 }
+body.flat{--tilt:0deg}
 .room{
   border:2px solid var(--accent, var(--gold-dim));
   border-radius:10px;
@@ -61,13 +70,20 @@ header h1 .dot{color:var(--gold)}
   box-shadow:inset 0 0 0 4px rgba(0,0,0,.25), 0 6px 16px rgba(0,0,0,.45);
   overflow:hidden;
   display:flex;flex-direction:column;
+  transform:perspective(950px) rotateX(var(--tilt));
+  transform-style:preserve-3d;
+  transition:transform .55s ease;
 }
 .room-head{
   display:flex;align-items:center;gap:8px;
   padding:7px 10px;
-  background:linear-gradient(#4a3a22,#3e3120);
+  background:linear-gradient(#4a3a22,#332815);
   border-bottom:2px solid var(--accent, var(--gold-dim));
   font-size:13px;
+  transform:rotateX(calc(var(--tilt) * -1));
+  transform-origin:50% 100%;
+  transition:transform .55s ease;
+  box-shadow:0 6px 10px rgba(0,0,0,.35);
 }
 .room-head .tag{
   background:var(--cream);color:var(--ink);
@@ -81,20 +97,31 @@ header h1 .dot{color:var(--gold)}
 .room-dot.error{background:var(--red);color:var(--red);animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.25}}
 .floor{
-  position:relative;height:170px;
+  position:relative;height:184px;
   background:
+    linear-gradient(rgba(0,0,0,.32), transparent 45%),
     repeating-linear-gradient(0deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
     repeating-linear-gradient(90deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
     var(--room-floor);
   box-shadow:inset 0 0 52px var(--tint, transparent);
+  transform-style:preserve-3d;
 }
 .deco{
-  position:absolute;transform:translate(-50%,-50%);
+  position:absolute;transform:translate(-50%,-100%) rotateX(calc(var(--tilt) * -1));
+  transform-origin:50% 100%;
   font-size:20px;pointer-events:none;z-index:1;
   filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));
+  transition:transform .55s ease;
+}
+.furn{
+  position:absolute;transform:translate(-50%,-100%) rotateX(calc(var(--tilt) * -1));
+  transform-origin:50% 100%;
+  image-rendering:pixelated;pointer-events:none;z-index:1;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.45));
+  transition:transform .55s ease;
 }
 .deco.tw{animation:twinkle 2.2s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
 
 /* ── 대표이사실 럭셔리 사양 ─────────────── */
 .room.luxe{
@@ -146,15 +173,22 @@ header h1 .dot{color:var(--gold)}
 .room-note{
   font-size:11px;color:#bfa876;text-align:right;
   padding:5px 10px;border-top:1px dashed rgba(201,164,92,.35);
+  background:linear-gradient(#241a0e,#1a1208);
+  transform:rotateX(calc(var(--tilt) * -1));
+  transform-origin:50% 0%;
+  transition:transform .55s ease;
 }
 
 /* ── 캐릭터 ───────────────────────────── */
 .char{
   position:absolute;width:64px;text-align:center;
-  transform:translate(-50%,-100%);
-  transition:left 2.6s ease-in-out, top 2.6s ease-in-out;
+  transform:translate(-50%,-100%) rotateX(calc(var(--tilt) * -1));
+  transform-origin:50% 100%;
+  transform-style:preserve-3d;
+  transition:left 2.6s ease-in-out, top 2.6s ease-in-out, transform .55s ease;
   cursor:pointer;z-index:2;
 }
+.char.traveling{transform:translate(-50%,-100%)} /* 방 밖 이동 중엔 평면 유지 */
 .char:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:8px}
 .sprite{
   --fx:1;
@@ -169,9 +203,12 @@ header h1 .dot{color:var(--gold)}
 .sprite.flip{--fx:-1}
 .sprite.pet{background-size:192px 192px} /* 96×96 펫 시트 ×2 */
 .shadow{
-  position:absolute;left:50%;bottom:19px;transform:translateX(-50%);
+  position:absolute;left:50%;bottom:19px;
+  transform:translateX(-50%) rotateX(var(--tilt));
+  transform-origin:50% 100%;
   width:38px;height:11px;border-radius:50%;z-index:0;
   background:radial-gradient(closest-side, var(--st,#fbbf24aa), transparent 72%);
+  transition:transform .55s ease;
 }
 .char.s-working .shadow{--st:#4ade80bb}
 .char.s-ready   .shadow{--st:#fbbf24aa}
@@ -248,6 +285,7 @@ footer .lg::before{content:'●';margin-right:4px}
 <header>
   <h1>🏢 JN AI COMPANY <span class="dot">·</span> LIVE OFFICE</h1>
   <div class="hud">
+    <button id="viewToggle" title="3D/2D 전환">🎥 2D</button>
     <div class="count">
       <span class="c-work" id="cntWork">0</span>
       <span class="c-ready" id="cntReady">0</span>
@@ -670,6 +708,7 @@ function deliveryTrip(){
   // 고정 좌표로 전환해서 방 밖으로 나갈 수 있게
   el.style.transition = 'none';
   el.style.position = 'fixed';
+  el.classList.add('traveling');
   el.style.left = (rect.left + rect.width/2) + 'px';
   el.style.top  = rect.bottom + 'px';
   el.style.zIndex = 99;
@@ -698,6 +737,7 @@ function deliveryTrip(){
         setTimeout(()=>{ // 원위치 복구
           el.style.transition = 'none';
           el.style.position = 'absolute';
+          el.classList.remove('traveling');
           el.style.zIndex = '';
           el.style.left = startLeft;
           el.style.top  = startTop;
@@ -726,6 +766,16 @@ async function checkFiles(){
   }
   if(missing.size) refresh();
 }
+
+/* ⑦ 3D/2D 보기 전환 (설정은 localStorage에 저장) */
+const vt = document.getElementById('viewToggle');
+function applyView(flat){
+  document.body.classList.toggle('flat', flat);
+  vt.textContent = flat ? '🎥 3D' : '🎥 2D'; // 버튼엔 '전환할 모드' 표시
+  try{ localStorage.setItem('jn_office_view', flat ? '2d' : '3d'); }catch(e){}
+}
+vt.addEventListener('click', ()=> applyView(!document.body.classList.contains('flat')));
+applyView((localStorage.getItem('jn_office_view') || '3d') === '2d');
 
 /* ⑥ 시계 */
 function tick(){

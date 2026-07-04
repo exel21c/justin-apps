@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JN AI COMPANY · LIVE OFFICE</title>
+<link href="https://cdn.jsdelivr.net/npm/neodgm-webfont@1.530/neodgm/style.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#241b12;          /* 사무실 바닥 어두운 우드 */
+  --plank:#2c2217;
+  --room:#3b2e1f;        /* 방 내부 */
+  --room-floor:#332818;
+  --gold:#c9a45c;        /* 방 테두리 금색 */
+  --gold-dim:#8a6f3e;
+  --cream:#f3e7cd;
+  --ink:#1d1608;
+  --green:#4ade80;
+  --yellow:#fbbf24;
+  --red:#f4574d;
+  --bubble:#fffdf5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'NeoDunggeunmo','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color:var(--cream);
+  background:
+    repeating-linear-gradient(90deg, var(--bg) 0 90px, var(--plank) 90px 92px),
+    var(--bg);
+  padding-bottom:64px;
+}
+
+/* ── 상단 간판 ─────────────────────────── */
+header{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(#2b2c52,#232447);
+  border-bottom:3px solid var(--gold);
+  padding:10px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  box-shadow:0 4px 14px rgba(0,0,0,.5);
+}
+header h1{font-size:17px;letter-spacing:2px;color:#e8dcae}
+header h1 .dot{color:var(--gold)}
+.hud{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:13px}
+.hud .clock{color:#cfd3ff}
+.hud .count{display:flex;gap:10px}
+.hud .count span::before{content:'●';margin-right:4px}
+.hud .c-work::before{color:var(--green)} .hud .c-ready::before{color:var(--yellow)} .hud .c-err::before{color:var(--red)}
+.hud .c-work,.hud .c-ready,.hud .c-err{color:var(--cream)}
+
+/* ── 사무실 그리드 ─────────────────────── */
+.office{
+  max-width:1080px;margin:22px auto;padding:0 16px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;
+}
+.room{
+  border:2px solid var(--gold-dim);
+  border-radius:10px;
+  background:var(--room);
+  box-shadow:inset 0 0 0 4px rgba(0,0,0,.25), 0 6px 16px rgba(0,0,0,.45);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.room-head{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;
+  background:linear-gradient(#4a3a22,#3e3120);
+  border-bottom:2px solid var(--gold-dim);
+  font-size:13px;
+}
+.room-head .tag{
+  background:var(--cream);color:var(--ink);
+  border-radius:5px;padding:2px 8px;font-size:12px;
+  box-shadow:0 2px 0 rgba(0,0,0,.4);
+}
+.room-dot{margin-left:auto;width:10px;height:10px;border-radius:50%;
+  box-shadow:0 0 6px currentColor}
+.room-dot.working{background:var(--green);color:var(--green)}
+.room-dot.ready{background:var(--yellow);color:var(--yellow)}
+.room-dot.error{background:var(--red);color:var(--red);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.floor{
+  position:relative;height:170px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
+    var(--room-floor);
+}
+.room-note{
+  font-size:11px;color:#bfa876;text-align:right;
+  padding:5px 10px;border-top:1px dashed rgba(201,164,92,.35);
+}
+
+/* ── 캐릭터 ───────────────────────────── */
+.char{
+  position:absolute;width:64px;text-align:center;
+  transform:translate(-50%,-100%);
+  transition:left 2.6s ease-in-out, top 2.6s ease-in-out;
+  cursor:pointer;z-index:2;
+}
+.char:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:8px}
+.avatar{
+  width:44px;height:44px;margin:0 auto;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;line-height:1;
+  background:radial-gradient(circle at 35% 30%, #5a4930, #3a2d1a);
+  border:3px solid var(--green);
+  box-shadow:0 3px 6px rgba(0,0,0,.5);
+  animation:idle 2.4s ease-in-out infinite;
+}
+.char.s-working .avatar{border-color:var(--green)}
+.char.s-ready   .avatar{border-color:var(--yellow)}
+.char.s-error   .avatar{border-color:var(--red);animation:panic .5s ease-in-out infinite}
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes panic{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.nametag{
+  display:inline-block;margin-top:4px;
+  background:var(--cream);color:var(--ink);
+  font-size:11px;padding:1px 7px;border-radius:4px;
+  box-shadow:0 2px 0 rgba(0,0,0,.45);
+  white-space:nowrap;
+}
+.warn{
+  position:absolute;top:-14px;right:2px;font-size:15px;
+  animation:idle 1s ease-in-out infinite;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));
+}
+.bubble{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(0);
+  background:var(--bubble);color:var(--ink);
+  font-size:11px;line-height:1.35;
+  padding:5px 9px;border-radius:9px;
+  white-space:nowrap;max-width:210px;
+  box-shadow:0 3px 8px rgba(0,0,0,.45);
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;z-index:5;
+}
+.bubble::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--bubble);
+}
+.bubble.show{transform:translateX(-50%) scale(1)}
+.char.s-error .bubble{background:#ffe1de}
+.char.s-error .bubble::after{border-top-color:#ffe1de}
+
+/* ── 하단 범례 바 ─────────────────────── */
+footer{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:#171008;border-top:2px solid var(--gold-dim);
+  padding:9px 16px;font-size:12px;color:#d8c69a;
+  display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+}
+footer b{color:var(--cream)}
+footer .lg::before{content:'●';margin-right:4px}
+.lg-g::before{color:var(--green)} .lg-y::before{color:var(--yellow)} .lg-r::before{color:var(--red)}
+
+@media (max-width:640px){
+  header h1{font-size:14px}
+  .floor{height:150px}
+}
+@media (prefers-reduced-motion:reduce){
+  .avatar,.warn{animation:none!important}
+  .char{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏢 JN AI COMPANY <span class="dot">·</span> LIVE OFFICE</h1>
+  <div class="hud">
+    <div class="count">
+      <span class="c-work" id="cntWork">0</span>
+      <span class="c-ready" id="cntReady">0</span>
+      <span class="c-err" id="cntErr">0</span>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+</header>
+
+<div class="office" id="office"></div>
+
+<footer>
+  <span><b id="totalLine">-</b></span>
+  <span class="lg lg-g">근무 중</span>
+  <span class="lg lg-y">준비·대기</span>
+  <span class="lg lg-r">점검 필요</span>
+  <span>캐릭터를 클릭하면 해당 앱이 열립니다</span>
+</footer>
+
+<script>
+/* ============================================================
+   ① 설정 — 앱/사업부는 여기만 고치면 됩니다
+   url: justin-apps 기준 상대경로. TODO 표시는 파일명 확인 필요!
+   ============================================================ */
+const DEPTS = [
+  { id:'ceo',     name:'대표이사실',      icon:'👑', note:'총괄 지휘' },
+  { id:'customs', name:'통관 사업부',     icon:'🛃', note:'Entry · AR · 케이스 관리' },
+  { id:'kshop',   name:'K-SHOP4U 사업부', icon:'🛍️', note:'K-뷰티 · K-푸드 (수익 가동)' },
+  { id:'usshop',  name:'US-SHOP4U 사업부',icon:'🐶', note:'네이버 스마트스토어 · 펫 영양제' },
+  { id:'chinese', name:'중국어 학습팀',   icon:'🀄', note:'주희쌤 커리큘럼 · HSK' },
+  { id:'english', name:'영어 연구소',     icon:'🎧', note:'ENG LAB · 리스닝 랩' },
+  { id:'health',  name:'건강관리실',      icon:'🥗', note:'칼로리 · 컨디션' },
+  { id:'break',   name:'탕비실 · 휴게',   icon:'☕', note:'잡담 · 간식' },
+];
+
+const APPS = [
+  { id:'ceo_justin',    dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html',
+    msgs:['오늘도 순찰 중 👀','국가 퍼밋 언제 나오나…','커피 한 잔 하고 시작하죠'] },
+
+  { id:'broker_ledger', dept:'customs', name:'장부봇', emoji:'📒', url:'broker_ledger.html',
+    msgs:['오늘 Entry 정리 완료!','AR 회수 체크 중','KPI 갱신했습니다'] },
+  { id:'case_notes',    dept:'customs', name:'케이스봇', emoji:'🗂️', url:'case_notes.html',
+    msgs:['HTS 케이스 기록 중','CROSS 판례 찾는 중…'] },
+  { id:'accounting',    dept:'customs', name:'회계봇', emoji:'🧮', url:'jn_accounting.html', /* TODO 파일명 확인 */
+    msgs:['인보이스 대조 중','이번 달 마감 준비!'] },
+
+  { id:'item_scout',    dept:'kshop',   name:'스카웃봇', emoji:'🔎', url:'item_scout.html',
+    msgs:['마진 계산 돌리는 중','이 아이템 괜찮은데요?'] },
+  { id:'pricing',       dept:'kshop',   name:'프라이스봇', emoji:'💵', url:'pricing_dashboard.html', /* TODO 파일명 확인 */
+    msgs:['항공운임 티어 반영 완료','경쟁사 가격 스캔 중…'] },
+
+  { id:'usshop_naver',  dept:'usshop',  name:'네이버봇', emoji:'🤖', url:'usshop.html', /* TODO 파일명 확인 */
+    msgs:['Cosequin 재고 확인 중','스마트스토어 등록 대기'] },
+
+  { id:'juhee_chinese', dept:'chinese', name:'주희쌤', emoji:'👩‍🏫', url:'juhee_chinese.html',
+    msgs:['이번 주 단어 외웠어요?','声调 조심하세요~'] },
+  { id:'chinese_learner',dept:'chinese',name:'러너봇', emoji:'📖', url:'chinese_learner.html',
+    msgs:['Week 7 복습 어때요?','HSK 3급 가즈아'] },
+  { id:'voca100',       dept:'chinese', name:'보카봇', emoji:'🈶', url:'voca100_chinese.html',
+    msgs:['오늘의 100단어 준비 완료','TTS 성대 풀고 있어요'] },
+
+  { id:'eng_lab',       dept:'english', name:'잉글랩봇', emoji:'🗣️', url:'eng_lab.html', /* TODO 파일명 확인 */
+    msgs:['Customs 용어 퀴즈 어때요?','Repeat after me!'] },
+  { id:'listening_lab', dept:'english', name:'리스닝봇', emoji:'🎧', url:'listening_lab.html', /* TODO 파일명 확인 */
+    msgs:['오늘 팟캐스트 들으셨어요?','mishearing 로그 정리 중'] },
+
+  { id:'health',        dept:'health',  name:'칼로리봇', emoji:'🍎', url:'health_tracker.html', /* TODO 파일명 확인 */
+    msgs:['오늘 걸음 수 입력하셨나요?','저녁은 가볍게 어때요?'] },
+
+  { id:'moka',          dept:'break',   name:'모카', emoji:'🐕', url:null,
+    msgs:['멍!','산책 가요? 🦴','(꼬리 흔드는 중)'] },
+];
+
+/* 상태 기본값: 각 앱이 localStorage에 보고하기 전까지 사용 */
+const DEFAULT_STATUS = { status:'ready', message:null, lastUpdate:null };
+const STALE_HOURS = 24;
+
+/* ============================================================
+   ② 상태 읽기 — localStorage 규약: jn_status_<appId>
+   { "status":"working|ready|error", "message":"...", "lastUpdate":"ISO" }
+   ============================================================ */
+function readStatus(app){
+  let s = { ...DEFAULT_STATUS };
+  try{
+    const raw = localStorage.getItem('jn_status_' + app.id);
+    if(raw){ s = { ...s, ...JSON.parse(raw) }; }
+  }catch(e){ /* 무시하고 기본값 */ }
+  if(!['working','ready','error'].includes(s.status)) s.status = 'ready';
+  // 24시간 이상 소식 없으면 자동 대기 전환
+  if(s.status === 'working' && s.lastUpdate){
+    const age = (Date.now() - new Date(s.lastUpdate).getTime()) / 36e5;
+    if(age > STALE_HOURS){ s.status = 'ready'; s.message = '24시간째 소식이 없어요 💤'; }
+  }
+  return s;
+}
+
+/* ============================================================
+   ③ 렌더링
+   ============================================================ */
+const officeEl = document.getElementById('office');
+const charEls = {};   // appId -> element
+const statuses = {};  // appId -> status obj
+
+function build(){
+  DEPTS.forEach(d=>{
+    const members = APPS.filter(a=>a.dept===d.id);
+    const room = document.createElement('section');
+    room.className = 'room';
+    room.innerHTML = `
+      <div class="room-head">
+        <span>${d.icon}</span><span class="tag">${d.name}</span>
+        <span class="room-dot working" data-dept="${d.id}"></span>
+      </div>
+      <div class="floor" data-dept="${d.id}"></div>
+      <div class="room-note">${d.note}</div>`;
+    officeEl.appendChild(room);
+
+    const floor = room.querySelector('.floor');
+    members.forEach((a,i)=>{
+      const c = document.createElement('div');
+      c.className = 'char s-ready';
+      c.tabIndex = 0;
+      c.dataset.app = a.id;
+      c.style.left = (20 + i*28 + Math.random()*10) + '%';
+      c.style.top  = (55 + Math.random()*35) + '%';
+      c.innerHTML = `
+        <div class="bubble"></div>
+        <div class="warn" hidden>⚠️</div>
+        <div class="avatar">${a.emoji}</div>
+        <div class="nametag">${a.name}</div>`;
+      const open = ()=>{ if(a.url) window.open(a.url, '_blank'); };
+      c.addEventListener('click', open);
+      c.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });
+      floor.appendChild(c);
+      charEls[a.id] = c;
+    });
+  });
+}
+
+/* ============================================================
+   ④ 상태 반영 (5초마다)
+   ============================================================ */
+const RANK = { error:3, ready:2, working:1 };
+function refresh(){
+  let w=0,r=0,e=0;
+  APPS.forEach(a=>{
+    const s = readStatus(a);
+    statuses[a.id] = s;
+    const el = charEls[a.id];
+    el.className = 'char s-' + s.status;
+    el.querySelector('.warn').hidden = (s.status !== 'error');
+    el.title = `${a.name} · ${s.status}` + (s.message ? ` · ${s.message}` : '');
+    if(s.status==='working') w++; else if(s.status==='error') e++; else r++;
+    if(s.status==='error') showBubble(a.id, s.message || '살려줘! 😵', true);
+  });
+  // 방 신호등 = 구성원 중 최악 상태
+  document.querySelectorAll('.room-dot').forEach(dot=>{
+    const members = APPS.filter(a=>a.dept===dot.dataset.dept);
+    let worst='working';
+    members.forEach(a=>{ if(RANK[statuses[a.id].status] > RANK[worst]) worst = statuses[a.id].status; });
+    dot.className = 'room-dot ' + worst;
+  });
+  document.getElementById('cntWork').textContent = '근무 ' + w;
+  document.getElementById('cntReady').textContent = '대기 ' + r;
+  document.getElementById('cntErr').textContent = '점검 ' + e;
+  document.getElementById('totalLine').textContent =
+    `${APPS.length}명의 AI 직원이 ${DEPTS.length}개 부서에서 근무 중`;
+}
+
+/* ============================================================
+   ⑤ 말풍선 + 돌아다니기
+   ============================================================ */
+function showBubble(appId, text, sticky=false){
+  const el = charEls[appId];
+  const b = el.querySelector('.bubble');
+  b.textContent = text;
+  b.classList.add('show');
+  clearTimeout(b._t);
+  if(!sticky) b._t = setTimeout(()=>b.classList.remove('show'), 3500);
+}
+
+function chatterLoop(){
+  const pool = APPS.filter(a => statuses[a.id] && statuses[a.id].status !== 'error');
+  if(pool.length){
+    const a = pool[Math.floor(Math.random()*pool.length)];
+    const s = statuses[a.id];
+    // 실제 보고 메시지가 있으면 우선, 없으면 재미 멘트
+    const text = (s.message && Math.random() < 0.5) ? s.message
+               : a.msgs[Math.floor(Math.random()*a.msgs.length)];
+    showBubble(a.id, text);
+  }
+  setTimeout(chatterLoop, 2500 + Math.random()*3500);
+}
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function wanderLoop(){
+  if(!reduced){
+    const a = APPS[Math.floor(Math.random()*APPS.length)];
+    const el = charEls[a.id];
+    el.style.left = (15 + Math.random()*70) + '%';
+    el.style.top  = (50 + Math.random()*42) + '%';
+  }
+  setTimeout(wanderLoop, 3000 + Math.random()*4000);
+}
+
+/* ⑥ 시계 */
+function tick(){
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    n.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ============================================================
+   시작
+   ============================================================ */
+build();
+refresh();
+tick();
+setInterval(refresh, 5000);
+setInterval(tick, 15000);
+setTimeout(chatterLoop, 1200);
+setTimeout(wanderLoop, 2000);
+
+/* ============================================================
+   [참고] 다른 앱에 붙여넣을 상태 보고 코드 (복사용)
+   ------------------------------------------------------------
+   function jnReport(status, message){
+     localStorage.setItem('jn_status_APPID', JSON.stringify({
+       status: status,              // 'working' | 'ready' | 'error'
+       message: message || '',
+       lastUpdate: new Date().toISOString()
+     }));
+   }
+   // 예: 저장 성공 시  jnReport('working', 'Entry 3건 저장 완료');
+   // 예: 오류 발생 시  jnReport('error', 'API 토큰 만료!');
+   ============================================================ */
+</script>
+</body>
+</html>

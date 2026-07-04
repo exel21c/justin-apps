@@ -126,6 +126,15 @@ header h1 .dot{color:var(--gold)}
   animation:idle 1s ease-in-out infinite;
   filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));
 }
+.badge{
+  position:absolute;top:-7px;left:calc(50% + 10px);
+  min-width:19px;height:19px;padding:0 5px;border-radius:10px;
+  background:#e5484d;color:#fff;font-size:11px;line-height:19px;
+  box-shadow:0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(0,0,0,.25);
+  z-index:4;
+}
+.room.wide{grid-column:span 2}
+@media (max-width:660px){ .room.wide{grid-column:span 1} }
 .bubble{
   position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(0);
   background:var(--bubble);color:var(--ink);
@@ -196,7 +205,8 @@ footer .lg::before{content:'●';margin-right:4px}
    ============================================================ */
 const DEPTS = [
   { id:'ceo',     name:'대표이사실',      icon:'👑', note:'총괄 지휘 · 전체 허브' },
-  { id:'customs', name:'통관 사업부',     icon:'🛃', note:'Entry · AR · 케이스 관리' },
+  { id:'email',   name:'통관 · 이메일 부서', icon:'📧', note:'접수 · 보류 · 전달 (이메일 연동 예정)' },
+  { id:'work',    name:'통관 · 실무처리 부서', icon:'🛠️', note:'Entry 작성 · 장부 · 케이스' },
   { id:'chinese', name:'중국어 학습팀',   icon:'🀄', note:'주희쌤 커리큘럼 · HSK' },
   { id:'english', name:'영어 연구소',     icon:'🎧', note:'회화 · 문법 · 리스닝' },
   { id:'media',   name:'뉴스 미디어팀',   icon:'📰', note:'한국 뉴스 브리핑' },
@@ -209,9 +219,18 @@ const APPS = [
   { id:'ceo_justin',      dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html',
     msgs:['오늘도 순찰 중 👀','국가 퍼밋 언제 나오나…','커피 한 잔 하고 시작하죠'] },
 
-  { id:'broker_ledger',   dept:'customs', name:'장부봇', emoji:'📒', url:'broker_ledger.html',
-    msgs:['오늘 Entry 정리 완료!','AR 회수 체크 중','KPI 갱신했습니다'] },
-  { id:'case_notes',      dept:'customs', name:'케이스봇', emoji:'🗂️', url:'case_notes.html',
+  { id:'stage_received',  dept:'email', name:'접수봇', emoji:'📥', url:'broker_ledger.html', stage:'received',
+    msgs:['새 이메일 확인 중…','서류 도착하면 바로 접수!'] },
+  { id:'stage_hold',      dept:'email', name:'보류봇', emoji:'⏸️', url:'broker_ledger.html', stage:'hold',
+    msgs:['FDA 심사 대기 확인','서류 미비 건 추적 중'] },
+  { id:'stage_delivered', dept:'email', name:'전달봇', emoji:'📤', url:'broker_ledger.html', stage:'delivered',
+    msgs:['배달 갈 준비 완료!','릴리즈 서류 챙기는 중'] },
+
+  { id:'stage_working',   dept:'work',  name:'작업봇', emoji:'🛠️', url:'broker_ledger.html', stage:'working',
+    msgs:['Entry 입력 중…','HTS 분류 확인 중'] },
+  { id:'broker_ledger',   dept:'work',  name:'장부봇', emoji:'📒', url:'broker_ledger.html',
+    msgs:['AR 회수 체크 중','KPI 갱신했습니다'] },
+  { id:'case_notes',      dept:'work',  name:'케이스봇', emoji:'🗂️', url:'case_notes.html',
     msgs:['HTS 케이스 기록 중','CROSS 판례 찾는 중…'] },
 
   { id:'juhee_chinese',   dept:'chinese', name:'주희쌤', emoji:'👩‍🏫', url:'juhee_chinese.html',
@@ -276,6 +295,55 @@ function readStatus(app){
 }
 
 /* ============================================================
+   ②-2 통관 파이프라인 — 단계별 건수
+   1순위: localStorage 'jn_customs_pipeline' (broker_ledger가 기록)
+   2순위: 저장소의 customs_status.json (이메일 자동화가 기록 — 2단계)
+   형식: {"received":3,"working":2,"hold":1,"delivered":5,"lastUpdate":"ISO"}
+   ============================================================ */
+const PIPE_KEY = 'jn_customs_pipeline';
+let pipeline = { received:0, working:0, hold:0, delivered:0, lastUpdate:null, source:null };
+
+function readPipelineLocal(){
+  try{
+    const raw = localStorage.getItem(PIPE_KEY);
+    if(raw){ pipeline = { ...pipeline, ...JSON.parse(raw), source:'local' }; return true; }
+  }catch(e){}
+  return false;
+}
+async function fetchPipelineRemote(){
+  if(!location.protocol.startsWith('http')) return;
+  try{
+    const r = await fetch('customs_status.json?t=' + Date.now());
+    if(r.ok){
+      const j = await r.json();
+      if(!readPipelineLocal()){ pipeline = { ...pipeline, ...j, source:'remote' }; refresh(); }
+    }
+  }catch(e){ /* 파일 없으면 조용히 무시 */ }
+}
+function pipelineStale(){
+  if(!pipeline.lastUpdate) return false;
+  return (Date.now() - new Date(pipeline.lastUpdate).getTime()) / 36e5 > STALE_HOURS;
+}
+function stageStatus(stage){
+  if(pipeline.source === null)
+    return { status:'ready', message:'파이프라인 데이터 대기 중' };
+  if(pipelineStale())
+    return { status:'ready', message:'데이터가 오래됐어요 💤' };
+  const n = pipeline[stage] || 0;
+  switch(stage){
+    case 'received':  return n>0 ? {status:'working', message:`신규 접수 ${n}건 📬`}
+                                 : {status:'ready',   message:'새 이메일 대기 중'};
+    case 'working':   return n>0 ? {status:'working', message:`Entry 작업 중 ${n}건`}
+                                 : {status:'ready',   message:'작업 대기'};
+    case 'hold':      return n>0 ? {status:'error',   message:`보류 ${n}건 확인 필요!`}
+                                 : {status:'working', message:'보류 없음 ✨'};
+    case 'delivered': return n>0 ? {status:'working', message:`전달 완료 ${n}건`}
+                                 : {status:'ready',   message:'전달 대기'};
+  }
+  return { status:'ready', message:null };
+}
+
+/* ============================================================
    ③ 렌더링
    ============================================================ */
 const officeEl = document.getElementById('office');
@@ -286,7 +354,7 @@ function build(){
   DEPTS.forEach(d=>{
     const members = APPS.filter(a=>a.dept===d.id);
     const room = document.createElement('section');
-    room.className = 'room';
+    room.className = 'room' + (d.wide ? ' wide' : '');
     room.innerHTML = `
       <div class="room-head">
         <span>${d.icon}</span><span class="tag">${d.name}</span>
@@ -302,11 +370,12 @@ function build(){
       c.className = 'char s-ready';
       c.tabIndex = 0;
       c.dataset.app = a.id;
-      c.style.left = (20 + i*28 + Math.random()*10) + '%';
+      c.style.left = ((100/(members.length+1))*(i+1) + (Math.random()*8-4)) + '%';
       c.style.top  = (55 + Math.random()*35) + '%';
       c.innerHTML = `
         <div class="bubble"></div>
         <div class="warn" hidden>⚠️</div>
+        <div class="badge" hidden></div>
         <div class="avatar">${a.emoji}</div>
         <div class="nametag">${a.name}</div>`;
       const open = ()=>{
@@ -331,14 +400,34 @@ function build(){
    ④ 상태 반영 (5초마다)
    ============================================================ */
 const RANK = { error:3, ready:2, working:1 };
+let lastReceived = null;
 function refresh(){
+  readPipelineLocal();
+  // 접수 건수가 늘어나면 전달봇 출동!
+  if(pipeline.source !== null){
+    if(lastReceived !== null && pipeline.received > lastReceived){
+      setTimeout(deliveryTrip, 600);
+    }
+    lastReceived = pipeline.received;
+  }
   let w=0,r=0,e=0;
   APPS.forEach(a=>{
-    const s = readStatus(a);
+    const s = a.stage ? { ...stageStatus(a.stage), lastUpdate:pipeline.lastUpdate }
+                      : readStatus(a);
+    if(a.stage && typeof missing !== 'undefined' && missing.has(a.id)){
+      s.status='error'; s.message='파일을 못 찾았어요 🔍';
+    }
     statuses[a.id] = s;
     const el = charEls[a.id];
     el.className = 'char s-' + s.status;
     el.querySelector('.warn').hidden = (s.status !== 'error');
+    // 건수 배지 (파이프라인 단계봇 전용)
+    const badge = el.querySelector('.badge');
+    if(a.stage){
+      const n = pipeline[a.stage] || 0;
+      badge.hidden = (n === 0 || pipeline.source === null);
+      badge.textContent = n;
+    }
     el.title = `${a.name} · ${s.status}` + (s.message ? ` · ${s.message}` : '');
     if(s.status==='working') w++; else if(s.status==='error') e++; else r++;
     if(s.status==='error') showBubble(a.id, s.message || '살려줘! 😵', true);
@@ -383,14 +472,80 @@ function chatterLoop(){
 }
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let traveling = false;
 function wanderLoop(){
   if(!reduced){
     const a = APPS[Math.floor(Math.random()*APPS.length)];
-    const el = charEls[a.id];
-    el.style.left = (15 + Math.random()*70) + '%';
-    el.style.top  = (50 + Math.random()*42) + '%';
+    if(!(traveling && a.id === 'stage_delivered')){
+      const el = charEls[a.id];
+      el.style.left = (15 + Math.random()*70) + '%';
+      el.style.top  = (50 + Math.random()*42) + '%';
+    }
   }
   setTimeout(wanderLoop, 3000 + Math.random()*4000);
+}
+
+/* ============================================================
+   ⑤-3 전달봇 배달 이벤트 — 이메일 부서 → 실무처리 부서 왕복
+   접수 건수가 늘어나면 자동 발동!
+   ============================================================ */
+function deliveryTrip(){
+  const el = charEls['stage_delivered'];
+  const worker = charEls['stage_working'];
+  if(!el) return;
+  if(reduced){ // 모션 최소화 환경: 말풍선만
+    showBubble('stage_delivered','실무처리부에 서류 전달! 📦');
+    if(worker) showBubble('stage_working','접수 완료! 바로 작업할게요 🛠️');
+    return;
+  }
+  if(traveling) return;
+  traveling = true;
+
+  const homeFloor = el.parentElement;
+  const targetFloor = document.querySelector('.floor[data-dept="work"]');
+  const startLeft = el.style.left, startTop = el.style.top;
+  const rect = el.getBoundingClientRect();
+
+  // 고정 좌표로 전환해서 방 밖으로 나갈 수 있게
+  el.style.transition = 'none';
+  el.style.position = 'fixed';
+  el.style.left = (rect.left + rect.width/2) + 'px';
+  el.style.top  = rect.bottom + 'px';
+  el.style.zIndex = 99;
+  document.body.appendChild(el);
+  showBubble('stage_delivered','실무처리부로 배달 중~ 🏃');
+
+  requestAnimationFrame(()=>{
+    el.style.transition = 'left 2.6s ease-in-out, top 2.6s ease-in-out';
+    const t = targetFloor.getBoundingClientRect();
+    el.style.left = (t.left + t.width*0.5) + 'px';
+    el.style.top  = (t.top + t.height*0.78) + 'px';
+
+    setTimeout(()=>{ // 도착 — 전달!
+      showBubble('stage_delivered','서류 전달했습니다! 📦');
+      if(worker) showBubble('stage_working','접수 완료! 바로 작업할게요 🛠️');
+
+      setTimeout(()=>{ // 복귀 출발
+        const back = homeFloor.getBoundingClientRect();
+        el.style.left = (back.left + back.width*0.75) + 'px';
+        el.style.top  = (back.top + back.height*0.82) + 'px';
+
+        setTimeout(()=>{ // 원위치 복구
+          el.style.transition = 'none';
+          el.style.position = 'absolute';
+          el.style.zIndex = '';
+          el.style.left = startLeft;
+          el.style.top  = startTop;
+          homeFloor.appendChild(el);
+          requestAnimationFrame(()=>{
+            el.style.transition = 'left 2.6s ease-in-out, top 2.6s ease-in-out';
+          });
+          showBubble('stage_delivered','복귀 완료! ☕');
+          traveling = false;
+        }, 2800);
+      }, 1800);
+    }, 2800);
+  });
 }
 
 /* ⑤-2 파일 존재 점검 — 404인 앱은 자동 빨간불 (GitHub Pages에서만 동작) */
@@ -421,6 +576,11 @@ build();
 refresh();
 tick();
 checkFiles();
+fetchPipelineRemote();
+setInterval(fetchPipelineRemote, 60000);
+/* 데모 배달: 실제 데이터가 연결되기 전에도 배달 장면을 보여줌 */
+setTimeout(deliveryTrip, 8000);
+setInterval(()=>{ if(pipeline.source === null) deliveryTrip(); }, 75000);
 setInterval(refresh, 5000);
 setInterval(tick, 15000);
 setTimeout(chatterLoop, 1200);

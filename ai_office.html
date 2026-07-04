@@ -55,7 +55,7 @@ header h1 .dot{color:var(--gold)}
   display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;
 }
 .room{
-  border:2px solid var(--gold-dim);
+  border:2px solid var(--accent, var(--gold-dim));
   border-radius:10px;
   background:var(--room);
   box-shadow:inset 0 0 0 4px rgba(0,0,0,.25), 0 6px 16px rgba(0,0,0,.45);
@@ -66,7 +66,7 @@ header h1 .dot{color:var(--gold)}
   display:flex;align-items:center;gap:8px;
   padding:7px 10px;
   background:linear-gradient(#4a3a22,#3e3120);
-  border-bottom:2px solid var(--gold-dim);
+  border-bottom:2px solid var(--accent, var(--gold-dim));
   font-size:13px;
 }
 .room-head .tag{
@@ -86,6 +86,62 @@ header h1 .dot{color:var(--gold)}
     repeating-linear-gradient(0deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
     repeating-linear-gradient(90deg, transparent 0 34px, rgba(0,0,0,.14) 34px 35px),
     var(--room-floor);
+  box-shadow:inset 0 0 52px var(--tint, transparent);
+}
+.deco{
+  position:absolute;transform:translate(-50%,-50%);
+  font-size:20px;pointer-events:none;z-index:1;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));
+}
+.deco.tw{animation:twinkle 2.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+
+/* ── 대표이사실 럭셔리 사양 ─────────────── */
+.room.luxe{
+  border:3px solid #e8c15a;
+  box-shadow:
+    inset 0 0 0 5px rgba(0,0,0,.3),
+    inset 0 0 0 7px rgba(232,193,90,.35),
+    0 0 22px rgba(232,193,90,.22),
+    0 8px 20px rgba(0,0,0,.5);
+}
+.room.luxe .room-head{
+  background:linear-gradient(#5a1f24,#421318);
+  border-bottom-color:#e8c15a;
+}
+.room.luxe .room-head .tag{
+  background:linear-gradient(#f7df90,#d9ac37);
+  color:#3a2404;font-weight:bold;
+  box-shadow:0 2px 0 rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.room.luxe .floor{
+  background:
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(0,0,0,.18) 34px 35px),
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(0,0,0,.18) 34px 35px),
+    #3d2320; /* 마호가니 */
+}
+.room.luxe .floor::before{ /* 레드 카펫 */
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:34%;
+  transform:translateX(-50%);
+  background:linear-gradient(#7a1f27,#5e161d);
+  border-left:3px solid #d9ac37;border-right:3px solid #d9ac37;
+  opacity:.85;
+}
+.room.luxe .room-note{color:#e8c15a;border-top-color:rgba(232,193,90,.5)}
+
+/* VIP(사장) 캐릭터 */
+.char.vip .avatar{
+  box-shadow:0 3px 6px rgba(0,0,0,.5), 0 0 14px rgba(232,193,90,.55);
+}
+.char.vip .nametag{
+  background:linear-gradient(#f7df90,#d9ac37);
+  color:#3a2404;font-weight:bold;
+}
+.crown{
+  position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+  font-size:14px;z-index:4;
+  animation:idle 2.4s ease-in-out infinite;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));
 }
 .room-note{
   font-size:11px;color:#bfa876;text-align:right;
@@ -204,19 +260,22 @@ footer .lg::before{content:'●';margin-right:4px}
    url: justin-apps 기준 상대경로. TODO 표시는 파일명 확인 필요!
    ============================================================ */
 const DEPTS = [
-  { id:'ceo',     name:'대표이사실',      icon:'👑', note:'총괄 지휘 · 전체 허브' },
-  { id:'email',   name:'통관 · 이메일 부서', icon:'📧', note:'접수 · 보류 · 전달 (이메일 연동 예정)' },
-  { id:'work',    name:'통관 · 실무처리 부서', icon:'🛠️', note:'Entry 작성 · 장부 · 케이스' },
-  { id:'chinese', name:'중국어 학습팀',   icon:'🀄', note:'주희쌤 커리큘럼 · HSK' },
-  { id:'english', name:'영어 연구소',     icon:'🎧', note:'회화 · 문법 · 리스닝' },
-  { id:'media',   name:'뉴스 미디어팀',   icon:'📰', note:'한국 뉴스 브리핑' },
-  { id:'life',    name:'라이프 기획실',   icon:'🗓️', note:'인생 계획 · 목표 관리' },
-  { id:'invest',  name:'투자 연구소',     icon:'📈', note:'주식 시뮬레이션 (모의)' },
-  { id:'break',   name:'탕비실 · 휴게',   icon:'☕', note:'잡담 · 간식' },
+  { id:'ceo',     name:'대표이사실',        icon:'👑', note:'총괄 지휘 · 전체 허브',
+    color:'#e8c15a', luxe:true, wide:true,
+    decor:[['🏆','9%','32%'],['🪴','91%','36%'],['🖼️','24%','16%'],['🛋️','82%','82%'],['✨','38%','26%','tw'],['✨','66%','20%','tw']] },
+  { id:'email',   name:'통관 · 이메일 부서',   icon:'📧', note:'접수 · 보류 · 전달 (이메일 연동 예정)', color:'#6db3e8' },
+  { id:'work',    name:'통관 · 실무처리 부서', icon:'🛠️', note:'Entry 작성 · 장부 · 케이스',          color:'#e8985a' },
+  { id:'chinese', name:'중국어 학습팀',     icon:'🀄', note:'주희쌤 커리큘럼 · HSK',   color:'#e86a6a' },
+  { id:'english', name:'영어 연구소',       icon:'🎧', note:'회화 · 문법 · 리스닝',    color:'#7ec97e' },
+  { id:'media',   name:'뉴스 미디어팀',     icon:'📰', note:'한국 뉴스 브리핑',        color:'#b58ae0' },
+  { id:'life',    name:'라이프 기획실',     icon:'🗓️', note:'인생 계획 · 목표 관리',   color:'#5ecfc4' },
+  { id:'invest',  name:'투자 연구소',       icon:'📈', note:'주식 시뮬레이션 (모의)',  color:'#d67ab1' },
+  { id:'break',   name:'탕비실 · 휴게',     icon:'☕', note:'잡담 · 간식',             color:'#a89a7c',
+    decor:[['☕','20%','30%'],['🍪','78%','34%']] },
 ];
 
 const APPS = [
-  { id:'ceo_justin',      dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html',
+  { id:'ceo_justin',      dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html', vip:true,
     msgs:['오늘도 순찰 중 👀','국가 퍼밋 언제 나오나…','커피 한 잔 하고 시작하죠'] },
 
   { id:'stage_received',  dept:'email', name:'접수봇', emoji:'📥', url:'broker_ledger.html', stage:'received',
@@ -354,7 +413,11 @@ function build(){
   DEPTS.forEach(d=>{
     const members = APPS.filter(a=>a.dept===d.id);
     const room = document.createElement('section');
-    room.className = 'room' + (d.wide ? ' wide' : '');
+    room.className = 'room' + (d.wide ? ' wide' : '') + (d.luxe ? ' luxe' : '');
+    if(d.color){
+      room.style.setProperty('--accent', d.color);
+      room.style.setProperty('--tint', d.color + '22');
+    }
     room.innerHTML = `
       <div class="room-head">
         <span>${d.icon}</span><span class="tag">${d.name}</span>
@@ -365,9 +428,16 @@ function build(){
     officeEl.appendChild(room);
 
     const floor = room.querySelector('.floor');
+    (d.decor || []).forEach(([e,x,y,cls])=>{
+      const s = document.createElement('span');
+      s.className = 'deco' + (cls ? ' ' + cls : '');
+      s.textContent = e;
+      s.style.left = x; s.style.top = y;
+      floor.appendChild(s);
+    });
     members.forEach((a,i)=>{
       const c = document.createElement('div');
-      c.className = 'char s-ready';
+      c.className = 'char s-ready' + (a.vip ? ' vip' : '');
       c.tabIndex = 0;
       c.dataset.app = a.id;
       c.style.left = ((100/(members.length+1))*(i+1) + (Math.random()*8-4)) + '%';
@@ -376,6 +446,7 @@ function build(){
         <div class="bubble"></div>
         <div class="warn" hidden>⚠️</div>
         <div class="badge" hidden></div>
+        ${a.vip ? '<div class="crown">👑</div>' : ''}
         <div class="avatar">${a.emoji}</div>
         <div class="nametag">${a.name}</div>`;
       const open = ()=>{
@@ -419,7 +490,7 @@ function refresh(){
     }
     statuses[a.id] = s;
     const el = charEls[a.id];
-    el.className = 'char s-' + s.status;
+    el.className = 'char s-' + s.status + (a.vip ? ' vip' : '');
     el.querySelector('.warn').hidden = (s.status !== 'error');
     // 건수 배지 (파이프라인 단계봇 전용)
     const badge = el.querySelector('.badge');

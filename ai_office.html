@@ -7,7 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/neodgm-webfont@1.530/neodgm/style.css" rel="stylesheet">
 <style>
 :root{
-  --tilt:38deg;          /* 3D 기울기 (2D 모드에선 0deg) */
+  --tilt:0deg;           /* CSS 디오라마 모드 사용 안 함 (Three.js 3D 별도 페이지) */
   --bg:#241b12;          /* 사무실 바닥 어두운 우드 */
   --plank:#2c2217;
   --room:#3b2e1f;        /* 방 내부 */
@@ -46,7 +46,8 @@ header h1 .dot{color:var(--gold)}
 .hud{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:13px}
 .hud .clock{color:#cfd3ff}
 #viewToggle{
-  font-family:inherit;font-size:12px;cursor:pointer;
+  font-family:inherit;font-size:12px;cursor:pointer;text-decoration:none;
+  display:inline-block;
   background:var(--cream);color:var(--ink);
   border:none;border-radius:5px;padding:3px 9px;
   box-shadow:0 2px 0 rgba(0,0,0,.45);
@@ -285,7 +286,7 @@ footer .lg::before{content:'●';margin-right:4px}
 <header>
   <h1>🏢 JN AI COMPANY <span class="dot">·</span> LIVE OFFICE</h1>
   <div class="hud">
-    <button id="viewToggle" title="3D/2D 전환">🎥 2D</button>
+    <a id="viewToggle" href="ai_office_3d.html" title="3D 오피스로 이동">🎥 3D</a>
     <div class="count">
       <span class="c-work" id="cntWork">0</span>
       <span class="c-ready" id="cntReady">0</span>
@@ -766,16 +767,6 @@ async function checkFiles(){
   }
   if(missing.size) refresh();
 }
-
-/* ⑦ 3D/2D 보기 전환 (설정은 localStorage에 저장) */
-const vt = document.getElementById('viewToggle');
-function applyView(flat){
-  document.body.classList.toggle('flat', flat);
-  vt.textContent = flat ? '🎥 3D' : '🎥 2D'; // 버튼엔 '전환할 모드' 표시
-  try{ localStorage.setItem('jn_office_view', flat ? '2d' : '3d'); }catch(e){}
-}
-vt.addEventListener('click', ()=> applyView(!document.body.classList.contains('flat')));
-applyView((localStorage.getItem('jn_office_view') || '3d') === '2d');
 
 /* ⑥ 시계 */
 function tick(){

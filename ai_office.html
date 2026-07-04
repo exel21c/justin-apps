@@ -195,52 +195,57 @@ footer .lg::before{content:'●';margin-right:4px}
    url: justin-apps 기준 상대경로. TODO 표시는 파일명 확인 필요!
    ============================================================ */
 const DEPTS = [
-  { id:'ceo',     name:'대표이사실',      icon:'👑', note:'총괄 지휘' },
+  { id:'ceo',     name:'대표이사실',      icon:'👑', note:'총괄 지휘 · 전체 허브' },
   { id:'customs', name:'통관 사업부',     icon:'🛃', note:'Entry · AR · 케이스 관리' },
-  { id:'kshop',   name:'K-SHOP4U 사업부', icon:'🛍️', note:'K-뷰티 · K-푸드 (수익 가동)' },
-  { id:'usshop',  name:'US-SHOP4U 사업부',icon:'🐶', note:'네이버 스마트스토어 · 펫 영양제' },
   { id:'chinese', name:'중국어 학습팀',   icon:'🀄', note:'주희쌤 커리큘럼 · HSK' },
-  { id:'english', name:'영어 연구소',     icon:'🎧', note:'ENG LAB · 리스닝 랩' },
-  { id:'health',  name:'건강관리실',      icon:'🥗', note:'칼로리 · 컨디션' },
+  { id:'english', name:'영어 연구소',     icon:'🎧', note:'회화 · 문법 · 리스닝' },
+  { id:'media',   name:'뉴스 미디어팀',   icon:'📰', note:'한국 뉴스 브리핑' },
+  { id:'life',    name:'라이프 기획실',   icon:'🗓️', note:'인생 계획 · 목표 관리' },
+  { id:'invest',  name:'투자 연구소',     icon:'📈', note:'주식 시뮬레이션 (모의)' },
   { id:'break',   name:'탕비실 · 휴게',   icon:'☕', note:'잡담 · 간식' },
 ];
 
 const APPS = [
-  { id:'ceo_justin',    dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html',
+  { id:'ceo_justin',      dept:'ceo',     name:'저스틴 사장', emoji:'🧑‍💼', url:'index.html',
     msgs:['오늘도 순찰 중 👀','국가 퍼밋 언제 나오나…','커피 한 잔 하고 시작하죠'] },
 
-  { id:'broker_ledger', dept:'customs', name:'장부봇', emoji:'📒', url:'broker_ledger.html',
+  { id:'broker_ledger',   dept:'customs', name:'장부봇', emoji:'📒', url:'broker_ledger.html',
     msgs:['오늘 Entry 정리 완료!','AR 회수 체크 중','KPI 갱신했습니다'] },
-  { id:'case_notes',    dept:'customs', name:'케이스봇', emoji:'🗂️', url:'case_notes.html',
+  { id:'case_notes',      dept:'customs', name:'케이스봇', emoji:'🗂️', url:'case_notes.html',
     msgs:['HTS 케이스 기록 중','CROSS 판례 찾는 중…'] },
-  { id:'accounting',    dept:'customs', name:'회계봇', emoji:'🧮', url:'jn_accounting.html', /* TODO 파일명 확인 */
-    msgs:['인보이스 대조 중','이번 달 마감 준비!'] },
 
-  { id:'item_scout',    dept:'kshop',   name:'스카웃봇', emoji:'🔎', url:'item_scout.html',
-    msgs:['마진 계산 돌리는 중','이 아이템 괜찮은데요?'] },
-  { id:'pricing',       dept:'kshop',   name:'프라이스봇', emoji:'💵', url:'pricing_dashboard.html', /* TODO 파일명 확인 */
-    msgs:['항공운임 티어 반영 완료','경쟁사 가격 스캔 중…'] },
-
-  { id:'usshop_naver',  dept:'usshop',  name:'네이버봇', emoji:'🤖', url:'usshop.html', /* TODO 파일명 확인 */
-    msgs:['Cosequin 재고 확인 중','스마트스토어 등록 대기'] },
-
-  { id:'juhee_chinese', dept:'chinese', name:'주희쌤', emoji:'👩‍🏫', url:'juhee_chinese.html',
+  { id:'juhee_chinese',   dept:'chinese', name:'주희쌤', emoji:'👩‍🏫', url:'juhee_chinese.html',
     msgs:['이번 주 단어 외웠어요?','声调 조심하세요~'] },
-  { id:'chinese_learner',dept:'chinese',name:'러너봇', emoji:'📖', url:'chinese_learner.html',
+  { id:'chinese_learner', dept:'chinese', name:'러너봇', emoji:'📖', url:'chinese_learner.html',
     msgs:['Week 7 복습 어때요?','HSK 3급 가즈아'] },
-  { id:'voca100',       dept:'chinese', name:'보카봇', emoji:'🈶', url:'voca100_chinese.html',
+  { id:'chinese_listening',dept:'chinese',name:'듣기봇', emoji:'👂', url:'chinese_listening.html',
+    msgs:['오늘 듣기 연습 하셨어요?','다시 한 번 들어볼까요?'] },
+  { id:'voca100',         dept:'chinese', name:'보카봇', emoji:'🈶', url:'voca100_chinese.html',
     msgs:['오늘의 100단어 준비 완료','TTS 성대 풀고 있어요'] },
 
-  { id:'eng_lab',       dept:'english', name:'잉글랩봇', emoji:'🗣️', url:'eng_lab.html', /* TODO 파일명 확인 */
-    msgs:['Customs 용어 퀴즈 어때요?','Repeat after me!'] },
-  { id:'listening_lab', dept:'english', name:'리스닝봇', emoji:'🎧', url:'listening_lab.html', /* TODO 파일명 확인 */
-    msgs:['오늘 팟캐스트 들으셨어요?','mishearing 로그 정리 중'] },
+  { id:'english_learner', dept:'english', name:'잉글리시봇', emoji:'🗣️', url:'english_learner.html',
+    msgs:['Repeat after me!','Customs 용어 복습 어때요?'] },
+  { id:'conversation_lab',dept:'english', name:'회화봇', emoji:'💬', url:'conversation_lab.html',
+    msgs:['오늘의 스몰토크 준비 완료','실전 표현 연습해요!'] },
+  { id:'grammar_focus',   dept:'english', name:'문법봇', emoji:'✏️', url:'grammar_in_focus.html',
+    msgs:['관사 조심하세요 ㅎㅎ','오늘의 문법 포인트!'] },
 
-  { id:'health',        dept:'health',  name:'칼로리봇', emoji:'🍎', url:'health_tracker.html', /* TODO 파일명 확인 */
-    msgs:['오늘 걸음 수 입력하셨나요?','저녁은 가볍게 어때요?'] },
+  { id:'korean_news',     dept:'media',   name:'뉴스봇', emoji:'📰', url:'korean-news-portal.html',
+    msgs:['오늘의 헤드라인 정리 중','정치·경제·문화·스포츠 순서로!'] },
 
-  { id:'moka',          dept:'break',   name:'모카', emoji:'🐕', url:null,
+  { id:'life_planner',    dept:'life',    name:'플래너봇', emoji:'🗓️', url:'justin_life_planner.html',
+    msgs:['여수·순천 자료 모으는 중','이번 분기 목표 점검!'] },
+
+  { id:'stock_game',      dept:'invest',  name:'주식봇', emoji:'📈', url:'stock-game.html',
+    msgs:['오늘 포트폴리오 어때요?','(모의) 수익률 계산 중'] },
+
+  { id:'moka',            dept:'break',   name:'모카', emoji:'🐕', url:null,
     msgs:['멍!','산책 가요? 🦴','(꼬리 흔드는 중)'] },
+
+  /* ── 나중에 업로드하면 주석 해제 ──
+  { id:'item_scout', dept:'kshop', name:'스카웃봇', emoji:'🔎', url:'item_scout.html',
+    msgs:['마진 계산 돌리는 중','이 아이템 괜찮은데요?'] },
+  */
 ];
 
 /* 상태 기본값: 각 앱이 localStorage에 보고하기 전까지 사용 */
@@ -262,6 +267,10 @@ function readStatus(app){
   if(s.status === 'working' && s.lastUpdate){
     const age = (Date.now() - new Date(s.lastUpdate).getTime()) / 36e5;
     if(age > STALE_HOURS){ s.status = 'ready'; s.message = '24시간째 소식이 없어요 💤'; }
+  }
+  if(typeof missing !== 'undefined' && missing.has(app.id)){
+    s.status = 'error';
+    s.message = '파일을 못 찾았어요 🔍 (url 확인 필요)';
   }
   return s;
 }
@@ -300,7 +309,10 @@ function build(){
         <div class="warn" hidden>⚠️</div>
         <div class="avatar">${a.emoji}</div>
         <div class="nametag">${a.name}</div>`;
-      const open = ()=>{ if(a.url) window.open(a.url, '_blank'); };
+      const open = ()=>{
+        if(missing.has(a.id)){ showBubble(a.id, '아직 제 자리가 없어요… url을 고쳐주세요! 🙏', true); return; }
+        if(a.url) window.open(a.url, '_blank');
+      };
       c.addEventListener('click', open);
       c.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });
       floor.appendChild(c);
@@ -375,6 +387,20 @@ function wanderLoop(){
   setTimeout(wanderLoop, 3000 + Math.random()*4000);
 }
 
+/* ⑤-2 파일 존재 점검 — 404인 앱은 자동 빨간불 (GitHub Pages에서만 동작) */
+const missing = new Set();
+async function checkFiles(){
+  if(!location.protocol.startsWith('http')) return; // file:// 로 열면 건너뜀
+  for(const a of APPS){
+    if(!a.url) continue;
+    try{
+      const res = await fetch(a.url, { method:'HEAD' });
+      if(!res.ok){ missing.add(a.id); }
+    }catch(e){ missing.add(a.id); }
+  }
+  if(missing.size) refresh();
+}
+
 /* ⑥ 시계 */
 function tick(){
   const n = new Date();
@@ -388,6 +414,7 @@ function tick(){
 build();
 refresh();
 tick();
+checkFiles();
 setInterval(refresh, 5000);
 setInterval(tick, 15000);
 setTimeout(chatterLoop, 1200);

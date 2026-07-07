@@ -750,6 +750,27 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     </div>
     <div class="kanban-board" id="kanban-board"></div>
   </div>
+  <!-- V2.1 NEW: IEEPA Refund Radar (CAPE) -->
+  <div class="card" style="padding:14px 18px;margin-bottom:18px" id="refund-radar-card">
+    <div class="card-header"><div class="card-title">💰 IEEPA Refund Radar <span style="font-size:9px;font-weight:600;color:var(--t3);text-transform:none">CAPE · ACE Portal</span></div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-sm" style="font-size:10px;padding:3px 8px;border-color:var(--gold);color:var(--gold)" onclick="refundScan()">🔍 Scan Entries</button>
+        <button class="btn btn-sm" style="font-size:10px;padding:3px 8px" onclick="refundExportCSV()">⬇ CAPE Worksheet (CSV)</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0">
+      <div style="background:var(--gold-dim);border-radius:var(--r);padding:8px 12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--gold)">Eligible</div><div style="font-size:18px;font-weight:800" id="rr-count">0</div></div>
+      <div style="background:var(--green-dim);border-radius:var(--r);padding:8px 12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--green)">Est. Refund</div><div style="font-size:18px;font-weight:800" id="rr-total">$0</div></div>
+      <div style="background:var(--blue-dim);border-radius:var(--r);padding:8px 12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--blue)">CAPE Filed</div><div style="font-size:18px;font-weight:800" id="rr-filed">0</div></div>
+      <div style="background:var(--s3);border-radius:var(--r);padding:8px 12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--t3)">Refunded</div><div style="font-size:18px;font-weight:800" id="rr-done">0</div></div>
+    </div>
+    <div id="refund-list"></div>
+    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5">
+      기준: Entry date <b>2025-02-04 ~ 2026-02-24</b> &amp; Duty &gt; $0 → IEEPA 환급 후보로 표시.
+      Section 232(철강·알루미늄) / Section 301(중국) 관세는 환급 대상이 아니므로 원산지 CN 등은 IEEPA 해당분만 산정하세요.
+      CAPE Declaration은 ACE 포털에서 IOR 또는 해당 엔트리를 파일링한 브로커가 CSV로 제출합니다 (Phase 1: 2026-04-20 개시).
+    </div>
+  </div>
   <div class="two-col">
     <div class="card"><div class="card-t">Recent Entries</div><div id="dash-recent"></div></div>
     <div class="card"><div class="card-t">Outstanding Invoices</div><div id="dash-outstanding"></div></div>
@@ -1415,7 +1436,7 @@ function testWrite() {
         <option>Ocean FCL</option><option>Ocean LCL</option><option>Air</option><option>Truck</option><option>Rail</option>
       </select></div>
     <div class="fgi"><label>Status</label>
-      <select id="e-status"><option>Draft</option><option>Filed</option><option>Hold</option><option>Released</option><option>Liquidated</option></select></div>
+      <select id="e-status"><option>Draft</option><option>Filed</option><option>Hold</option><option>Released</option><option>Liquidated</option><option>Refund Eligible</option></select></div>
     <div class="fgi"><label>HTS Code</label><input id="e-hts" placeholder="8471.30.0100"/></div>
     <div class="fgi"><label>Description</label><input id="e-desc" placeholder="Commodity description"/></div>
     <div class="fgi"><label>Entered Value ($)</label><input type="number" step="0.01" id="e-value" placeholder="0.00" oninput="calcFees()"/></div>
@@ -1813,8 +1834,10 @@ function renderKanban(){
   db.entries.forEach(e=>{
     const st=e.status||'';
     const item={num:e.number,client:e.clientName,desc:(e.description||'—').slice(0,35),date:e.date,flag:''};
+    if(e.refund&&e.refund.status&&e.refund.status!=='Not Eligible'&&e.refund.status!=='Refunded')item.flag='💰 Refund';
     if(st==='Filed'||st==='In Transit')cols[1].items.push(item);
-    else if(st==='Under Review'||st==='Examination'||st==='Hold'){item.flag='Review';cols[2].items.push(item);}
+    else if(st==='Under Review'||st==='Examination'||st==='Hold'){if(!item.flag)item.flag='Review';cols[2].items.push(item);}
+    else if(st==='Refund Eligible'){item.flag='💰 Refund';cols[3].items.push(item);}
     else if(st==='Released'||st==='Liquidated')cols[3].items.push(item);
   });
   el.innerHTML=cols.map(col=>{
@@ -2163,10 +2186,84 @@ function goToSheets(){
 }
 
 // ── BROKERAGE: DASHBOARD ──
+// ══════════════════════════════════════════════
+// V2.1 NEW: IEEPA Refund Radar (CAPE)
+// SCOTUS Learning Resources v. Trump (2026-02-20) → CIT refund order (2026-03-04)
+// CAPE Phase 1 filing open since 2026-04-20 via ACE Portal (CSV upload)
+// ══════════════════════════════════════════════
+const IEEPA_START='2025-02-04', IEEPA_END='2026-02-24';
+function refundIsCandidate(e){
+  return e.date && e.date>=IEEPA_START && e.date<=IEEPA_END && (parseFloat(e.duty)||0)>0;
+}
+function refundScan(){
+  let found=0;
+  db.entries.forEach(e=>{
+    if(refundIsCandidate(e) && !e.refund){
+      e.refund={status:'Identified', est:parseFloat(e.duty)||0, auto:true};
+      found++;
+    }
+  });
+  save(); renderRefundRadar(); if(typeof renderKanban==='function')renderKanban();
+  toast(found? `💰 ${found} refund candidate${found>1?'s':''} identified` : 'No new refund candidates found');
+}
+function refundSetStatus(id,val){
+  const e=db.entries.find(x=>x.id===id); if(!e)return;
+  if(val==='None'){ delete e.refund; }
+  else { e.refund=e.refund||{est:parseFloat(e.duty)||0}; e.refund.status=val; }
+  save(); renderRefundRadar(); if(typeof renderKanban==='function')renderKanban();
+}
+function refundSetEst(id,val){
+  const e=db.entries.find(x=>x.id===id); if(!e||!e.refund)return;
+  e.refund.est=parseFloat(val)||0; save(); renderRefundRadar();
+}
+function renderRefundRadar(){
+  const list=gid('refund-list'); if(!list)return;
+  const items=db.entries.filter(e=>e.refund&&e.refund.status&&e.refund.status!=='Not Eligible');
+  const active=items.filter(e=>e.refund.status!=='Refunded');
+  const filed=items.filter(e=>e.refund.status==='CAPE Filed');
+  const done=items.filter(e=>e.refund.status==='Refunded');
+  const total=active.reduce((s,e)=>s+(parseFloat(e.refund.est)||0),0);
+  const set=(id,v)=>{const el=gid(id);if(el)el.textContent=v;};
+  set('rr-count',active.length);
+  set('rr-total','$'+total.toLocaleString(undefined,{maximumFractionDigits:0}));
+  set('rr-filed',filed.length);
+  set('rr-done',done.length);
+  if(!items.length){ list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--t4)">No refund candidates yet — click <b>Scan Entries</b> to check the IEEPA window (2025-02-04 ~ 2026-02-24).</div>'; return; }
+  const opts=['Identified','CAPE Filed','Refunded','Not Eligible','None'];
+  list.innerHTML='<table><thead><tr><th>Entry #</th><th>Client</th><th>Date</th><th>Origin</th><th>Duty</th><th>Est. Refund ($)</th><th>Refund Status</th></tr></thead><tbody>'+
+    items.map(e=>{
+      const warn=(e.countryOfOrigin||'').toUpperCase().includes('CN')?' <span class="badge bg-r" title="Section 301 may apply — IEEPA portion only">301?</span>':'';
+      return `<tr>
+        <td style="font-weight:600">${e.number}</td>
+        <td>${e.clientName||'—'}</td>
+        <td>${e.date||'—'}</td>
+        <td>${e.countryOfOrigin||'—'}${warn}</td>
+        <td>$${(parseFloat(e.duty)||0).toLocaleString()}</td>
+        <td><input type="number" class="df-input" style="width:100px;padding:3px 6px;font-size:11px" value="${e.refund.est||0}" onchange="refundSetEst(${e.id},this.value)"/></td>
+        <td><select class="df-select" style="padding:3px 6px;font-size:11px" onchange="refundSetStatus(${e.id},this.value)">${opts.map(o=>`<option ${o===e.refund.status?'selected':''}>${o}</option>`).join('')}</select></td>
+      </tr>`;
+    }).join('')+'</tbody></table>';
+}
+function refundExportCSV(){
+  const items=db.entries.filter(e=>e.refund&&e.refund.status&&e.refund.status!=='Not Eligible'&&e.refund.status!=='Refunded');
+  if(!items.length){ toast('No refund candidates to export — run Scan first'); return; }
+  const rows=[['entry_number','entry_number_normalized','valid_11char','client_ior','entry_date','country_of_origin','total_duty_paid','est_ieepa_refund','refund_status','notes']];
+  items.forEach(e=>{
+    const norm=(e.number||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+    const valid=norm.length===11?'YES':'CHECK';
+    const note=(e.countryOfOrigin||'').toUpperCase().includes('CN')?'Section 301 possible - verify IEEPA portion':'';
+    rows.push([e.number||'',norm,valid,e.clientName||'',e.date||'',e.countryOfOrigin||'',e.duty||0,(e.refund&&e.refund.est)||0,(e.refund&&e.refund.status)||'',note]);
+  });
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='CAPE_worksheet_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  toast('⬇ CAPE worksheet exported ('+items.length+' entries)');
+}
 function renderDashboard(){
   const now=new Date();
   gid('dash-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  renderTasks(); renderKanban(); renderActivityFeed();
+  renderTasks(); renderKanban(); renderActivityFeed(); renderRefundRadar();
   const mtd=db.entries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   const rev=mtd.reduce((s,e)=>s+(e.brokerFee||0),0);
   const billed=mtd.reduce((s,e)=>s+calcEntryTotal(e),0);
@@ -2240,7 +2337,7 @@ function renderDashboard(){
 function renderEntries(filter=''){
   let entries=[...db.entries].sort((a,b)=>b.date.localeCompare(a.date));
   if(filter){const f=filter.toLowerCase();entries=entries.filter(e=>e.number.toLowerCase().includes(f)||e.clientName.toLowerCase().includes(f)||(e.description||'').toLowerCase().includes(f));}
-  const sb={Released:'bg-g',Liquidated:'bg-g',Filed:'bg-b','In Transit':'bg-b',Examination:'bg-a',Hold:'bg-r','On Hold':'bg-r',Draft:'bg-x',Cancelled:'bg-r'};
+  const sb={Released:'bg-g',Liquidated:'bg-g',Filed:'bg-b','In Transit':'bg-b',Examination:'bg-a',Hold:'bg-r','On Hold':'bg-r',Draft:'bg-x',Cancelled:'bg-r','Refund Eligible':'bg-w'};
   // Mode color coding
   function modeStyle(mode){
     if(!mode) return '';
@@ -3082,7 +3179,7 @@ function renderEntryDrawer(id){
   const isAir   = e.mode&&e.mode.toLowerCase().includes('air');
   const modeColor = isOcean?'#0A7A6B':isAir?'#1A6BB5':'#5B3FA8';
   const modeIcon  = isOcean?'⚓':isAir?'✈':'🚛';
-  const sb={Released:'bg-g',Liquidated:'bg-b',Filed:'bg-w','On Hold':'bg-r'};
+  const sb={Released:'bg-g',Liquidated:'bg-b',Filed:'bg-w','On Hold':'bg-r','Refund Eligible':'bg-w'};
 
   if(!drawerEditMode){
     // ── View Mode ──
@@ -3179,7 +3276,7 @@ function renderEntryDrawer(id){
     body.innerHTML=`<div class="df-grid">
       <div class="df s2"><div class="df-label">Entry Number</div><input class="df-input" id="de-number" value="${e.number}"/></div>
       <div class="df"><div class="df-label">Client</div><select class="df-select" id="de-client"><option value="">—</option>${cOpts}</select></div>
-      <div class="df"><div class="df-label">Status</div><select class="df-select" id="de-status">${['Filed','Released','Liquidated','On Hold'].map(s=>`<option ${s===e.status?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="df"><div class="df-label">Status</div><select class="df-select" id="de-status">${['Filed','Released','Liquidated','On Hold','Refund Eligible'].map(s=>`<option ${s===e.status?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="df"><div class="df-label">Date</div><input type="date" class="df-input" id="de-date" value="${e.date}"/></div>
       <div class="df"><div class="df-label">Port of Entry</div><input class="df-input" id="de-port" value="${e.port||''}"/></div>
       <div class="df"><div class="df-label">Mode</div><select class="df-select" id="de-mode">${['Ocean FCL','Ocean LCL','Air','Truck','Rail'].map(m=>`<option ${m===e.mode?'selected':''}>${m}</option>`).join('')}</select></div>
@@ -3195,6 +3292,9 @@ function renderEntryDrawer(id){
       <div class="df"><div class="df-label">MPF ($)</div><input type="number" class="df-input" id="de-mpf" value="${e.mpf||0}"/></div>
       <div class="df"><div class="df-label">HMF ($)</div><input type="number" class="df-input" id="de-hmf" value="${e.hmf||0}"/></div>
       <div class="df"><div class="df-label">Broker Fee ($)</div><input type="number" class="df-input" id="de-broker-fee" value="${e.brokerFee||0}"/></div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin:14px 0 8px;grid-column:1/-1">💰 IEEPA Refund (CAPE)</div>
+      <div class="df"><div class="df-label">Refund Status</div><select class="df-select" id="de-refund-status">${['None','Identified','CAPE Filed','Refunded','Not Eligible'].map(s=>`<option ${s===((e.refund&&e.refund.status)||'None')?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="df"><div class="df-label">Est. Refund ($)</div><input type="number" class="df-input" id="de-refund-est" value="${(e.refund&&e.refund.est)||0}"/></div>
       ${oceanEdit}
     </div>`;
     footer.innerHTML=`<button class="btn btn-danger btn-sm" onclick="deleteEntry(${e.id});closeDrawer()">Delete</button>
@@ -3228,6 +3328,9 @@ function saveEntryEdit(id){
   e.hmf           = parseFloat(g('de-hmf'))||0;
   e.brokerFee     = parseFloat(g('de-broker-fee'))||0;
   e.status        = g('de-status')||e.status;
+  const _rs = g('de-refund-status');
+  if(_rs && _rs!=='None'){ e.refund = { status:_rs, est: parseFloat(g('de-refund-est'))||0 }; }
+  else if(_rs==='None'){ delete e.refund; }
   // Ocean / Air freight fields (safe — returns null if input doesn't exist)
   if(g('de-shipping-line')!==null) e.shippingLine   = g('de-shipping-line');
   if(g('de-vessel')!==null)        e.vesselName      = g('de-vessel');

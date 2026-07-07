@@ -238,6 +238,15 @@ body {
 .case-tag.origin { background: var(--blue-light); color: #1D4ED8; }
 .case-tag.stale-flag { background: var(--gold-light); color: var(--gold); }
 .case-tag.ruling { background: var(--green-light); color: var(--green); }
+.ruling-chip { display:inline-flex; align-items:center; gap:5px; background: var(--green-light); color: var(--green);
+  border:1px solid rgba(22,101,52,.25); border-radius:6px; padding:4px 9px; font-size:12px; font-weight:700;
+  font-family:'SF Mono',Consolas,monospace; text-decoration:none; margin:0 6px 6px 0; }
+.ruling-chip:hover { filter:brightness(.95); }
+.ruling-chip .ext { font-size:10px; opacity:.7; }
+.cross-link { font-size:11px; font-weight:600; color: var(--navy); text-decoration:none; border-bottom:1px dotted var(--navy); }
+.cross-link:hover { opacity:.7; }
+.no-citation-box { background: var(--gold-light); border:1px solid rgba(180,120,0,.3); border-radius: var(--radius);
+  padding:10px 12px; font-size:12px; color: var(--gold); margin-bottom:14px; line-height:1.5; }
 
 .empty-state {
   text-align: center;
@@ -591,8 +600,9 @@ body {
       </div>
       <div class="field-row">
         <div class="field">
-          <label>CBP Ruling 번호</label>
-          <input type="text" id="f_ruling" class="mono" placeholder="예: N123456">
+          <label>CBP Ruling 번호 <span style="font-weight:400;font-size:11px;color:var(--gray-500)">(쉼표로 여러 개 가능)</span></label>
+          <input type="text" id="f_ruling" class="mono" placeholder="예: N301234, H289654">
+          <a href="#" class="cross-link" style="display:inline-block;margin-top:5px" onclick="openCrossSearch();return false;">🔍 CROSS에서 룰링 검색 (HTS/품목명 자동 적용) ↗</a>
         </div>
         <div class="field">
           <label>세율 (MFN)</label>
@@ -662,6 +672,19 @@ function getFiltered() {
   });
 }
 
+// ── CROSS ruling citation helpers (audit-ready citations) ──
+function parseRulings(s) {
+  return (s||'').split(/[,;\n]+/).map(t=>t.trim().toUpperCase().replace(/\s+/g,'')).filter(Boolean);
+}
+function crossRulingUrl(r) { return 'https://rulings.cbp.gov/ruling/' + encodeURIComponent(r); }
+function crossSearchUrl(q) { return 'https://rulings.cbp.gov/search?term=' + encodeURIComponent(q); }
+function openCrossSearch() {
+  const hts = document.getElementById('f_hts').value.trim();
+  const title = document.getElementById('f_title').value.trim();
+  const q = hts || title;
+  if (!q) { showToast('HTS 번호나 품목명을 먼저 입력하세요.'); return; }
+  window.open(crossSearchUrl(q), '_blank');
+}
 function renderList() {
   const list = document.getElementById('casesList');
   const filtered = getFiltered();
@@ -678,7 +701,9 @@ function renderList() {
     const tags = (c.tags||[]).slice(0,3).map(t =>
       `<span class="case-tag">${t}</span>`).join('');
     const staleBadge = c.stale ? `<span class="case-tag stale-flag">⚑ 재확인</span>` : '';
-    const rulingBadge = c.ruling ? `<span class="case-tag ruling">Ruling</span>` : '';
+    const _rl = parseRulings(c.ruling);
+    const rulingBadge = _rl.length ? `<span class="case-tag ruling">✓ ${_rl[0]}${_rl.length>1?' +'+(_rl.length-1):''}</span>`
+      : (c.category==='HTS분류' ? `<span class="case-tag stale-flag">근거 미인용</span>` : '');
     const originTag = c.origin ? `<span class="case-tag origin">${c.origin}</span>` : '';
     return `<div class="case-card${c.stale?' flag-stale':''}${c.id===selectedId?' selected':''}" onclick="showDetail('${c.id}')">
       <div class="case-top">
@@ -762,7 +787,11 @@ function showDetail(id) {
         <div class="meta-item"><div class="detail-label">클라이언트</div><div class="detail-value">${c.client||'—'}</div></div>
         <div class="meta-item"><div class="detail-label">원산지</div><div class="detail-value">${c.origin||'—'}</div></div>
       </div>
-      ${c.ruling ? `<div class="detail-section"><div class="detail-label">CBP Ruling</div><div class="ruling-box">${c.ruling}</div></div>` : ''}
+      ${(()=>{ const rl=parseRulings(c.ruling);
+        if (rl.length) return `<div class="detail-section"><div class="detail-label">CBP Ruling (CROSS)</div><div>${rl.map(r=>`<a class="ruling-chip" href="${crossRulingUrl(r)}" target="_blank" rel="noopener">${r} <span class="ext">↗</span></a>`).join('')}</div></div>`;
+        if (c.category==='HTS분류') return `<div class="no-citation-box">⚠ <b>근거 룰링 미인용</b> — reasonable care 문서화를 위해 CROSS 인용을 추가하세요. ${c.hts?`<a class="cross-link" href="${crossSearchUrl(c.hts)}" target="_blank" rel="noopener">CROSS에서 ${c.hts} 검색 ↗</a>`:''}</div>`;
+        return ''; })()}
+      ${c.hts ? `<div class="detail-section"><a class="cross-link" href="${crossSearchUrl(c.hts)}" target="_blank" rel="noopener">🔍 이 HTS(${c.hts})의 CBP 룰링 전체 보기 (CROSS) ↗</a></div>` : ''}
       ${c.rate ? `<div class="detail-section"><div class="detail-label">세율 (MFN)</div><div class="detail-value">${c.rate}</div></div>` : ''}
       <div class="detail-section">
         <div class="detail-label">분류 근거 / 케이스 요약</div>

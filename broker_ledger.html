@@ -492,6 +492,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
 
 /* ── KPI CARDS (replaces .mc for dashboard use) ── */
 .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px }
+.kpi-grid.kpi5 { grid-template-columns:repeat(5,1fr) }
 .kpi-card { background:#fff; border:1px solid var(--b1); border-radius:var(--rl); padding:18px 20px;
   position:relative; overflow:hidden; box-shadow:0 1px 4px rgba(26,95,170,.08); transition:box-shadow .15s }
 .kpi-card:hover { box-shadow:0 4px 12px rgba(26,95,170,.12) }
@@ -573,11 +574,11 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
 
 /* ── RESPONSIVE ── */
 @media(max-width:960px) {
-  .kpi-grid { grid-template-columns:1fr 1fr }
+  .kpi-grid, .kpi-grid.kpi5 { grid-template-columns:1fr 1fr }
   .kanban-board { grid-template-columns:1fr 1fr }
 }
 @media(max-width:600px) {
-  .kpi-grid { grid-template-columns:1fr }
+  .kpi-grid, .kpi-grid.kpi5 { grid-template-columns:1fr }
   .kanban-board { grid-template-columns:1fr }
 }
 /* ── Mobile: collapse sidebar into horizontal scroll strip, responsive modals ── */
@@ -708,11 +709,12 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <button class="btn btn-sm" style="border-color:var(--gold);color:var(--gold);flex-shrink:0" onclick="goToSheets()">Set Up Sheets →</button>
   </div>
   <!-- Row 1: Financial KPIs -->
-  <div class="kpi-grid" style="margin-bottom:12px">
+  <div class="kpi-grid kpi5" style="margin-bottom:12px">
     <div class="kpi-card green"><div class="kpi-label">Broker Revenue (MTD)</div><div class="kpi-value" id="m-revenue">$0</div><div class="kpi-sub" id="m-rev-sub">0 entries this month</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Total Billed (MTD)</div><div class="kpi-value" id="m-billed">$0</div><div class="kpi-sub">duty + MPF + HMF + fees</div></div>
     <div class="kpi-card gold"><div class="kpi-label">Outstanding AR</div><div class="kpi-value" id="m-ar">$0</div><div class="kpi-sub" id="m-ar-sub">0 open invoices</div></div>
     <div class="kpi-card blue"><div class="kpi-label">Active Clients</div><div class="kpi-value" id="m-clients">0</div><div class="kpi-sub">importers of record</div></div>
+    <div class="kpi-card green"><div class="kpi-label">💎 Client Savings</div><div class="kpi-value" id="m-savings">$0</div><div class="kpi-sub" id="m-savings-sub">refunds + duty optimization</div></div>
   </div>
   <!-- Row 2: Action KPIs (서류항 스타일 — 지금 뭘 해야 하는지) -->
   <div class="kpi-grid kpi-action-row" style="margin-bottom:22px">
@@ -2192,6 +2194,16 @@ function goToSheets(){
 // CAPE Phase 1 filing open since 2026-04-20 via ACE Portal (CSV upload)
 // ══════════════════════════════════════════════
 const IEEPA_START='2025-02-04', IEEPA_END='2026-02-24';
+// ── V2.2: Client Savings (Riffs-style "value delivered" metric) ──
+function entrySavings(e){
+  let s = parseFloat(e.savings && e.savings.amount) || 0;
+  if(e.refund && e.refund.status && e.refund.status!=='Not Eligible') s += parseFloat(e.refund.est)||0;
+  return s;
+}
+function clientSavings(clientId){
+  return db.entries.filter(e=>e.clientId===clientId).reduce((s,e)=>s+entrySavings(e),0);
+}
+function totalSavings(){ return db.entries.reduce((s,e)=>s+entrySavings(e),0); }
 function refundIsCandidate(e){
   return e.date && e.date>=IEEPA_START && e.date<=IEEPA_END && (parseFloat(e.duty)||0)>0;
 }
@@ -2275,6 +2287,8 @@ function renderDashboard(){
   gid('m-ar').textContent=fmtM(arAmt);
   gid('m-ar-sub').textContent=open.length+' open invoices';
   gid('m-clients').textContent=db.clients.length;
+  const _sv=totalSavings(), _svN=db.entries.filter(e=>entrySavings(e)>0).length;
+  const _svEl=gid('m-savings'); if(_svEl){ _svEl.textContent=fmtM(_sv); gid('m-savings-sub').textContent=_svN?_svN+' entries · refunds + optimization':'refunds + duty optimization'; }
   // ── Action KPIs (서류항 스타일)
   // POA 미확인: POA 필드가 없거나 'Pending'/'Expired'인 클라이언트
   const poaNeeded = db.clients.filter(c => !c.poa || c.poa === 'Pending' || c.poa === 'Expired');
@@ -2466,6 +2480,94 @@ function printInvoice(){
 }
 
 // ── BROKERAGE: CLIENTS ──
+// ══════════════════════════════════════════════
+// V2.2 NEW: Client Status Portal — read-only bilingual HTML snapshot
+// ══════════════════════════════════════════════
+function generateClientPortal(clientId){
+  const c=db.clients.find(x=>x.id===clientId); if(!c){toast('Client not found');return;}
+  const cE=db.entries.filter(e=>e.clientId===clientId).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!cE.length){toast('No entries for this client yet');return;}
+  const genDate=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const active=cE.filter(e=>e.status!=='Liquidated');
+  const totalDuty=cE.reduce((s,e)=>s+(parseFloat(e.duty)||0)+(parseFloat(e.mpf)||0)+(parseFloat(e.hmf)||0),0);
+  const sv=clientSavings(clientId);
+  const refunds=cE.filter(e=>e.refund&&e.refund.status&&e.refund.status!=='Not Eligible');
+  const refundTotal=refunds.reduce((s,e)=>s+(parseFloat(e.refund.est)||0),0);
+  const stColor=s=>({'Released':'#16a34a','Liquidated':'#2563eb','Filed':'#d97706','In Transit':'#d97706','On Hold':'#dc2626','Hold':'#dc2626','Refund Eligible':'#b45309','Draft':'#6b7280'}[s]||'#6b7280');
+  const stKr=s=>({'Released':'반출 완료','Liquidated':'청산 완료','Filed':'신고 접수','In Transit':'운송 중','On Hold':'보류','Hold':'보류','Refund Eligible':'환급 대상','Draft':'준비 중'}[s]||s);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const rows=cE.map(e=>`<tr>
+    <td class="mono">${esc(e.number)}</td><td>${esc(e.date||'—')}</td>
+    <td>${esc((e.description||'—').slice(0,40))}</td><td class="mono">${esc(e.hts||'—')}</td>
+    <td>${esc(e.port||'—')}</td><td>${esc(e.etaDate||'—')}</td>
+    <td><span class="st" style="background:${stColor(e.status)}18;color:${stColor(e.status)}">${esc(e.status||'—')}<br><span style="font-size:9px;opacity:.8">${stKr(e.status||'')}</span></span></td>
+    <td class="mono" style="text-align:right">$${((parseFloat(e.duty)||0)+(parseFloat(e.mpf)||0)+(parseFloat(e.hmf)||0)).toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+  </tr>`).join('');
+  const refundSection = refunds.length ? `
+  <div class="section">
+    <h2>💰 IEEPA 관세 환급 진행 현황 · Tariff Refund Status</h2>
+    <p class="note">2026년 2월 대법원 판결에 따라 IEEPA 관세 환급이 진행 중입니다. 아래 엔트리가 환급 대상으로 확인되었습니다.<br>
+    Following the Feb 2026 Supreme Court ruling, IEEPA tariff refunds are in progress. The entries below have been identified as refund candidates.</p>
+    <table><thead><tr><th>Entry #</th><th>Date</th><th>Est. Refund<br>예상 환급액</th><th>Status<br>진행 상태</th></tr></thead><tbody>
+    ${refunds.map(e=>`<tr><td class="mono">${esc(e.number)}</td><td>${esc(e.date||'—')}</td><td class="mono" style="color:#16a34a;font-weight:700">$${(parseFloat(e.refund.est)||0).toLocaleString()}</td><td>${esc(e.refund.status)}</td></tr>`).join('')}
+    </tbody></table>
+    <p style="font-size:13px;font-weight:700;color:#16a34a;margin-top:8px">예상 환급 총액 · Total Est. Refund: $${refundTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</p>
+  </div>` : '';
+  const html=`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import Status — ${esc(c.name)} | JN Customs Brokerage</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f4f6f9;color:#1e293b;padding:24px;font-size:13px}
+.wrap{max-width:900px;margin:0 auto}
+.head{background:#0F2744;color:#fff;border-radius:12px 12px 0 0;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.head h1{font-size:17px}.head .sub{font-size:11px;opacity:.75;margin-top:4px}
+.head .brand{text-align:right;font-size:11px;opacity:.85;line-height:1.5}
+.body{background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:24px 26px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px}
+.kpi .l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b}
+.kpi .v{font-size:19px;font-weight:800;margin-top:3px}
+.section{margin-bottom:22px}
+h2{font-size:13px;margin-bottom:8px;color:#0F2744}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;padding:7px 8px;border-bottom:2px solid #e2e8f0}
+td{padding:8px;border-bottom:1px solid #f1f5f9;vertical-align:top}
+.mono{font-family:'SF Mono',Consolas,monospace;font-size:11px}
+.st{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-align:center;line-height:1.3}
+.note{font-size:11px;color:#64748b;line-height:1.6;margin-bottom:8px}
+.foot{text-align:center;font-size:10.5px;color:#94a3b8;margin-top:18px;line-height:1.7}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}body{padding:10px}}
+@media print{body{background:#fff;padding:0}}
+</style></head><body><div class="wrap">
+<div class="head">
+  <div><h1>수입 통관 현황 리포트 · Import Status Report</h1>
+    <div class="sub">${esc(c.name)} · As of ${genDate} (읽기 전용 스냅샷 · read-only snapshot)</div></div>
+  <div class="brand"><b>JN Customs Brokerage</b><br>Licensed U.S. Customs Broker<br>Gardena, CA</div>
+</div>
+<div class="body">
+  <div class="kpis">
+    <div class="kpi"><div class="l">Total Entries<br>총 엔트리</div><div class="v">${cE.length}</div></div>
+    <div class="kpi"><div class="l">In Progress<br>진행 중</div><div class="v">${active.length}</div></div>
+    <div class="kpi"><div class="l">Duties &amp; Fees Paid<br>납부 관세·수수료</div><div class="v">$${totalDuty.toLocaleString(undefined,{maximumFractionDigits:0})}</div></div>
+    <div class="kpi"><div class="l">💎 Savings Delivered<br>절감액</div><div class="v" style="color:#16a34a">$${sv.toLocaleString(undefined,{maximumFractionDigits:0})}</div></div>
+  </div>
+  ${refundSection}
+  <div class="section">
+    <h2>📋 엔트리 상세 · Entry Details</h2>
+    <table><thead><tr><th>Entry #</th><th>Date</th><th>Description</th><th>HTS</th><th>Port</th><th>ETA</th><th>Status</th><th style="text-align:right">Duty+Fees</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>
+  <div class="foot">본 리포트는 ${genDate} 기준 스냅샷이며 실시간 정보가 아닙니다. 문의사항은 담당 관세사에게 연락 주세요.<br>
+  This report is a snapshot as of ${genDate} and is not real-time. Please contact your customs broker with any questions.<br>
+  <b>JN Customs Brokerage</b> — a division of Exel Logistics Inc. · exellogisticsinc.com</div>
+</div></div></body></html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='ClientStatus_'+c.name.replace(/[^A-Za-z0-9가-힣]/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.html';
+  a.click();
+  toast('📤 Client report generated — '+c.name);
+}
+
 function renderClients(){
   const el=gid('clients-grid');
   if(!db.clients.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-t">No clients yet</div></div>`;return;}
@@ -2473,14 +2575,17 @@ function renderClients(){
     const cE=db.entries.filter(e=>e.clientId===c.id);
     const rev=cE.reduce((s,e)=>s+(e.brokerFee||0),0);
     const out=db.invoices.filter(i=>i.clientId===c.id&&i.status!=='Paid').reduce((s,i)=>s+i.amount,0);
+    const sv=clientSavings(c.id);
     return`<div class="cc" style="cursor:pointer" onclick="openDrawer('client',${c.id})">
       <div class="cc-name">${c.name}</div><div class="cc-id">${c.contact||''}${c.ein?' · '+c.ein:''}</div>
       <div class="cc-stats">
         <div><div class="cs-label">Entries</div><div class="cs-val">${cE.length}</div></div>
         <div><div class="cs-label">Revenue</div><div class="cs-val">${fmtM(rev)}</div></div>
         <div><div class="cs-label">Outstanding</div><div class="cs-val" style="color:${out>0?'var(--gold)':'var(--t3)'}">${fmtM(out)}</div></div>
-        <div><div class="cs-label">Default Fee</div><div class="cs-val">${fmtM(c.defaultFee)}</div></div>
-      </div></div>`;
+        <div><div class="cs-label">💎 Savings</div><div class="cs-val" style="color:${sv>0?'var(--green)':'var(--t3)'}">${fmtM(sv)}</div></div>
+      </div>
+      <button class="btn btn-sm" style="width:100%;margin-top:10px;font-size:10px;border-color:var(--blue);color:var(--blue)" onclick="event.stopPropagation();generateClientPortal(${c.id})">📤 Client Status Report (KR/EN)</button>
+      </div>`;
   }).join('');
 }
 
@@ -3295,6 +3400,9 @@ function renderEntryDrawer(id){
       <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin:14px 0 8px;grid-column:1/-1">💰 IEEPA Refund (CAPE)</div>
       <div class="df"><div class="df-label">Refund Status</div><select class="df-select" id="de-refund-status">${['None','Identified','CAPE Filed','Refunded','Not Eligible'].map(s=>`<option ${s===((e.refund&&e.refund.status)||'None')?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="df"><div class="df-label">Est. Refund ($)</div><input type="number" class="df-input" id="de-refund-est" value="${(e.refund&&e.refund.est)||0}"/></div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin:14px 0 8px;grid-column:1/-1">💎 Duty Savings (FTA / Classification)</div>
+      <div class="df"><div class="df-label">Savings ($)</div><input type="number" class="df-input" id="de-savings" value="${(e.savings&&e.savings.amount)||0}"/></div>
+      <div class="df"><div class="df-label">Savings Reason</div><input class="df-input" id="de-savings-reason" placeholder="예: KORUS FTA 적용" value="${(e.savings&&e.savings.reason)||''}"/></div>
       ${oceanEdit}
     </div>`;
     footer.innerHTML=`<button class="btn btn-danger btn-sm" onclick="deleteEntry(${e.id});closeDrawer()">Delete</button>
@@ -3331,6 +3439,9 @@ function saveEntryEdit(id){
   const _rs = g('de-refund-status');
   if(_rs && _rs!=='None'){ e.refund = { status:_rs, est: parseFloat(g('de-refund-est'))||0 }; }
   else if(_rs==='None'){ delete e.refund; }
+  const _svA = parseFloat(g('de-savings'))||0;
+  if(_svA>0){ e.savings = { amount:_svA, reason:(g('de-savings-reason')||'').trim() }; }
+  else { delete e.savings; }
   // Ocean / Air freight fields (safe — returns null if input doesn't exist)
   if(g('de-shipping-line')!==null) e.shippingLine   = g('de-shipping-line');
   if(g('de-vessel')!==null)        e.vesselName      = g('de-vessel');

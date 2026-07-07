@@ -580,6 +580,20 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   .kpi-grid { grid-template-columns:1fr }
   .kanban-board { grid-template-columns:1fr }
 }
+/* ── Mobile: collapse sidebar into horizontal scroll strip, responsive modals ── */
+@media(max-width:760px) {
+  .app { flex-direction:column }
+  nav { width:100%; flex-direction:row; overflow-x:auto; overflow-y:hidden; border-right:none; border-bottom:1px solid var(--b1); padding:4px 8px; gap:2px; -webkit-overflow-scrolling:touch }
+  nav > div { display:flex !important; flex-direction:row; align-items:center; gap:2px }
+  .nav-module-label, .nav-sect { display:none !important }
+  .nav-item { white-space:nowrap; border-left:none; border-bottom:2px solid transparent; padding:8px 10px; font-size:11px }
+  .nav-item.active { border-left:none; border-bottom-color:var(--blue) }
+  header { flex-wrap:wrap; height:auto; padding:8px 12px; gap:6px }
+  .hdr-center { order:3; width:100%; justify-content:center }
+  .md, .md-wide { width:94vw; max-width:94vw; padding:18px }
+  .fg { grid-template-columns:1fr }
+  .fgi.s2 { grid-column:span 1 }
+}
 
 
 /* ── Action KPI Row (서류항 스타일) ── */
@@ -616,7 +630,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <button class="btn btn-ghost btn-sm" onclick="exportBackupJSON()" title="Download full JSON backup of ALL data">💾 Backup</button>
     <button class="btn btn-sm btn-inc" id="hdr-inc-btn" onclick="openBkgTx('INCOME')" style="display:none">+ Income</button>
     <button class="btn btn-sm btn-exp" id="hdr-exp-btn" onclick="openBkgTx('EXPENSE')" style="display:none">− Expense</button>
-    <button class="btn btn-sm" id="hdr-csv-btn" onclick="openModal('csv-modal')" style="display:none">↑ CSV Import</button>
+    <button class="btn btn-sm" id="hdr-csv-btn" onclick="goToImport()" style="display:none">↑ CSV Import</button>
     <button class="btn btn-p btn-sm" id="hdr-entry-btn" onclick="openModal('entry-modal')">+ New Entry</button>
     <button class="btn btn-p btn-sm" id="hdr-pipeline-btn" onclick="plRunWorkflow()" style="display:none;background:var(--purple);border-color:var(--purple)">⚡ Run Pipeline</button>
   </div>
@@ -752,7 +766,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   <div class="ph">
     <div><div class="ph-t">Entries</div><div class="ph-s">All ACE/ABI filing records</div></div>
     <div class="ph-r">
-      <button class="btn btn-sm" onclick="openModal('csv-modal')">↑ CSV</button>
+      <button class="btn btn-sm" onclick="goToImport()">↑ CSV</button>
       <button class="btn btn-p btn-sm" onclick="openModal('entry-modal')">+ New Entry</button>
     </div>
   </div>
@@ -1387,13 +1401,94 @@ function testWrite() {
 </div>
 </div>
 
+<!-- ═══ NEW ENTRY MODAL (restored) ═══ -->
+<div class="mo" id="entry-modal">
+<div class="md md-wide">
+  <div class="md-t">+ New Entry</div>
+  <div class="fg">
+    <div class="fgi"><label>Entry Number *</label><input id="e-number" placeholder="231-XXXXXXX-X"/></div>
+    <div class="fgi"><label>Client</label><select id="e-client"><option value="">— Select Client —</option></select></div>
+    <div class="fgi"><label>Entry Date</label><input type="date" id="e-date"/></div>
+    <div class="fgi"><label>Port</label><input id="e-port" placeholder="Los Angeles (2704)"/></div>
+    <div class="fgi"><label>Mode</label>
+      <select id="e-mode" onchange="calcFees()">
+        <option>Ocean FCL</option><option>Ocean LCL</option><option>Air</option><option>Truck</option><option>Rail</option>
+      </select></div>
+    <div class="fgi"><label>Status</label>
+      <select id="e-status"><option>Draft</option><option>Filed</option><option>Hold</option><option>Released</option><option>Liquidated</option></select></div>
+    <div class="fgi"><label>HTS Code</label><input id="e-hts" placeholder="8471.30.0100"/></div>
+    <div class="fgi"><label>Description</label><input id="e-desc" placeholder="Commodity description"/></div>
+    <div class="fgi"><label>Entered Value ($)</label><input type="number" step="0.01" id="e-value" placeholder="0.00" oninput="calcFees()"/></div>
+    <div class="fgi"><label>Duty Rate (%)</label><input type="number" step="0.01" id="e-duty-rate" placeholder="0" oninput="calcFees()"/></div>
+    <div class="fgi"><label>Duty ($ — blank = auto)</label><input type="number" step="0.01" id="e-duty" oninput="calcFees()"/></div>
+    <div class="fgi"><label>MPF ($ — blank = auto)</label><input type="number" step="0.01" id="e-mpf" oninput="calcFees()"/></div>
+    <div class="fgi"><label>HMF ($ — blank = auto)</label><input type="number" step="0.01" id="e-hmf" oninput="calcFees()"/></div>
+    <div class="fgi"><label>Broker Fee ($)</label><input type="number" step="0.01" id="e-broker-fee" placeholder="150" oninput="calcFees()"/></div>
+    <div class="fgi s2"><div class="fee-box">
+      <div class="fr"><span>Duty</span><span id="fc-duty">$0.00</span></div>
+      <div class="fr"><span>MPF (0.3464% · min $33.58 / max $651.50)</span><span id="fc-mpf">$0.00</span></div>
+      <div class="fr"><span>HMF (0.125% · ocean only)</span><span id="fc-hmf">$0.00</span></div>
+      <div class="fr"><span>Broker Fee</span><span id="fc-broker">$0.00</span></div>
+      <div class="fr ft"><span>Total Billed</span><span id="fc-total">$0.00</span></div>
+      <div class="fr fp"><span>Your Revenue</span><span id="fc-profit">$0.00</span></div>
+    </div></div>
+  </div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('entry-modal')">Cancel</button>
+    <button class="btn btn-p" onclick="saveEntry()">Save Entry</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ NEW CLIENT MODAL (restored) ═══ -->
+<div class="mo" id="client-modal">
+<div class="md">
+  <div class="md-t">+ Add Client</div>
+  <div class="fg">
+    <div class="fgi s2"><label>Company Name *</label><input id="c-name" placeholder="Pacific Trade Co."/></div>
+    <div class="fgi"><label>Contact Person</label><input id="c-contact"/></div>
+    <div class="fgi"><label>EIN / Importer #</label><input id="c-ein" placeholder="XX-XXXXXXX"/></div>
+    <div class="fgi"><label>Email</label><input type="email" id="c-email"/></div>
+    <div class="fgi"><label>Phone</label><input id="c-phone"/></div>
+    <div class="fgi"><label>Default Broker Fee ($)</label><input type="number" step="0.01" id="c-fee" placeholder="150"/></div>
+    <div class="fgi"><label>&nbsp;</label><span style="font-size:10px;color:var(--t3);padding-top:8px">Auto-fills fee on new entries</span></div>
+    <div class="fgi s2"><label>Notes</label><textarea id="c-notes" rows="2"></textarea></div>
+  </div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('client-modal')">Cancel</button>
+    <button class="btn btn-p" onclick="saveClient()">Add Client</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ BOOKKEEPING TRANSACTION MODAL (restored) ═══ -->
+<div class="mo" id="bkg-tx-modal">
+<div class="md">
+  <div class="md-t" id="bkg-tx-modal-title">+ New Income</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="tt-btn" id="ttb-inc" onclick="setBkgTxType('INCOME')"><div class="ti">＋</div><div class="tl">Income</div></div>
+    <div class="tt-btn" id="ttb-exp" onclick="setBkgTxType('EXPENSE')"><div class="ti">－</div><div class="tl">Expense</div></div>
+  </div>
+  <div class="fg">
+    <div class="fgi"><label>Date</label><input type="date" id="bt-date"/></div>
+    <div class="fgi"><label>Ref / Invoice #</label><input id="bt-inv"/></div>
+    <div class="fgi s2"><label>Category *</label><select id="bt-cat"><option value="">— Select —</option></select></div>
+    <div class="fgi"><label>Net Amount ($) *</label><input type="number" step="0.01" id="bt-net" oninput="calcBkgTotal()"/></div>
+    <div class="fgi"><label>Tax ($)</label><input type="number" step="0.01" id="bt-tax" oninput="calcBkgTotal()"/></div>
+    <div class="fgi"><label>Fees ($)</label><input type="number" step="0.01" id="bt-fees" oninput="calcBkgTotal()"/></div>
+    <div class="fgi"><label>Total</label><input id="bt-total" readonly style="background:var(--s3);font-weight:700"/></div>
+    <div class="fgi s2"><label>Description</label><input id="bt-desc"/></div>
+    <div class="fgi s2"><label>Note</label><input id="bt-note"/></div>
+  </div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('bkg-tx-modal')">Cancel</button>
+    <button class="btn btn-p" onclick="saveBkgTx()">Save Transaction</button>
+  </div>
+</div>
+</div>
+
 <div id="toast"></div>
 
-
-
-
-
-<div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -2330,6 +2425,7 @@ function renderReports(){
 // ── BROKERAGE: SAVE ENTRY/CLIENT ──
 function saveEntry(){
   const num=gid('e-number').value.trim();if(!num){toast('Entry number required');return;}
+  if(db.entries.some(x=>x.number===num)){toast('⚠ Duplicate entry number — '+num);return;}
   const clientSel=gid('e-client').value;
   const client=db.clients.find(c=>c.id===parseInt(clientSel));
   const value=parseFloat(gid('e-value').value)||0;
@@ -2381,7 +2477,7 @@ function calcFees(){
   const mode=gid('e-mode').value;
   const modeForFee=(gid('e-mode')||{value:''}).value;
   let duty=parseFloat(gid('e-duty').value);if(isNaN(duty)||gid('e-duty').value===''){duty=val*(rate/100);gid('e-duty').placeholder=fmtM(duty);}
-  let mpf=parseFloat(gid('e-mpf').value);if(isNaN(mpf)||gid('e-mpf').value===''){mpf=(val>0&&!/air/i.test(modeForFee))?calcMPF(val):0;gid('e-mpf').placeholder=/air/i.test(modeForFee)?'N/A (Air)':fmtM(mpf);}
+  let mpf=parseFloat(gid('e-mpf').value);if(isNaN(mpf)||gid('e-mpf').value===''){mpf=val>0?calcMPF(val):0;gid('e-mpf').placeholder=fmtM(mpf);} // MPF applies to ALL modes (FY2026)
   let hmf=parseFloat(gid('e-hmf').value);if(isNaN(hmf)||gid('e-hmf').value===''){hmf=val>0?calcHMF(val,mode):0;gid('e-hmf').placeholder=fmtM(hmf);}
   const broker=parseFloat(gid('e-broker-fee').value)||0;
   const ed=isNaN(parseFloat(gid('e-duty').value))?duty:parseFloat(gid('e-duty').value);
@@ -2870,7 +2966,10 @@ function exportAll(){
 }
 
 // ── MODALS ──
-function openModal(id){const el=gid(id);if(el)el.classList.add('open');if(id==='entry-modal')populateClientDropdown();}
+function goToImport(){const item=document.querySelector('#nav-brokerage .nav-item[onclick*="import"]');if(currentModule!=='brokerage')switchModule('brokerage',gid('tab-brokerage'));showPage('import',item);}
+function openModal(id){const el=gid(id);if(!el){toast('⚠ Modal not found: '+id);return;}el.classList.add('open');
+  if(id==='entry-modal'){populateClientDropdown();const d=gid('e-date');if(d&&!d.value)d.value=today();calcFees();setTimeout(()=>{const f=gid('e-number');if(f)f.focus();},60);}
+  if(id==='client-modal'){setTimeout(()=>{const f=gid('c-name');if(f)f.focus();},60);}}
 function closeModal(id){const el=gid(id);if(el)el.classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer&&closeDrawer();document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
 document.querySelectorAll&&document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));

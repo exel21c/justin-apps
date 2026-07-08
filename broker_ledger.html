@@ -651,6 +651,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <div class="nav-item" onclick="showPage('fda-watch',this)"><span class="nav-icon">🧪</span> FDA Watch</div>
     <div class="nav-sect">Finance</div>
     <div class="nav-item" onclick="showPage('ar',this)"><span class="nav-icon">$</span> Receivables</div>
+    <div class="nav-item" onclick="showPage('ap',this)"><span class="nav-icon">◉</span> Payables (A/P)</div>
     <div class="nav-item" onclick="showPage('reports',this)"><span class="nav-icon">▦</span> Reports</div>
     <div class="nav-sect">Data</div>
     <div class="nav-item" onclick="showPage('import',this)"><span class="nav-icon">↑</span> CSV Import</div>
@@ -813,7 +814,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   </div>
   <div class="tw">
     <div class="tt"><span class="ttl">Invoice Register</span><div class="ttr"><input class="si" placeholder="Search invoices…" oninput="renderInvoices(this.value)"/></div></div>
-    <table><thead><tr><th>Invoice #</th><th>Client</th><th>Issued</th><th>Due</th><th>Entries</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+    <table><thead><tr><th>Invoice #</th><th>Client</th><th>Issued</th><th>Due</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
     <tbody id="invoices-tbody"></tbody></table>
   </div>
 </div>
@@ -832,13 +833,36 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   <div class="ph"><div><div class="ph-t">Receivables</div><div class="ph-s">Aging & collections</div></div></div>
   <div class="mg mg3">
     <div class="mc w"><div class="ml">Total Outstanding</div><div class="mv" id="ar-total">$0</div></div>
-    <div class="mc r"><div class="ml">Overdue (30+ days)</div><div class="mv" id="ar-overdue">$0</div></div>
+    <div class="mc r"><div class="ml">Overdue</div><div class="mv" id="ar-overdue">$0</div></div>
     <div class="mc g"><div class="ml">Collected (MTD)</div><div class="mv" id="ar-collected">$0</div></div>
   </div>
   <div class="tw">
-    <div class="tt"><span class="ttl">Aging Report</span></div>
-    <table><thead><tr><th>Client</th><th>Invoice #</th><th>Issued</th><th>Due</th><th>Amount</th><th>Days Out</th><th>Status</th><th></th></tr></thead>
+    <div class="tt"><span class="ttl">Aging by Client</span><span style="font-size:10px;color:var(--t4)">balance-based buckets</span></div>
+    <table><thead><tr><th>Client</th><th style="text-align:right">Current</th><th style="text-align:right">1–30</th><th style="text-align:right">31–60</th><th style="text-align:right">61–90</th><th style="text-align:right">90+</th><th style="text-align:right">Total Due</th><th></th></tr></thead>
+    <tbody id="ar-aging-tbody"></tbody></table>
+  </div>
+  <div class="tw">
+    <div class="tt"><span class="ttl">Open Invoices</span></div>
+    <table><thead><tr><th>Client</th><th>Invoice #</th><th>Issued</th><th>Due</th><th>Amount</th><th>Balance</th><th>Overdue</th><th>Status</th><th></th></tr></thead>
     <tbody id="ar-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- V2.4 NEW: A/P (VENDOR PAYABLES) -->
+<div id="page-ap" class="page">
+  <div class="ph">
+    <div><div class="ph-t">Payables (A/P)</div><div class="ph-s">Vendor bills & disbursements — trucking, courier, exam fees</div></div>
+    <div class="ph-r"><button class="btn btn-p btn-sm" onclick="openApModal()">+ Add A/P</button></div>
+  </div>
+  <div class="mg mg3">
+    <div class="mc w"><div class="ml">Open A/P</div><div class="mv" id="ap-open">$0</div></div>
+    <div class="mc r"><div class="ml">Overdue</div><div class="mv" id="ap-overdue">$0</div></div>
+    <div class="mc g"><div class="ml">Paid (MTD)</div><div class="mv" id="ap-paid">$0</div></div>
+  </div>
+  <div class="tw">
+    <div class="tt"><span class="ttl">Vendor Invoices</span><span style="font-size:10px;color:var(--t4)">pass-through costs stay out of Schedule C P&L</span></div>
+    <table><thead><tr><th>Vendor</th><th>Inv #</th><th>Category</th><th>Entry</th><th>Date</th><th>Due</th><th>Amount</th><th>Type</th><th>Status</th><th></th></tr></thead>
+    <tbody id="ap-tbody"></tbody></table>
   </div>
 </div>
 
@@ -858,6 +882,11 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
     <div class="tt"><span class="ttl">Fee Breakdown</span></div>
     <table><thead><tr><th>Entry #</th><th>Client</th><th>Date</th><th>Dutiable Value</th><th>Duty</th><th>MPF</th><th>HMF</th><th>Broker Fee</th><th>Total</th></tr></thead>
     <tbody id="report-tbody"></tbody></table>
+  </div>
+  <div class="tw">
+    <div class="tt"><span class="ttl">Entry Profitability</span><span style="font-size:10px;color:var(--t4)">broker fee − linked A/P costs</span></div>
+    <table><thead><tr><th>Entry #</th><th>Client</th><th>Date</th><th style="text-align:right">Broker Fee</th><th style="text-align:right">A/P Costs</th><th style="text-align:right">Net Profit</th><th style="text-align:right">Margin</th></tr></thead>
+    <tbody id="profit-tbody"></tbody></table>
   </div>
 </div>
 
@@ -1411,6 +1440,7 @@ function doPost(e) {
     writeTab(ss, 'Clients',         db.clients,         ['id','name','contact','email','phone','ein','defaultFee','notes']);
     writeTab(ss, 'Entries',         db.entries,         ['id','number','clientId','clientName','port','mode','date','hts','description','value','dutyRate','duty','mpf','hmf','brokerFee','status']);
     writeTab(ss, 'Invoices',        db.invoices,        ['id','number','clientId','clientName','issueDate','dueDate','amount','status','notes']);
+    writeTab(ss, 'AP',              db.apInvoices||[],  ['id','vendor','invoiceNo','category','entryNumber','date','dueDate','amount','billable','status','paidDate','memo']);
     writeTab(ss, 'Bookkeeping',     db.bkgTransactions, ['id','date','inv','type','cat','net','tax','fees','total','desc','note','auto','entryRef']);
     writeTab(ss, 'PipelineQueue',   db.plQueue,         ['_id','_email_date','_classification','entry_number','awb_number','shipper_name','consignee_name','hts_code','dutiable_value_usd','port_of_entry','eta_date','_queueStatus']);
     writeTab(ss, 'PipelineResults', db.plResults,       ['_id','_email_date','_classification','entry_number','awb_number','shipper_name','consignee_name','hts_code','dutiable_value_usd','port_of_entry','eta_date','_queueStatus']);
@@ -1455,7 +1485,7 @@ function testWrite() {
     <div class="fgi"><label>Issue Date</label><input type="date" id="ie-issue"/></div>
     <div class="fgi"><label>Due Date</label><input type="date" id="ie-due"/></div>
     <div class="fgi s2"><label>Status</label>
-      <select id="ie-status"><option>Draft</option><option>Sent</option><option>Paid</option><option>Overdue</option></select>
+      <select id="ie-status"><option>Draft</option><option>Sent</option><option>Partial</option><option>Paid</option><option>Overdue</option></select>
     </div>
     <div class="fgi s2"><label>Notes</label><textarea id="ie-notes" rows="3"></textarea></div>
   </div>
@@ -1463,6 +1493,58 @@ function testWrite() {
     <button class="btn btn-danger btn-sm" onclick="deleteInvoice()">Delete</button>
     <button class="btn" onclick="closeModal('inv-edit-modal')">Cancel</button>
     <button class="btn btn-p" onclick="saveInvoiceEdit()">Save Changes</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ V2.4: RECORD PAYMENT MODAL ═══ -->
+<div class="mo" id="pay-modal">
+<div class="md">
+  <div class="md-t" id="pay-title">Record Payment</div>
+  <div id="pay-summary"></div>
+  <div class="fg">
+    <div class="fgi"><label>Payment Date</label><input type="date" id="pay-date"/></div>
+    <div class="fgi"><label>Amount *</label><input type="number" id="pay-amount" step="0.01"/></div>
+    <div class="fgi"><label>Method</label><select id="pay-method"><option>Check</option><option>ACH/Wire</option><option>Zelle</option><option>Credit Card</option><option>Cash</option><option>Other</option></select></div>
+    <div class="fgi"><label>Memo</label><input id="pay-memo" placeholder="Check #, ref…"/></div>
+  </div>
+  <div id="pay-history"></div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('pay-modal')">Cancel</button>
+    <button class="btn btn-p" onclick="savePayment()">Save Payment</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ V2.4 FIX: INVOICE PREVIEW MODAL (was missing — previewInvoice() had no target) ═══ -->
+<div class="mo" id="invoice-modal">
+<div class="md md-wide">
+  <div id="invoice-preview-content" style="max-height:70vh;overflow:auto;background:#fff;color:#111;border-radius:6px;padding:14px"></div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('invoice-modal')">Close</button>
+    <button class="btn btn-p" onclick="printInvoice()">Print</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ V2.4: A/P (VENDOR INVOICE) MODAL ═══ -->
+<div class="mo" id="ap-modal">
+<div class="md">
+  <div class="md-t">+ Vendor Invoice (A/P)</div>
+  <div class="fg">
+    <div class="fgi"><label>Vendor *</label><input id="ap-vendor" placeholder="Harmun Trucking"/></div>
+    <div class="fgi"><label>Vendor Invoice #</label><input id="ap-invno" placeholder="19115"/></div>
+    <div class="fgi"><label>Category</label><select id="ap-cat"><option>TRUCKING</option><option>COURIER</option><option>CBP EXAM</option><option>DUTY/TAX ADVANCE</option><option>ISF FILING</option><option>WAREHOUSE/CFS</option><option>PALLET/HANDLING</option><option>OTHER</option></select></div>
+    <div class="fgi"><label>Linked Entry</label><select id="ap-entry"><option value="">— None —</option></select></div>
+    <div class="fgi"><label>Invoice Date</label><input type="date" id="ap-date"/></div>
+    <div class="fgi"><label>Due Date</label><input type="date" id="ap-due"/></div>
+    <div class="fgi"><label>Amount *</label><input type="number" id="ap-amount" step="0.01"/></div>
+    <div class="fgi"><label>Type</label><select id="ap-billable"><option value="1">Pass-through (bill to client)</option><option value="0">Company expense</option></select></div>
+    <div class="fgi s2"><label>Memo</label><input id="ap-memo"/></div>
+  </div>
+  <div class="ma">
+    <button class="btn" onclick="closeModal('ap-modal')">Cancel</button>
+    <button class="btn btn-p" onclick="saveAp()">Save A/P</button>
   </div>
 </div>
 </div>
@@ -1974,6 +2056,7 @@ async function gsSyncNow(){
         clients:          db.clients,
         entries:          db.entries,
         invoices:         db.invoices,
+        apInvoices:       db.apInvoices || [],
         bkgTransactions:  db.bkgTransactions,
         plQueue:          db.plQueue,
         plResults:        db.plResults,
@@ -1981,6 +2064,7 @@ async function gsSyncNow(){
         nextInvoiceId:    db.nextInvoiceId,
         nextClientId:     db.nextClientId,
         nextBkgId:        db.nextBkgId,
+        nextApId:         db.nextApId || 1,
         bkgIncCategories: db.bkgIncCategories,
         bkgExpCategories: db.bkgExpCategories,
         bkgGoals:         db.bkgGoals,
@@ -2042,12 +2126,14 @@ async function gsLoadFromSheets(){
     if(d.entries         && d.entries.length)         db.entries         = d.entries;
     if(d.invoices        && d.invoices.length)        db.invoices        = d.invoices;
     if(d.bkgTransactions && d.bkgTransactions.length) db.bkgTransactions = d.bkgTransactions;
+    if(d.apInvoices      && d.apInvoices.length)      db.apInvoices      = d.apInvoices;
     if(d.plQueue         && d.plQueue.length)         db.plQueue         = d.plQueue;
     if(d.plResults       && d.plResults.length)       db.plResults       = d.plResults;
     if(d.nextEntryId)      db.nextEntryId      = d.nextEntryId;
     if(d.nextInvoiceId)    db.nextInvoiceId    = d.nextInvoiceId;
     if(d.nextClientId)     db.nextClientId     = d.nextClientId;
     if(d.nextBkgId)        db.nextBkgId        = d.nextBkgId;
+    if(d.nextApId)         db.nextApId         = d.nextApId;
     if(d.bkgIncCategories) db.bkgIncCategories = d.bkgIncCategories;
     if(d.bkgExpCategories) db.bkgExpCategories = d.bkgExpCategories;
     if(d.bkgGoals)         db.bkgGoals         = d.bkgGoals;
@@ -2078,6 +2164,7 @@ let db = {
   bkgIncCategories:['NHG','NPA','KOREX','START SEED MONEY','TGL','ALLRIDE','UNIX CCTV','GOODFEET KOREA','BROKER FEES'],
   bkgExpCategories:['SALARY','OFFICE RENT','CAR PAYMENT','FHL','ETS CHECK'],
   nextBkgId:1,
+  apInvoices:[], nextApId:1,
   plEmails:[], plResults:[], plQueue:[], plLastRun:null, plPushedCount:0
 };
 const BROKER_FEE_CATEGORY = 'BROKER FEES';
@@ -2087,7 +2174,11 @@ function save(){
   catch(e){toast('⚠ LOCAL SAVE FAILED — '+((e&&e.name==='QuotaExceededError')?'storage full. Download a 💾 Backup now!':String(e&&e.message||e)));}
   gsTriggerAutoSync();
 }
-function load(){ try{const s=localStorage.getItem('ets_ledgerpro');if(s)db=JSON.parse(s);}catch(e){} }
+function load(){ try{const s=localStorage.getItem('ets_ledgerpro');if(s)db=JSON.parse(s);}catch(e){}
+  if(!db.apInvoices)db.apInvoices=[];
+  if(!db.nextApId)db.nextApId=1;
+  (db.invoices||[]).forEach(i=>{if(!i.payments)i.payments=[];});
+}
 
 // ── FULL BACKUP / RESTORE (JSON) ──
 function exportBackupJSON(){
@@ -2123,7 +2214,7 @@ function resetAllData(){
     bkgTransactions:[],bkgGoals:{},
     bkgIncCategories:db.bkgIncCategories&&db.bkgIncCategories.length?db.bkgIncCategories:[BROKER_FEE_CATEGORY],
     bkgExpCategories:db.bkgExpCategories&&db.bkgExpCategories.length?db.bkgExpCategories:['OFFICE RENT'],
-    nextBkgId:1,plEmails:[],plResults:[],plQueue:[],plLastRun:null,plPushedCount:0};
+    nextBkgId:1,apInvoices:[],nextApId:1,plEmails:[],plResults:[],plQueue:[],plLastRun:null,plPushedCount:0};
   try{localStorage.setItem('ets_no_demo','1');}catch(e){}
   save();populateClientDropdown();renderDashboard();
   toast('✓ All data cleared — fresh start. Demo data will NOT be re-seeded.');
@@ -2171,6 +2262,10 @@ const ym=d=>d?d.slice(0,7):'';
 const monthLabel=m=>{const[y,mo]=m.split('-');return['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)]+' '+y;};
 function calcEntryTotal(e){return(e.duty||0)+(e.mpf||0)+(e.hmf||0)+(e.brokerFee||0);}
 function daysBetween(d1,d2){return Math.floor((new Date(d2)-new Date(d1))/86400000);}
+// ── Partial-payment helpers (V2.4) ──
+function invPaid(i){if(i.payments&&i.payments.length)return i.payments.reduce((s,p)=>s+(Number(p.amount)||0),0);return i.status==='Paid'?(i.amount||0):0;}
+function invBalance(i){return Math.round(((i.amount||0)-invPaid(i))*100)/100;}
+function agingBucket(i,t){if(i.dueDate>=t)return 0;const d=daysBetween(i.dueDate,t);return d<=30?1:d<=60?2:d<=90?3:4;}
 function getBkgFiltered(period='all'){
   const now=new Date();
   return db.bkgTransactions.filter(t=>{
@@ -2215,7 +2310,7 @@ function showPage(id,el){
   if(el)el.classList.add('active');
   const renders={
     'dashboard':renderDashboard,'entries':()=>renderEntries(),'invoices':()=>renderInvoices(),
-    'clients':renderClients,'ar':renderAR,'reports':renderReports,
+    'clients':renderClients,'ar':renderAR,'ap':renderAP,'reports':renderReports,
     'bkg-dashboard':renderBkgDashboard,'bkg-transactions':renderBkgTx,
     'bkg-categories':renderBkgCategories,'bkg-monthly':renderBkgMonthly,'bkg-setup':renderSetup,
     'pipeline-dashboard':renderPlDashboard,'pipeline-scan':renderPlScan,
@@ -2360,7 +2455,7 @@ function renderDashboard(){
   }
   // AR 30일 초과
   const now30 = new Date(); now30.setDate(now30.getDate() - 30);
-  const ar30 = db.invoices.filter(i => i.status !== 'Paid' && new Date(i.dueDate||i.issueDate) < now30);
+  const ar30 = db.invoices.filter(i => invBalance(i) > 0 && new Date(i.dueDate||i.issueDate) < now30);
   const el_ar30 = gid('a-ar30');
   if(el_ar30){
     el_ar30.textContent = ar30.length;
@@ -2458,18 +2553,22 @@ function deleteEntry(id){
 function renderInvoices(filter=''){
   let invs=[...db.invoices].sort((a,b)=>b.issueDate.localeCompare(a.issueDate));
   if(filter){const f=filter.toLowerCase();invs=invs.filter(i=>i.number.toLowerCase().includes(f)||i.clientName.toLowerCase().includes(f));}
-  const sb={Paid:'bg-g',Sent:'bg-b',Draft:'bg-x',Overdue:'bg-r'};
-  gid('invoices-tbody').innerHTML=invs.length?invs.map(i=>`<tr class="clickable" onclick="if(event.target.tagName!=='BUTTON')openDrawer('invoice',${i.id})">
+  const sb={Paid:'bg-g',Sent:'bg-b',Draft:'bg-x',Overdue:'bg-r',Partial:'bg-w'};
+  gid('invoices-tbody').innerHTML=invs.length?invs.map(i=>{
+    const paid=invPaid(i),bal=invBalance(i);
+    const st=bal<=0?'Paid':(paid>0?'Partial':i.status);
+    return `<tr class="clickable" onclick="if(event.target.tagName!=='BUTTON')openDrawer('invoice',${i.id})">
     <td class="mn hi">${i.number}</td><td>${i.clientName}</td>
     <td class="mn">${i.issueDate}</td><td class="mn">${i.dueDate}</td>
-    <td class="mn">${i.entryIds.length}</td>
     <td class="mn" style="color:var(--green)">${fmtM(i.amount)}</td>
-    <td><span class="badge ${sb[i.status]||'bg-x'}">${i.status}</span></td>
+    <td class="mn" style="color:var(--t2)">${fmtM(paid)}</td>
+    <td class="mn" style="color:${bal>0?'var(--gold)':'var(--t3)'};font-weight:600">${fmtM(bal)}</td>
+    <td><span class="badge ${sb[st]||'bg-x'}">${st}</span></td>
     <td style="display:flex;gap:5px;padding:8px 14px">
       <button class="btn btn-sm" onclick="previewInvoice(${i.id})">View</button>
-      ${i.status!=='Paid'?`<button class="btn btn-sm btn-inc" onclick="markPaid(${i.id})">Mark Paid</button>`:''}
+      ${bal>0?`<button class="btn btn-sm btn-inc" onclick="openPayModal(${i.id})">$ Payment</button>`:''}
     </td>
-  </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-t">No invoices</div></div></td></tr>`;
+  </tr>`;}).join(''):`<tr><td colspan="9"><div class="empty"><div class="empty-t">No invoices</div></div></td></tr>`;
 }
 
 function createInvoices(){
@@ -2492,7 +2591,57 @@ function createInvoices(){
 
 function markPaid(id){
   const inv=db.invoices.find(i=>i.id===id);
-  if(inv){inv.status='Paid';save();renderInvoices();renderAR();toast('Invoice marked paid');}
+  if(!inv)return;
+  inv.payments=inv.payments||[];
+  const bal=invBalance(inv);
+  if(bal>0)inv.payments.push({date:today(),amount:bal,method:'Other',memo:'Marked paid'});
+  inv.status='Paid';inv.lastPaidDate=today();
+  save();renderInvoices();renderAR();renderDashboard();toast('Invoice marked paid');
+}
+
+// ── PAYMENTS (partial payment tracking, V2.4) ──
+let currentPayInvId=null;
+function openPayModal(id){
+  const inv=db.invoices.find(i=>i.id===id);if(!inv)return;
+  currentPayInvId=id;inv.payments=inv.payments||[];
+  const paid=invPaid(inv),bal=invBalance(inv);
+  gid('pay-title').textContent='Record Payment — '+inv.number;
+  gid('pay-summary').innerHTML=`<div style="display:flex;gap:18px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:12px">
+    <div><div style="font-size:9px;color:var(--t4);text-transform:uppercase">Invoice</div><div style="font-weight:600">${fmtM(inv.amount)}</div></div>
+    <div><div style="font-size:9px;color:var(--t4);text-transform:uppercase">Paid</div><div style="font-weight:600;color:var(--green)">${fmtM(paid)}</div></div>
+    <div><div style="font-size:9px;color:var(--t4);text-transform:uppercase">Balance</div><div style="font-weight:700;color:var(--gold)">${fmtM(bal)}</div></div></div>`;
+  gid('pay-date').value=today();gid('pay-amount').value=bal>0?bal.toFixed(2):'';gid('pay-method').value='Check';gid('pay-memo').value='';
+  renderPayHistory(inv);
+  openModal('pay-modal');
+}
+function renderPayHistory(inv){
+  const h=gid('pay-history');
+  h.innerHTML=(inv.payments&&inv.payments.length)?`<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin:12px 0 6px">Payment History</div>
+    ${inv.payments.map((p,ix)=>`<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:5px 8px;border-bottom:1px solid var(--b1)">
+      <span class="mn">${p.date}</span><span style="color:var(--t3)">${p.method||''} ${p.memo||''}</span>
+      <span style="display:flex;gap:8px;align-items:center"><span class="mn" style="color:var(--green);font-weight:600">${fmtM(p.amount)}</span>
+      <button class="btn btn-danger btn-sm" style="padding:1px 6px;font-size:9px" onclick="deletePayment(${ix})">✕</button></span></div>`).join('')}`:'';
+}
+function deletePayment(ix){
+  const inv=db.invoices.find(i=>i.id===currentPayInvId);if(!inv||!inv.payments)return;
+  if(!confirm('Delete this payment record?'))return;
+  inv.payments.splice(ix,1);
+  const bal=invBalance(inv);
+  inv.status=bal<=0?'Paid':(invPaid(inv)>0?'Partial':(inv.dueDate<today()?'Overdue':'Sent'));
+  save();openPayModal(currentPayInvId);renderInvoices();renderAR();renderDashboard();
+}
+function savePayment(){
+  const inv=db.invoices.find(i=>i.id===currentPayInvId);if(!inv)return;
+  const amt=parseFloat(gid('pay-amount').value);
+  if(!amt||amt<=0){toast('Enter a payment amount');return;}
+  inv.payments=inv.payments||[];
+  inv.payments.push({date:gid('pay-date').value||today(),amount:Math.round(amt*100)/100,method:gid('pay-method').value,memo:gid('pay-memo').value.trim()});
+  inv.lastPaidDate=gid('pay-date').value||today();
+  const bal=invBalance(inv);
+  inv.status=bal<=0?'Paid':'Partial';
+  save();closeModal('pay-modal');renderInvoices();renderAR();renderDashboard();
+  if(typeof drawerType!=='undefined'&&drawerType==='invoice'&&drawerItemId===inv.id)renderDrawerContent();
+  toast(bal<=0?'✓ Invoice fully paid':'Partial payment recorded — balance '+fmtM(bal));
 }
 
 function previewInvoice(id){
@@ -2511,7 +2660,9 @@ function previewInvoice(id){
     <table><thead><tr><th>Entry #</th><th>Description</th><th>Date</th><th>Duty</th><th>MPF</th><th>HMF</th><th>Broker Fee</th><th>Total</th></tr></thead>
     <tbody>${entries.map(e=>`<tr><td style="font-family:monospace">${e.number}</td><td>${e.description||'—'}</td><td>${e.date}</td>
       <td>${fmtS(e.duty)}</td><td>${fmtS(e.mpf)}</td><td>${fmtS(e.hmf)}</td><td>${fmtS(e.brokerFee)}</td><td><strong>${fmtS(calcEntryTotal(e))}</strong></td></tr>`).join('')}
-    </tbody><tfoot><tr><td colspan="7" style="text-align:right;font-weight:700;padding:10px">TOTAL DUE:</td><td><strong>${fmtS(inv.amount)}</strong></td></tr></tfoot></table>
+    </tbody><tfoot><tr><td colspan="7" style="text-align:right;font-weight:700;padding:10px">TOTAL:</td><td><strong>${fmtS(inv.amount)}</strong></td></tr>
+    <tr><td colspan="7" style="text-align:right;padding:4px 10px;color:#555">PAID TO DATE:</td><td>${fmtS(invPaid(inv))}</td></tr>
+    <tr><td colspan="7" style="text-align:right;font-weight:700;padding:4px 10px">BALANCE DUE:</td><td><strong>${fmtS(invBalance(inv))}</strong></td></tr></tfoot></table>
   </div>`;
   openModal('invoice-modal');
 }
@@ -2713,22 +2864,135 @@ function renderClients(){
 
 // ── BROKERAGE: AR ──
 function renderAR(){
-  const open=db.invoices.filter(i=>i.status!=='Paid');
   const todayStr=today();
+  const open=db.invoices.filter(i=>invBalance(i)>0);
   const overdue=open.filter(i=>i.dueDate<todayStr);
-  const paidMTD=db.invoices.filter(i=>{if(i.status!=='Paid')return false;const d=new Date(i.issueDate),n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();});
-  gid('ar-total').textContent=fmtM(open.reduce((s,i)=>s+i.amount,0));
-  gid('ar-overdue').textContent=fmtM(overdue.reduce((s,i)=>s+i.amount,0));
-  gid('ar-collected').textContent=fmtM(paidMTD.reduce((s,i)=>s+i.amount,0));
+  // Collected MTD = payments received this month (+ legacy status-only Paid invoices issued this month)
+  const nowD=new Date();
+  const payMTD=db.invoices.reduce((s,i)=>s+(i.payments||[]).filter(p=>{const d=new Date(p.date);return d.getMonth()===nowD.getMonth()&&d.getFullYear()===nowD.getFullYear();}).reduce((x,p)=>x+(Number(p.amount)||0),0),0);
+  const legacyMTD=db.invoices.filter(i=>i.status==='Paid'&&!(i.payments&&i.payments.length)).filter(i=>{const d=new Date(i.issueDate);return d.getMonth()===nowD.getMonth()&&d.getFullYear()===nowD.getFullYear();}).reduce((s,i)=>s+i.amount,0);
+  gid('ar-total').textContent=fmtM(open.reduce((s,i)=>s+invBalance(i),0));
+  gid('ar-overdue').textContent=fmtM(overdue.reduce((s,i)=>s+invBalance(i),0));
+  gid('ar-collected').textContent=fmtM(payMTD+legacyMTD);
+  // ── Aging matrix by client (Current / 1-30 / 31-60 / 61-90 / 90+) ──
+  const byClient={};
+  open.forEach(i=>{const k=i.clientName;if(!byClient[k])byClient[k]={clientId:i.clientId,b:[0,0,0,0,0]};byClient[k].b[agingBucket(i,todayStr)]+=invBalance(i);});
+  gid('ar-aging-tbody').innerHTML=Object.keys(byClient).length?Object.entries(byClient).sort((a,b)=>b[1].b.reduce((s,x)=>s+x,0)-a[1].b.reduce((s,x)=>s+x,0)).map(([name,o])=>{
+    const tot=o.b.reduce((s,x)=>s+x,0);
+    const cell=(v,warn)=>`<td class="mn" style="text-align:right;color:${v>0?(warn?'var(--red)':'var(--t1)'):'var(--t4)'};font-weight:${v>0?600:400}">${v>0?fmtM(v):'—'}</td>`;
+    return `<tr><td class="hi">${name}</td>${cell(o.b[0],false)}${cell(o.b[1],false)}${cell(o.b[2],true)}${cell(o.b[3],true)}${cell(o.b[4],true)}
+    <td class="mn" style="text-align:right;font-weight:700;color:var(--gold)">${fmtM(tot)}</td>
+    <td><button class="btn btn-sm" onclick="generateStatement(${o.clientId})">📄 Statement</button></td></tr>`;
+  }).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-t">No outstanding balances 🎉</div></div></td></tr>`;
+  // ── Open invoices detail ──
   gid('ar-tbody').innerHTML=open.length?open.sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).map(i=>{
-    const od=i.dueDate<todayStr;const days=daysBetween(i.issueDate,todayStr);
+    const od=i.dueDate<todayStr;const odDays=od?daysBetween(i.dueDate,todayStr):0;
+    const paid=invPaid(i);
     return`<tr class="clickable" onclick="if(event.target.tagName!=='BUTTON')openDrawer('invoice',${i.id})">
     <td class="hi">${i.clientName}</td><td class="mn">${i.number}</td>
     <td class="mn">${i.issueDate}</td><td class="mn" style="color:${od?'var(--red)':'var(--t2)'}">${i.dueDate}</td>
-    <td class="mn" style="color:var(--green)">${fmtM(i.amount)}</td><td class="mn">${days}d</td>
-    <td><span class="badge ${od?'bg-r':'bg-w'}">${od?'Overdue':'Pending'}</span></td>
-    <td><button class="btn btn-sm btn-inc" onclick="markPaid(${i.id});renderAR()">Mark Paid</button></td></tr>`;
-  }).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-t">No outstanding receivables</div></div></td></tr>`;
+    <td class="mn">${fmtM(i.amount)}</td>
+    <td class="mn" style="color:var(--gold);font-weight:600">${fmtM(invBalance(i))}</td>
+    <td class="mn" style="color:${od?'var(--red)':'var(--t4)'}">${od?odDays+'d':'—'}</td>
+    <td><span class="badge ${od?'bg-r':(paid>0?'bg-w':'bg-b')}">${od?'Overdue':(paid>0?'Partial':'Pending')}</span></td>
+    <td><button class="btn btn-sm btn-inc" onclick="openPayModal(${i.id})">$ Payment</button></td></tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty"><div class="empty-t">No outstanding receivables</div></div></td></tr>`;
+}
+
+// ── V2.4: CLIENT STATEMENT (거래명세서, bilingual KR/EN) ──
+function generateStatement(clientId){
+  const client=db.clients.find(c=>c.id===clientId);
+  const open=db.invoices.filter(i=>i.clientId===clientId&&invBalance(i)>0).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+  if(!open.length){toast('No outstanding invoices for this client');return;}
+  const todayStr=today();
+  const name=client?client.name:(open[0].clientName||'');
+  const tot=open.reduce((s,i)=>s+invBalance(i),0);
+  const totAmt=open.reduce((s,i)=>s+i.amount,0);
+  const totPaid=open.reduce((s,i)=>s+invPaid(i),0);
+  const rows=open.map(i=>{const od=i.dueDate<todayStr;const odd=od?daysBetween(i.dueDate,todayStr):0;
+    return `<tr><td style="font-family:monospace">${i.number}</td><td>${i.issueDate}</td><td style="color:${od?'#C0392B':'#333'}">${i.dueDate}</td><td style="text-align:right">${fmtS(i.amount)}</td><td style="text-align:right">${fmtS(invPaid(i))}</td><td style="text-align:right;font-weight:700">${fmtS(invBalance(i))}</td><td style="text-align:center;color:${od?'#C0392B':'#777'}">${od?odd+'일':'—'}</td></tr>`;}).join('');
+  const shtml=`<html><head><title>Statement — ${name}</title><style>
+    body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;margin:40px;color:#1a1a1a;font-size:13px}
+    h1{font-size:20px;margin:0} .sub{color:#666;font-size:11px}
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    th{background:#1B2A4A;color:#fff;padding:8px;font-size:11px;text-align:left} th.r{text-align:right} th.c{text-align:center}
+    td{padding:8px;border-bottom:1px solid #e5e5e5;font-size:12px}
+    .tot td{border-top:2px solid #1B2A4A;font-weight:700;font-size:13px}
+    .box{background:#F6F8FB;border:1px solid #dde3ec;border-radius:6px;padding:12px 16px;margin-top:16px;font-size:11px;color:#444}
+  </style></head><body>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><h1>거래명세서 / Statement of Account</h1>
+      <div class="sub">기준일 As of: ${todayStr}</div></div>
+    <div style="text-align:right;font-size:11px">
+      <div style="font-weight:700;font-size:14px">JN Customs Brokerage</div>
+      <div>U.S. Licensed Customs Broker · CBP #42913</div>
+      <div>Gardena, CA</div></div>
+  </div>
+  <div class="box"><strong>Bill To / 청구처:</strong> ${name}${client&&client.contact?` · ${client.contact}`:''}${client&&client.email?` · ${client.email}`:''}</div>
+  <table><thead><tr><th>Invoice 번호</th><th>발행일 Issued</th><th>만기일 Due</th><th class="r">금액 Amount</th><th class="r">입금 Paid</th><th class="r">잔액 Balance</th><th class="c">연체 Overdue</th></tr></thead>
+  <tbody>${rows}
+  <tr class="tot"><td colspan="3">합계 TOTAL</td><td style="text-align:right">${fmtS(totAmt)}</td><td style="text-align:right">${fmtS(totPaid)}</td><td style="text-align:right;color:#B7791F">${fmtS(tot)}</td><td></td></tr></tbody></table>
+  <div class="box">위 잔액을 확인하시고 만기일 내 입금 부탁드립니다. 문의사항은 본 명세서에 회신 부탁드립니다.<br/>Please remit the balance due by the due date. Contact us with any questions regarding this statement.</div>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(shtml);w.document.close();w.print();
+}
+
+// ── V2.4: A/P (VENDOR PAYABLES) ──
+function openApModal(){
+  const sel=gid('ap-entry');
+  sel.innerHTML='<option value="">— None —</option>'+[...db.entries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>`<option value="${e.id}">${e.number} — ${e.clientName}</option>`).join('');
+  gid('ap-vendor').value='';gid('ap-invno').value='';gid('ap-amount').value='';gid('ap-memo').value='';
+  gid('ap-date').value=today();gid('ap-due').value=future(30);gid('ap-cat').value='TRUCKING';gid('ap-billable').value='1';
+  openModal('ap-modal');
+}
+function saveAp(){
+  const vendor=gid('ap-vendor').value.trim();
+  const amt=parseFloat(gid('ap-amount').value);
+  if(!vendor){toast('Vendor name required');return;}
+  if(!amt||amt<=0){toast('Enter an amount');return;}
+  const eid=gid('ap-entry').value?parseInt(gid('ap-entry').value):null;
+  const ent=eid?db.entries.find(e=>e.id===eid):null;
+  db.apInvoices.push({id:db.nextApId++,vendor,invoiceNo:gid('ap-invno').value.trim(),category:gid('ap-cat').value,
+    entryId:eid,entryNumber:ent?ent.number:'',date:gid('ap-date').value||today(),dueDate:gid('ap-due').value||future(30),
+    amount:Math.round(amt*100)/100,billable:gid('ap-billable').value==='1',status:'Open',paidDate:null,memo:gid('ap-memo').value.trim()});
+  save();closeModal('ap-modal');renderAP();toast('A/P recorded — '+vendor);
+}
+function markApPaid(id){
+  const a=db.apInvoices.find(x=>x.id===id);if(!a)return;
+  a.status='Paid';a.paidDate=today();
+  save();renderAP();toast('A/P marked paid — '+a.vendor);
+}
+function reopenAp(id){const a=db.apInvoices.find(x=>x.id===id);if(!a)return;a.status='Open';a.paidDate=null;save();renderAP();}
+function deleteAp(id){
+  const a=db.apInvoices.find(x=>x.id===id);if(!a)return;
+  if(!confirm('Delete A/P from '+a.vendor+' ('+fmtM(a.amount)+')?'))return;
+  db.apInvoices=db.apInvoices.filter(x=>x.id!==id);save();renderAP();toast('A/P removed');
+}
+function renderAP(){
+  const todayStr=today();
+  const open=db.apInvoices.filter(a=>a.status!=='Paid');
+  const overdue=open.filter(a=>a.dueDate<todayStr);
+  const nowD=new Date();
+  const paidMTD=db.apInvoices.filter(a=>{if(a.status!=='Paid'||!a.paidDate)return false;const d=new Date(a.paidDate);return d.getMonth()===nowD.getMonth()&&d.getFullYear()===nowD.getFullYear();});
+  gid('ap-open').textContent=fmtM(open.reduce((s,a)=>s+a.amount,0));
+  gid('ap-overdue').textContent=fmtM(overdue.reduce((s,a)=>s+a.amount,0));
+  gid('ap-paid').textContent=fmtM(paidMTD.reduce((s,a)=>s+a.amount,0));
+  const rows=[...db.apInvoices].sort((a,b)=>((a.status==='Paid')-(b.status==='Paid'))||a.dueDate.localeCompare(b.dueDate));
+  gid('ap-tbody').innerHTML=rows.length?rows.map(a=>{
+    const od=a.status!=='Paid'&&a.dueDate<todayStr;
+    return`<tr>
+    <td class="hi">${a.vendor}</td><td class="mn">${a.invoiceNo||'—'}</td>
+    <td><span class="badge bg-x">${a.category}</span></td>
+    <td class="mn">${a.entryNumber||'—'}</td>
+    <td class="mn">${a.date}</td><td class="mn" style="color:${od?'var(--red)':'var(--t2)'}">${a.dueDate}</td>
+    <td class="mn" style="color:var(--red);font-weight:600">${fmtM(a.amount)}</td>
+    <td style="font-size:10px;color:var(--t3)">${a.billable?'Pass-through':'Expense'}</td>
+    <td><span class="badge ${a.status==='Paid'?'bg-g':(od?'bg-r':'bg-w')}">${a.status==='Paid'?'Paid':(od?'Overdue':'Open')}</span></td>
+    <td style="display:flex;gap:5px;padding:8px 14px">
+      ${a.status!=='Paid'?`<button class="btn btn-sm btn-inc" onclick="markApPaid(${a.id})">Mark Paid</button>`:`<button class="btn btn-sm" onclick="reopenAp(${a.id})">Reopen</button>`}
+      <button class="btn btn-danger btn-sm" onclick="deleteAp(${a.id})">✕</button>
+    </td></tr>`;
+  }).join(''):`<tr><td colspan="10"><div class="empty"><div class="empty-i">◉</div><div class="empty-t">No vendor invoices. Click + Add A/P.</div></div></td></tr>`;
 }
 
 // ── BROKERAGE: REPORTS ──
@@ -2744,6 +3008,24 @@ function renderReports(){
     <td class="mn" style="color:var(--green)">${fmtM(e.brokerFee)}</td>
     <td class="mn hi">${fmtM(calcEntryTotal(e))}</td></tr>`).join('') ||
     `<tr><td colspan="9"><div class="empty"><div class="empty-t">No data</div></div></td></tr>`;
+  // ── V2.4: Entry profitability (broker fee − linked A/P) ──
+  const pt=gid('profit-tbody');
+  if(pt){
+    const apByEntry={};
+    (db.apInvoices||[]).forEach(a=>{if(a.entryId)apByEntry[a.entryId]=(apByEntry[a.entryId]||0)+(a.amount||0);});
+    pt.innerHTML=[...db.entries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
+      const cost=apByEntry[e.id]||0;
+      const fee=e.brokerFee||0;
+      const profit=Math.round((fee-cost)*100)/100;
+      const margin=fee>0?Math.round(profit/fee*100):0;
+      return `<tr class="clickable" onclick="openDrawer('entry',${e.id})">
+      <td class="mn">${e.number}</td><td>${e.clientName}</td><td class="mn">${e.date}</td>
+      <td class="mn" style="text-align:right;color:var(--green)">${fmtM(fee)}</td>
+      <td class="mn" style="text-align:right;color:${cost>0?'var(--red)':'var(--t4)'}">${cost>0?fmtM(cost):'—'}</td>
+      <td class="mn" style="text-align:right;font-weight:700;color:${profit>=0?'var(--green)':'var(--red)'}">${fmtM(profit)}</td>
+      <td class="mn" style="text-align:right;color:${margin>=50?'var(--green)':(margin>=0?'var(--gold)':'var(--red)')}">${fee>0?margin+'%':'—'}</td></tr>`;
+    }).join('') || `<tr><td colspan="7"><div class="empty"><div class="empty-t">No data</div></div></td></tr>`;
+  }
 }
 
 // ── BROKERAGE: SAVE ENTRY/CLIENT ──
@@ -3629,13 +3911,14 @@ function renderInvoiceDrawer(id){
   const body=gid('drawer-body');const footer=gid('drawer-footer');if(!body||!footer)return;
   const client=db.clients.find(c=>c.id===inv.clientId);
   const entries=db.entries.filter(e=>inv.entryIds.includes(e.id));
-  const sb={Paid:'bg-g',Sent:'bg-b',Draft:'bg-x',Overdue:'bg-r'};
-  const od=inv.dueDate<today()&&inv.status!=='Paid';
+  const sb={Paid:'bg-g',Sent:'bg-b',Draft:'bg-x',Overdue:'bg-r',Partial:'bg-w'};
+  const od=inv.dueDate<today()&&invBalance(inv)>0;
   body.innerHTML=`<div class="df-grid">
     <div class="df"><div class="df-label">Invoice #</div><div class="df-val">${inv.number}</div></div>
     <div class="df"><div class="df-label">Status</div><div class="df-val"><span class="badge ${sb[inv.status]||'bg-x'}">${inv.status}</span></div></div>
     <div class="df"><div class="df-label">Client</div><div class="df-val">${inv.clientName}</div></div>
     <div class="df"><div class="df-label">Amount</div><div class="df-val green">${fmtM(inv.amount)}</div></div>
+    <div class="df"><div class="df-label">Paid / Balance</div><div class="df-val">${fmtM(invPaid(inv))} <span style="color:var(--t4)">/</span> <span style="color:${invBalance(inv)>0?'var(--gold)':'var(--t3)'};font-weight:600">${fmtM(invBalance(inv))}</span></div></div>
     <div class="df"><div class="df-label">Issue Date</div><div class="df-val muted">${inv.issueDate}</div></div>
     <div class="df"><div class="df-label">Due Date</div><div class="df-val ${od?'red':'muted'}">${inv.dueDate}${od?' ⚠':''}</div></div>
     ${client?`<div class="df"><div class="df-label">Contact</div><div class="df-val muted">${client.contact||'—'}</div></div><div class="df"><div class="df-label">Email</div><div class="df-val muted">${client.email||'—'}</div></div>`:''}
@@ -3645,8 +3928,13 @@ function renderInvoiceDrawer(id){
   <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden">
     <table class="sub-table"><thead><tr><th>Entry #</th><th>Description</th><th>Date</th><th style="text-align:right">Total</th></tr></thead>
     <tbody>${entries.map(e=>`<tr><td>${e.number}</td><td style="color:var(--t1)">${e.description||'—'}</td><td>${e.date}</td><td style="text-align:right;color:var(--green)">${fmtM(calcEntryTotal(e))}</td></tr>`).join('')}
-    <tr><td colspan="3" style="text-align:right;font-weight:600;color:var(--t2)">Total Due</td><td style="text-align:right;font-weight:600;color:var(--green)">${fmtM(inv.amount)}</td></tr></tbody></table></div>`;
-  footer.innerHTML=`${inv.status!=='Paid'?`<button class="btn btn-inc btn-sm" onclick="markPaid(${inv.id});closeDrawer()">Mark Paid</button>`:''}
+    <tr><td colspan="3" style="text-align:right;font-weight:600;color:var(--t2)">Total</td><td style="text-align:right;font-weight:600;color:var(--green)">${fmtM(inv.amount)}</td></tr>
+    <tr><td colspan="3" style="text-align:right;color:var(--t3)">Paid to Date</td><td style="text-align:right;color:var(--t2)">${fmtM(invPaid(inv))}</td></tr>
+    <tr><td colspan="3" style="text-align:right;font-weight:700;color:var(--t1)">Balance Due</td><td style="text-align:right;font-weight:700;color:${invBalance(inv)>0?'var(--gold)':'var(--green)'}">${fmtM(invBalance(inv))}</td></tr></tbody></table></div>
+  ${(inv.payments&&inv.payments.length)?`<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin:14px 0 8px">Payments (${inv.payments.length})</div>
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden"><table class="sub-table"><thead><tr><th>Date</th><th>Method</th><th>Memo</th><th style="text-align:right">Amount</th></tr></thead>
+  <tbody>${inv.payments.map(p=>`<tr><td>${p.date}</td><td>${p.method||'—'}</td><td>${p.memo||'—'}</td><td style="text-align:right;color:var(--green)">${fmtM(p.amount)}</td></tr>`).join('')}</tbody></table></div>`:''}`;
+  footer.innerHTML=`${invBalance(inv)>0?`<button class="btn btn-inc btn-sm" onclick="closeDrawer();openPayModal(${inv.id})">$ Record Payment</button>`:''}
     <button class="btn btn-sm" onclick="openInvoiceEdit(${inv.id})">Edit</button>
     <button class="btn btn-sm" onclick="previewInvoice(${inv.id})">Print</button>
     <button class="btn" onclick="closeDrawer()">Close</button>`;

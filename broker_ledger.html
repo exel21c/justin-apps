@@ -774,26 +774,6 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
       CAPE Declaration은 ACE 포털에서 IOR 또는 해당 엔트리를 파일링한 브로커가 CSV로 제출합니다 (Phase 1: 2026-04-20 개시).
     </div>
   </div>
-  <!-- V2.3 NEW: FDA Watch (K-Food) -->
-  <div class="card" style="padding:14px 18px;margin-bottom:18px" id="fda-watch-card">
-    <div class="card-header"><div class="card-title">🛡 FDA Watch <span style="font-size:9px;font-weight:600;color:var(--t3);text-transform:none">Korea Food Recalls · openFDA</span></div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap">
-        <a class="btn btn-sm" style="font-size:10px;padding:3px 8px;text-decoration:none" href="https://www.accessdata.fda.gov/cms_ia/country_KR.html" target="_blank" rel="noopener">🚫 Import Alerts (KR) ↗</a>
-        <a class="btn btn-sm" style="font-size:10px;padding:3px 8px;text-decoration:none" href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts" target="_blank" rel="noopener">📢 FDA Recalls ↗</a>
-        <button class="btn btn-sm" style="font-size:10px;padding:3px 8px;border-color:var(--blue);color:var(--blue)" onclick="fdaLoad(true)">↻ Refresh</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;margin:10px 0">
-      <input class="df-input" id="fda-q" placeholder="공급사명 또는 품목 검색 (예: Eunha, kimchi, noodle)..." style="flex:1;font-size:12px;padding:7px 10px" onkeydown="if(event.key==='Enter')fdaSearch()"/>
-      <button class="btn btn-p btn-sm" onclick="fdaSearch()">🔍 Search</button>
-      <button class="btn btn-sm" onclick="gid('fda-q').value='';fdaLoad(false)">Clear</button>
-    </div>
-    <div id="fda-list"><div style="text-align:center;padding:14px;font-size:11px;color:var(--t4)">Loading FDA data…</div></div>
-    <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5">
-      데이터: openFDA Food Enforcement API (원산지 Korea) · Class I = 건강 위해 심각 · Class II = 일시적/가역적 위해 · Class III = 위해 가능성 낮음.
-      신규 공급사 온보딩 시 공급사명으로 먼저 검색하고, Import Alerts (KR)에서 DWPE 대상 여부도 확인하세요.
-    </div>
-  </div>
   <div class="two-col">
     <div class="card"><div class="card-t">Recent Entries</div><div id="dash-recent"></div></div>
     <div class="card"><div class="card-t">Outstanding Invoices</div><div id="dash-outstanding"></div></div>
@@ -2336,86 +2316,10 @@ function refundExportCSV(){
   a.download='CAPE_worksheet_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
   toast('⬇ CAPE worksheet exported ('+items.length+' entries)');
 }
-// ══════════════════════════════════════════════
-// V2.3 NEW: FDA Watch — Korea food recall monitor (openFDA)
-// API: https://api.fda.gov/food/enforcement.json (CORS enabled, no key needed)
-// ══════════════════════════════════════════════
-let fdaResults=[]; let fdaLoaded=false;
-const FDA_CACHE_KEY='ets_fda_cache', FDA_CACHE_HRS=12;
-function fdaFmtDate(d){ return (d&&d.length===8)? d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8) : (d||'—'); }
-async function fdaFetch(search){
-  const url='https://api.fda.gov/food/enforcement.json?search='+encodeURIComponent(search)+'&sort=recall_initiation_date:desc&limit=10';
-  const r=await fetch(url);
-  if(r.status===404) return []; // openFDA returns 404 when no matches
-  if(!r.ok) throw new Error('openFDA '+r.status);
-  const j=await r.json();
-  return j.results||[];
-}
-async function fdaLoad(force){
-  const list=gid('fda-list'); if(!list)return;
-  try{
-    if(!force){
-      const c=JSON.parse(localStorage.getItem(FDA_CACHE_KEY)||'null');
-      if(c && (Date.now()-c.ts) < FDA_CACHE_HRS*3600*1000 && c.results){ fdaResults=c.results; fdaLoaded=true; renderFdaList(); return; }
-    }
-    list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--t4)">Loading FDA data…</div>';
-    fdaResults=await fdaFetch('country:"korea"');
-    fdaLoaded=true;
-    try{localStorage.setItem(FDA_CACHE_KEY,JSON.stringify({ts:Date.now(),results:fdaResults}));}catch(e){}
-    renderFdaList();
-  }catch(err){
-    list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--red)">⚠ openFDA 연결 실패 ('+err.message+') — 위의 FDA Recalls 링크에서 직접 확인하세요.</div>';
-  }
-}
-async function fdaSearch(){
-  const q=(gid('fda-q').value||'').trim();
-  if(!q){ fdaLoad(false); return; }
-  const list=gid('fda-list');
-  list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--t4)">Searching openFDA for "'+q+'"…</div>';
-  try{
-    // openFDA has no OR-grouping across fields — run firm + product queries and merge
-    const kw='"'+q.replace(/"/g,'')+'"';
-    const [byFirm,byProd]=await Promise.all([
-      fdaFetch('recalling_firm:'+kw).catch(()=>[]),
-      fdaFetch('product_description:'+kw).catch(()=>[])
-    ]);
-    const seen={}; fdaResults=[];
-    [...byFirm,...byProd].forEach(r=>{ const k=r.recall_number||JSON.stringify(r).slice(0,80); if(!seen[k]){seen[k]=1;fdaResults.push(r);} });
-    fdaResults.sort((a,b)=>(b.recall_initiation_date||'').localeCompare(a.recall_initiation_date||''));
-    renderFdaList(q);
-  }catch(err){
-    list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--red)">⚠ 검색 실패 ('+err.message+')</div>';
-  }
-}
-function renderFdaList(q){
-  const list=gid('fda-list'); if(!list)return;
-  if(!fdaResults.length){
-    list.innerHTML='<div style="text-align:center;padding:14px;font-size:11px;color:var(--t4)">'+(q?('"'+q+'" 관련 리콜 기록 없음 — 좋은 신호입니다 ✓ (openFDA 기준)'):'No recent Korea recall records found.')+'</div>';
-    return;
-  }
-  const cls=c=>c==='Class I'?'bg-r':c==='Class II'?'bg-w':'bg-x';
-  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  list.innerHTML='<table><thead><tr><th style="width:80px">Date</th><th style="width:64px">Class</th><th>Firm</th><th>Product</th><th style="width:70px">Status</th></tr></thead><tbody>'+
-    fdaResults.map((r,i)=>`
-    <tr class="clickable" onclick="fdaToggle(${i})">
-      <td class="mn">${fdaFmtDate(r.recall_initiation_date)}</td>
-      <td><span class="badge ${cls(r.classification)}">${esc(r.classification||'—')}</span></td>
-      <td style="font-weight:600">${esc((r.recalling_firm||'—').slice(0,30))}</td>
-      <td>${esc((r.product_description||'—').slice(0,55))}${(r.product_description||'').length>55?'…':''}</td>
-      <td><span class="badge ${r.status==='Ongoing'?'bg-w':'bg-g'}">${esc(r.status||'—')}</span></td>
-    </tr>
-    <tr id="fda-det-${i}" style="display:none"><td colspan="5" style="background:var(--s2);font-size:11px;line-height:1.6;padding:10px 12px">
-      <b>Reason:</b> ${esc(r.reason_for_recall||'—')}<br>
-      <b>Product:</b> ${esc(r.product_description||'—')}<br>
-      <b>Distribution:</b> ${esc(r.distribution_pattern||'—')} · <b>Recall #:</b> ${esc(r.recall_number||'—')} · <b>City:</b> ${esc(r.city||'')}, ${esc(r.state||r.country||'')}
-    </td></tr>`).join('')+'</tbody></table>';
-}
-function fdaToggle(i){ const el=gid('fda-det-'+i); if(el)el.style.display=el.style.display==='none'?'':'none'; }
 function renderDashboard(){
   const now=new Date();
   gid('dash-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   renderTasks(); renderKanban(); renderActivityFeed(); renderRefundRadar();
-  if(!fdaLoaded)fdaLoad(false);
   const mtd=db.entries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   const rev=mtd.reduce((s,e)=>s+(e.brokerFee||0),0);
   const billed=mtd.reduce((s,e)=>s+calcEntryTotal(e),0);

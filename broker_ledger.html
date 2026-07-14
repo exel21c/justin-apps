@@ -628,6 +628,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
   <div class="hdr-right">
     <button class="btn btn-ghost btn-sm" onclick="goToSheets()" title="Google Sheets sync settings">☁ Sheets</button>
     <button class="btn btn-ghost btn-sm" onclick="exportAll()">↓ Export</button>
+    <button class="btn btn-ghost btn-sm" id="demo-toggle-btn" onclick="toggleDemoMode()" title="영업 프레젠테이션용 가상 데이터 표시 (실제 데이터는 안전하게 백업 후 복귀 가능)">🎬 Demo</button>
     <button class="btn btn-ghost btn-sm" onclick="exportBackupJSON()" title="Download full JSON backup of ALL data">💾 Backup</button>
     <button class="btn btn-sm btn-inc" id="hdr-inc-btn" onclick="openBkgTx('INCOME')" style="display:none">+ Income</button>
     <button class="btn btn-sm btn-exp" id="hdr-exp-btn" onclick="openBkgTx('EXPENSE')" style="display:none">− Expense</button>
@@ -1757,6 +1758,7 @@ function gsUpdateStatusBar(){
 }
 
 function gsTriggerAutoSync(){
+  if(typeof isDemoMode==='function'&&isDemoMode())return; // 🎬 demo: no cloud sync
   if(!gsConfig.autoSync || !gsConfig.url) return;
   if(gsSyncTimer) clearTimeout(gsSyncTimer);
   gsUpdateBadge('syncing','Saving...');
@@ -2030,6 +2032,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 });
 
 async function gsSyncNow(){
+  if(typeof isDemoMode==='function'&&isDemoMode()){toast('🎬 Demo mode — Sheets sync is paused');return;} 
   // Debug: log current config state
   if(!gsConfig.url){
     toast('⚠ No Web App URL — go to ☁ Sheets and enter the URL');
@@ -2107,6 +2110,7 @@ async function gsSyncNow(){
 
 
 async function gsLoadFromSheets(){
+  if(typeof isDemoMode==='function'&&isDemoMode())return; // 🎬 demo: keep demo data
   if(!gsConfig.url || !gsConfig.token){ gsUpdateBadge('idle'); return; }
   gsUpdateBadge('syncing','Loading...');
   try {
@@ -2219,6 +2223,153 @@ function resetAllData(){
   save();populateClientDropdown();renderDashboard();
   toast('✓ All data cleared — fresh start. Demo data will NOT be re-seeded.');
 }
+
+/* ════════════════════════════════════════════════════════════
+   🎬 DEMO MODE — 영업 프레젠테이션용 가상 데이터 토글
+   - 켜기: 실제 데이터를 ets_demo_backup에 스냅샷 → 가상 데이터 로드
+   - 끄기: 스냅샷 복원 → 실제 데이터로 복귀
+   - 데모 중 Google Sheets 동기화 자동 차단 (클라우드 오염 방지)
+   ════════════════════════════════════════════════════════════ */
+const DEMO_FLAG='ets_demo_mode', DEMO_BACKUP='ets_demo_backup';
+function isDemoMode(){try{return localStorage.getItem(DEMO_FLAG)==='1';}catch(e){return false;}}
+
+function toggleDemoMode(){
+  if(!isDemoMode()){
+    if(!confirm('🎬 데모 모드를 켤까요?\n\n• 현재 실제 데이터는 브라우저에 안전하게 백업됩니다\n• 프레젠테이션용 가상 데이터(K-뷰티/K-푸드 화주)가 표시됩니다\n• 데모 중 Google Sheets 동기화는 자동 중지됩니다\n• 언제든 하단 배너의 [실제 데이터로 복귀] 버튼으로 되돌립니다'))return;
+    try{
+      localStorage.setItem(DEMO_BACKUP, JSON.stringify(db));
+      localStorage.setItem(DEMO_FLAG,'1');
+    }catch(e){alert('실제 데이터 백업 저장 실패 — 데모 모드를 켤 수 없습니다.\n'+(e&&e.message||e));return;}
+    db=buildDemoDb();
+    try{localStorage.setItem('ets_ledgerpro',JSON.stringify(db));}catch(e){}
+    afterDemoSwitch('🎬 Demo ON — 가상 데이터 표시 중');
+  }else{
+    exitDemoMode();
+  }
+}
+
+function exitDemoMode(){
+  let restored=null;
+  try{const raw=localStorage.getItem(DEMO_BACKUP);if(raw)restored=JSON.parse(raw);}catch(e){}
+  if(!restored){
+    if(!confirm('⚠ 백업된 실제 데이터를 찾지 못했습니다.\n데모 데이터를 지우고 빈 상태로 복귀할까요?'))return;
+    restored={clients:[],entries:[],invoices:[],nextEntryId:1,nextInvoiceId:1,nextClientId:1,
+      bkgTransactions:[],bkgGoals:{},
+      bkgIncCategories:[BROKER_FEE_CATEGORY],bkgExpCategories:['OFFICE RENT'],
+      nextBkgId:1,apInvoices:[],nextApId:1,plEmails:[],plResults:[],plQueue:[],plLastRun:null,plPushedCount:0};
+  }
+  db=restored;
+  try{
+    localStorage.setItem('ets_ledgerpro',JSON.stringify(db));
+    localStorage.removeItem(DEMO_FLAG);
+    localStorage.removeItem(DEMO_BACKUP);
+    localStorage.setItem('ets_no_demo','1');
+  }catch(e){}
+  afterDemoSwitch('✓ 실제 데이터로 복귀했습니다');
+}
+
+function afterDemoSwitch(msg){
+  try{populateClientDropdown();}catch(e){}
+  try{renderDashboard();}catch(e){}
+  updateDemoBanner();updateDemoButton();
+  toast(msg);
+}
+
+function updateDemoButton(){
+  const b=document.getElementById('demo-toggle-btn');
+  if(!b)return;
+  b.textContent=isDemoMode()?'🎬 Demo ON':'🎬 Demo';
+  b.style.background=isDemoMode()?'#7C3AED':'';
+  b.style.color=isDemoMode()?'#fff':'';
+}
+
+function updateDemoBanner(){
+  let b=document.getElementById('demo-banner');
+  if(isDemoMode()){
+    if(!b){
+      b=document.createElement('div');b.id='demo-banner';
+      b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:linear-gradient(90deg,#7C3AED,#2563EB);color:#fff;font:600 13px/1.4 Inter,-apple-system,sans-serif;padding:10px 16px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;box-shadow:0 -2px 10px rgba(0,0,0,.3)';
+      b.innerHTML='<span>🎬 DEMO MODE — 가상 데이터 표시 중 · 실제 데이터는 안전하게 백업됨</span>'+
+        '<button onclick="toggleDemoMode()" style="background:#fff;color:#7C3AED;border:none;border-radius:6px;padding:6px 14px;font:700 12px Inter,sans-serif;cursor:pointer">실제 데이터로 복귀</button>';
+      document.body.appendChild(b);
+      document.body.style.paddingBottom='52px';
+    }
+  }else if(b){b.remove();document.body.style.paddingBottom='';}
+}
+
+/* ── 가상 데이터: 한국 수입 화주 시나리오 (K-뷰티 / K-푸드 / OEM 부품) ──
+   MPF FY2026 (0.3464% · min $33.58 · max $651.50), HMF 0.125% 해상만 적용.
+   필러코드 999 = 가상. 모든 수치는 규정대로 계산된 값. */
+function buildDemoDb(){
+  const d={
+    clients:[
+      {id:1,name:'Seoul Beauty Lab USA',contact:'Grace Park',email:'grace@seoulbeautylab.com',phone:'213-555-8801',ein:'93-1122334',defaultFee:175,notes:'K-beauty · Shopify DTC · 월 4~6건'},
+      {id:2,name:'Hanul Foods Inc.',contact:'김하늘',email:'ops@hanulfoods.com',phone:'310-555-7702',ein:'88-4455667',defaultFee:200,notes:'K-food · FDA Prior Notice 필수'},
+      {id:3,name:'K-Glow Cosmetics',contact:'Jenny Choi',email:'jenny@kglow.co',phone:'424-555-6603',ein:'92-7788990',defaultFee:175,notes:'화장품 · 항공 위주 · TikTok Shop 셀러'},
+      {id:4,name:'Miso Trading Co.',contact:'이준서',email:'js.lee@misotrading.com',phone:'714-555-5504',ein:'87-2233445',defaultFee:185,notes:'K-food 스낵 · 냉동식품'},
+      {id:5,name:'Daehan Auto Parts',contact:'Mike Kang',email:'mike@daehanparts.com',phone:'562-555-4405',ein:'95-6677889',defaultFee:225,notes:'현대·기아 OEM 부품'},
+      {id:6,name:'Arirang Home & Living',contact:'박서연',email:'sy.park@arirnghome.com',phone:'213-555-3306',ein:'90-9900112',defaultFee:200,notes:'주방·생활용품'}
+    ], nextClientId:7,
+    entries:[
+      {id:1,number:'999-1000154-1',clientId:1,clientName:'Seoul Beauty Lab USA',port:'Los Angeles (2704)',mode:'Air',date:ago(2),hts:'3307.90.0000',description:'K-beauty sheet masks (240 ctns)',value:38500,dutyRate:5.4,duty:2079,mpf:133.36,hmf:0,brokerFee:175,status:'Released'},
+      {id:2,number:'999-1000254-2',clientId:1,clientName:'Seoul Beauty Lab USA',port:'Long Beach (2709)',mode:'Ocean LCL',date:ago(1),hts:'3304.99.5000',description:'Vitamin-C serum & skincare sets',value:62000,dutyRate:0,duty:0,mpf:214.77,hmf:77.50,brokerFee:175,status:'Filed'},
+      {id:3,number:'999-1000354-3',clientId:2,clientName:'Hanul Foods Inc.',port:'Long Beach (2709)',mode:'Ocean FCL',date:ago(6),hts:'1902.30.0040',description:'Instant noodles (FDA prior notice OK)',value:84000,dutyRate:6.4,duty:5376,mpf:290.98,hmf:105.00,brokerFee:200,status:'Released'},
+      {id:4,number:'999-1000454-4',clientId:2,clientName:'Hanul Foods Inc.',port:'Los Angeles (2704)',mode:'Ocean LCL',date:ago(4),hts:'2103.90.9091',description:'Gochujang & ssamjang sauces — FDA exam',value:27500,dutyRate:6.4,duty:1760,mpf:95.26,hmf:34.38,brokerFee:200,status:'Hold'},
+      {id:5,number:'999-1000554-5',clientId:3,clientName:'K-Glow Cosmetics',port:'Los Angeles (2704)',mode:'Air',date:ago(9),hts:'3304.20.0000',description:'Cushion foundation (air express)',value:91000,dutyRate:0,duty:0,mpf:315.22,hmf:0,brokerFee:175,status:'Released'},
+      {id:6,number:'999-1000654-6',clientId:4,clientName:'Miso Trading Co.',port:'Long Beach (2709)',mode:'Ocean FCL',date:ago(45),hts:'2008.99.9090',description:'Roasted seaweed snack assortment',value:45200,dutyRate:6.0,duty:2712,mpf:156.57,hmf:56.50,brokerFee:185,status:'Liquidated'},
+      {id:7,number:'999-1000754-7',clientId:5,clientName:'Daehan Auto Parts',port:'Long Beach (2709)',mode:'Ocean FCL',date:ago(12),hts:'8708.10.6050',description:'Hyundai Palisade OEM bumper assemblies',value:118000,dutyRate:2.5,duty:2950,mpf:408.75,hmf:147.50,brokerFee:225,status:'Released'},
+      {id:8,number:'999-1000854-8',clientId:3,clientName:'K-Glow Cosmetics',port:'Los Angeles (2704)',mode:'Air',date:ago(0),hts:'3305.90.0000',description:'Hair treatment ampoules',value:24800,dutyRate:0,duty:0,mpf:85.91,hmf:0,brokerFee:175,status:'Filed'},
+      {id:9,number:'999-1000954-9',clientId:4,clientName:'Miso Trading Co.',port:'Long Beach (2709)',mode:'Ocean LCL',date:ago(0),hts:'1904.90.0140',description:'Frozen tteok (rice cake) — FDA',value:19400,dutyRate:14.0,duty:2716,mpf:67.20,hmf:24.25,brokerFee:185,status:'Draft'},
+      {id:10,number:'999-1001054-0',clientId:6,clientName:'Arirang Home & Living',port:'Los Angeles (2704)',mode:'Ocean FCL',date:ago(18),hts:'7323.93.0060',description:'Stainless kitchenware sets',value:56700,dutyRate:2.0,duty:1134,mpf:196.41,hmf:70.88,brokerFee:200,status:'Released'},
+      {id:11,number:'999-1001154-1',clientId:2,clientName:'Hanul Foods Inc.',port:'Long Beach (2709)',mode:'Ocean FCL',date:ago(60),hts:'2009.89.7091',description:'Korean pear juice concentrate',value:33000,dutyRate:0,duty:0,mpf:114.31,hmf:41.25,brokerFee:190,status:'Liquidated'}
+    ], nextEntryId:12,
+    invoices:[], nextInvoiceId:1,
+    bkgTransactions:[], bkgGoals:{},
+    bkgIncCategories:['BROKER FEES','CONSULTING','ISF FILING'],
+    bkgExpCategories:['OFFICE RENT','ABI SOFTWARE','TRUCKING','BOND PREMIUM'],
+    nextBkgId:1,
+    apInvoices:[
+      {id:1,vendor:'Pacific Drayage LLC',invoiceNo:'PD-77821',category:'TRUCKING',entryId:3,entryNumber:'999-1000354-3',date:ago(5),dueDate:future(25),amount:485.00,billable:true,status:'Open',paidDate:null,memo:'LB → Gardena warehouse drayage'},
+      {id:2,vendor:'CustomsCity',invoiceNo:'CC-2026-0711',category:'ABI SOFTWARE',entryId:null,entryNumber:'',date:ago(10),dueDate:future(5),amount:299.00,billable:false,status:'Open',paidDate:null,memo:'ABI monthly subscription'}
+    ], nextApId:3,
+    plEmails:[],plResults:[],plQueue:[],plLastRun:null,plPushedCount:0
+  };
+  // 인보이스: 완납 / 부분납 / 발송 / 연체 상태를 골고루
+  const mk=(id,eIdx,issue,due,status,pays)=>({id,number:'INV-2026-'+String(id).padStart(3,'0'),
+    clientId:d.entries[eIdx].clientId,clientName:d.entries[eIdx].clientName,entryIds:[d.entries[eIdx].id],
+    issueDate:issue,dueDate:due,amount:calcEntryTotal(d.entries[eIdx]),status,payments:pays||[]});
+  const t1=calcEntryTotal(d.entries[0]);
+  d.invoices=[
+    mk(1,0,ago(2),future(28),'Paid',[{date:ago(1),amount:t1,method:'ACH',memo:'Full payment'}]),
+    mk(2,2,ago(5),future(25),'Partial',[{date:ago(2),amount:3000,method:'Wire',memo:'Partial — balance pending'}]),
+    mk(3,4,ago(8),future(22),'Sent',[]),
+    mk(4,5,ago(40),future(-10),'Overdue',[]),
+    mk(5,6,ago(11),future(19),'Sent',[]),
+    mk(6,9,ago(17),future(13),'Paid',[{date:ago(3),amount:calcEntryTotal(d.entries[9]),method:'Check',memo:''}])
+  ]; d.nextInvoiceId=7;
+  // 북키핑: 브로커피 자동전기 + 운영비용
+  let bid=1;
+  [[0,175],[2,200],[4,175],[5,185],[6,225],[9,200],[10,190]].forEach(([ei,fee])=>{
+    const e=d.entries[ei];
+    d.bkgTransactions.push({id:bid++,date:e.date,inv:'BK-'+String(bid).padStart(3,'0'),type:'INCOME',cat:'BROKER FEES',net:fee,tax:0,fees:0,total:fee,desc:'Broker fee — '+e.number,note:'Auto-posted',auto:true,entryRef:e.number});
+  });
+  d.bkgTransactions.push(
+    {id:bid++,date:ago(30),inv:'EXP-001',type:'EXPENSE',cat:'ABI SOFTWARE',net:299,tax:0,fees:0,total:299,desc:'CustomsCity monthly',note:'',auto:false},
+    {id:bid++,date:ago(25),inv:'EXP-002',type:'EXPENSE',cat:'BOND PREMIUM',net:450,tax:0,fees:0,total:450,desc:'Continuous bond premium (annual, prorated)',note:'',auto:false},
+    {id:bid++,date:ago(15),inv:'INC-001',type:'INCOME',cat:'ISF FILING',net:105,tax:0,fees:0,total:105,desc:'ISF filing x3 — Hanul Foods',note:'',auto:false}
+  );
+  d.nextBkgId=bid;
+  // 월 목표: 최근 6개월 $5,000
+  for(let i=0;i<6;i++){const dt=new Date();dt.setMonth(dt.getMonth()-i);d.bkgGoals[dt.toISOString().slice(0,7)]=5000;}
+  return d;
+}
+
+// 부트 시 데모 배너/버튼 상태 반영
+(function(){
+  const init=()=>{updateDemoBanner();updateDemoButton();};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
 
 function seedDemo(){
   try{if(localStorage.getItem('ets_no_demo'))return;}catch(e){}

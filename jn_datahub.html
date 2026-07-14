@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JN 데이터 관리 · JN Data Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --brand:#0e4f5e;          /* 회사 설정에서 변경 가능 */
+  --brand-soft:#0e4f5e14;
+  --gold:#c8973f;
+  --ink:#16323a;
+  --muted:#7d97a0;
+  --line:#dde7ea;
+  --paper:#f4f7f8;
+  --card:#ffffff;
+  --danger:#c0492f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans KR',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.55}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ---------- 상단 아이덴티티 바 ---------- */
+header{background:var(--brand);color:#fff;padding:18px 20px}
+.hd-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hd-logo{width:42px;height:42px;border-radius:10px;background:#ffffff22;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.hd-logo img{width:100%;height:100%;object-fit:contain}
+.hd-logo span{font-weight:700;font-size:15px}
+.hd-title{flex:1;min-width:200px}
+.hd-title h1{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.hd-title p{font-size:11.5px;opacity:.75;letter-spacing:.06em;text-transform:uppercase}
+/* 시그니처: 오늘의 다음 문서번호 티켓 */
+.doc-ticket{background:#fff;color:var(--ink);border-radius:10px;padding:8px 14px;display:flex;flex-direction:column;gap:1px;
+  border-left:4px solid var(--gold);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.doc-ticket small{font-size:10px;color:var(--muted);letter-spacing:.08em}
+.doc-ticket b{font-size:15px;letter-spacing:.03em}
+
+/* ---------- 데이터 상태 스트립 ---------- */
+.status-strip{background:#0b3f4b;color:#cfe3e8;font-size:12px;padding:7px 20px}
+.status-strip .hd-inner{gap:18px}
+.status-strip b{color:#fff}
+.status-strip .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:6px;vertical-align:1px}
+
+/* ---------- 레이아웃 ---------- */
+.wrap{max-width:1080px;margin:22px auto 60px;padding:0 20px;display:grid;grid-template-columns:180px 1fr;gap:22px;align-items:start}
+nav.side{position:sticky;top:18px;display:flex;flex-direction:column;gap:4px}
+nav.side a{padding:10px 12px;border-radius:9px;color:var(--muted);text-decoration:none;font-weight:500;font-size:13.5px;border-left:3px solid transparent}
+nav.side a.on{background:var(--card);color:var(--brand);border-left-color:var(--gold);font-weight:700;box-shadow:0 2px 8px rgba(20,60,70,.06)}
+main{display:flex;flex-direction:column;gap:26px;min-width:0}
+section{background:var(--card);border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(20,60,70,.05);scroll-margin-top:16px}
+h2{font-size:15.5px;font-weight:700;margin-bottom:4px}
+h2 .en{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.08em;margin-left:8px;text-transform:uppercase}
+.sec-desc{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+
+/* ---------- 폼 ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:11.5px;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;font-family:inherit;outline:none;width:100%;background:#fff;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand)}
+.field input.mono{font-family:'IBM Plex Mono',monospace;font-size:13px}
+.sub-card{border:1px solid var(--line);border-radius:11px;padding:16px;margin-top:14px}
+.sub-card>h3{font-size:13px;font-weight:700;color:var(--brand);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sub-card>h3 .tag{font-size:10px;background:var(--brand-soft);color:var(--brand);padding:2px 8px;border-radius:10px;font-weight:600}
+.hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+
+/* ---------- 버튼 ---------- */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:1px solid var(--line);
+  background:#fff;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{filter:brightness(1.12);color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.danger{color:var(--danger);border-color:#eccfc7}
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* ---------- 로고/색상 ---------- */
+.brand-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.logo-preview{width:74px;height:74px;border:1.5px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafcfc;flex:none}
+.logo-preview img{max-width:100%;max-height:100%}
+.logo-preview span{font-size:11px;color:var(--muted)}
+input[type=color]{width:46px;height:34px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff;cursor:pointer}
+
+/* ---------- 거래처 테이블 ---------- */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.toolbar input[type=search]{flex:1;min-width:160px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13.5px;font-family:inherit;outline:none}
+.toolbar input[type=search]:focus{border-color:var(--brand)}
+.toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);letter-spacing:.04em;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.row:hover td{background:#f6fafb;cursor:pointer}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+.b-cust{background:var(--brand-soft);color:var(--brand)}
+.b-supp{background:#f3ead9;color:#8a6420}
+.b-both{background:#e8e3f2;color:#5b4a8a}
+.b-ovs{background:#e3eef4;color:#2a6280;margin-left:4px}
+.t-name{font-weight:600}
+.t-sub{font-size:11.5px;color:var(--muted)}
+.empty{padding:34px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7}
+.count-chip{font-size:11px;background:var(--brand-soft);color:var(--brand);padding:3px 9px;border-radius:10px;font-weight:600}
+
+/* ---------- 엑셀 업로드 ---------- */
+.dropzone{border:2px dashed var(--line);border-radius:12px;padding:30px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.dropzone:hover,.dropzone.drag{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
+.dropzone b{color:var(--ink)}
+#xlPreviewWrap{margin-top:16px;display:none}
+#xlPreviewWrap .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;max-height:300px;overflow-y:auto}
+.xl-ok{color:#1c7a4d;font-weight:600}
+.xl-bad{color:var(--danger);font-weight:600}
+
+/* ---------- 모달 ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(10,30,35,.45);z-index:9000;display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:620px;box-shadow:0 20px 60px rgba(0,0,0,.28);overflow:hidden;margin-bottom:5vh}
+.modal .m-hd{background:var(--brand);color:#fff;padding:13px 18px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.modal .m-hd button{background:none;border:0;color:#fff;font-size:19px;cursor:pointer;line-height:1}
+.modal .m-body{padding:20px}
+.modal .m-ft{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+
+/* ---------- 토스트 ---------- */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
+  padding:11px 20px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:760px){
+  .wrap{grid-template-columns:1fr;gap:14px;margin-top:14px}
+  nav.side{position:static;flex-direction:row;overflow-x:auto;padding-bottom:2px}
+  nav.side a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  nav.side a.on{border-left:none;border-bottom-color:var(--gold)}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .hd-inner{gap:10px}
+  .doc-ticket{width:100%}
+  th:nth-child(4),td:nth-child(4){display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-inner">
+    <div class="hd-logo" id="hdLogo"><span>JN</span></div>
+    <div class="hd-title">
+      <h1>JN 데이터 관리</h1>
+      <p>JN Data Hub — shared across all JN apps</p>
+    </div>
+    <div class="doc-ticket">
+      <small>NEXT DOC NO.</small>
+      <b class="mono" id="docPreview">—</b>
+    </div>
+  </div>
+</header>
+<div class="status-strip">
+  <div class="hd-inner">
+    <span><span class="dot"></span>거래처 <b id="stClients">0</b>곳</span>
+    <span><span class="dot"></span>환율 캐시 <b id="stFx">—</b></span>
+    <span><span class="dot"></span>같은 브라우저의 모든 JN 앱이 이 데이터를 함께 사용합니다</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="side" id="sideNav">
+    <a href="#sec-company" class="on">회사 설정</a>
+    <a href="#sec-clients">거래처 관리</a>
+    <a href="#sec-excel">엑셀 업로드</a>
+    <a href="#sec-backup">백업 · 복원</a>
+  </nav>
+
+  <main>
+    <!-- ============ 회사 설정 ============ -->
+    <section id="sec-company">
+      <h2>회사 설정<span class="en">Company Profile</span></h2>
+      <p class="sec-desc">국문 정보는 KRW(국문) 문서에, 영문 정보는 USD(영문) 문서에 자동으로 사용됩니다.</p>
+
+      <div class="sub-card">
+        <h3>국문 프로필 <span class="tag">KRW 문서용</span></h3>
+        <div class="grid2">
+          <div class="field"><label>회사명 (국문)</label><input id="c_ko_name" placeholder="제이엔 관세사무소"></div>
+          <div class="field"><label>사업자번호 / 라이선스</label><input id="c_license" class="mono" placeholder="CBP License #42913"></div>
+          <div class="field" style="grid-column:1/-1"><label>주소</label><input id="c_ko_address" placeholder="Gardena, CA ..."></div>
+          <div class="field"><label>전화</label><input id="c_ko_tel" placeholder="310-000-0000"></div>
+          <div class="field"><label>이메일</label><input id="c_ko_email" placeholder="info@..."></div>
+          <div class="field" style="grid-column:1/-1"><label>입금 계좌 (KRW)</label><input id="c_ko_bank" class="mono" placeholder="국민은행 000-00-0000 (예금주)"></div>
+        </div>
+      </div>
+
+      <div class="sub-card">
+        <h3>영문 프로필 <span class="tag">USD 문서용</span></h3>
+        <div class="grid2">
+          <div class="field"><label>Company Name (EN)</label><input id="c_en_name" placeholder="JN Customs Brokerage"></div>
+          <div class="field"><label>Tel</label><input id="c_en_tel" placeholder="+1-310-..."></div>
+          <div class="field" style="grid-column:1/-1"><label>Address (EN)</label><input id="c_en_address" placeholder="Gardena, CA 90248, USA"></div>
+          <div class="field"><label>Bank Name</label><input id="c_en_bankName" placeholder="Bank of America"></div>
+          <div class="field"><label>Account No.</label><input id="c_en_bankAccount" class="mono" placeholder="0000-0000-0000"></div>
+          <div class="field"><label>SWIFT</label><input id="c_en_swift" class="mono" placeholder="BOFAUS3N"></div>
+          <div class="field"><label>Beneficiary</label><input id="c_en_beneficiary" placeholder="JN Customs Brokerage"></div>
+        </div>
+      </div>
+
+      <div class="sub-card">
+        <h3>브랜드 · 문서번호</h3>
+        <div class="brand-row">
+          <div class="logo-preview" id="logoPrev"><span>로고 없음</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn" id="btnLogo">로고 업로드</button>
+            <button class="btn" id="btnLogoDel" style="display:none">로고 삭제</button>
+            <input type="file" id="logoFile" accept="image/*" hidden>
+          </div>
+          <div class="field" style="width:130px">
+            <label>브랜드 색상</label>
+            <input type="color" id="c_brandColor" value="#0e4f5e">
+          </div>
+          <div class="field" style="width:150px">
+            <label>문서번호 접두사</label>
+            <input id="c_docPrefix" class="mono" placeholder="JN" maxlength="8">
+          </div>
+        </div>
+        <p class="hint">문서번호는 <b class="mono">접두사-날짜-순번</b> 형식으로 자동 생성됩니다 (예: JN-20260709-001).
+        브랜드 색상은 모든 JN 앱의 포인트 색상과 PDF 문서에 반영됩니다.</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="btnSaveCompany">회사 설정 저장</button>
+      </div>
+    </section>
+
+    <!-- ============ 거래처 관리 ============ -->
+    <section id="sec-clients">
+      <h2>거래처 관리<span class="en">Clients &amp; Partners</span> <span class="count-chip" id="clientCount">0</span></h2>
+      <p class="sec-desc">화주(고객), 해외 거래처, 벤더를 한 곳에서 관리합니다. 해외 공급처는 송금 정보까지 등록할 수 있습니다.</p>
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="회사명 · 담당자 · 이메일 · 태그 검색">
+        <select id="fKind">
+          <option value="">구분 전체</option>
+          <option value="customer">고객 (화주)</option>
+          <option value="supplier">공급 (벤더)</option>
+          <option value="both">겸용</option>
+        </select>
+        <select id="fRegion">
+          <option value="">지역 전체</option>
+          <option value="domestic">국내</option>
+          <option value="overseas">해외</option>
+        </select>
+        <button class="btn primary" id="btnAddClient">+ 거래처 추가</button>
+      </div>
+      <div class="scroll" style="overflow-x:auto">
+        <table>
+          <thead><tr><th>구분</th><th>거래처</th><th>담당 · 연락처</th><th>메모/태그</th><th></th></tr></thead>
+          <tbody id="clientRows"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="clientEmpty" style="display:none">
+        등록된 거래처가 없습니다.<br>‘+ 거래처 추가’ 또는 아래 엑셀 업로드로 일괄 등록하세요.
+      </div>
+    </section>
+
+    <!-- ============ 엑셀 업로드 ============ -->
+    <section id="sec-excel">
+      <h2>엑셀 일괄 업로드<span class="en">Excel Import</span></h2>
+      <p class="sec-desc">열 순서는 자유입니다. 첫 행의 <b>헤더 이름</b>으로 자동 인식합니다 —
+      회사명(필수), 영문명, 구분(고객/공급/겸용), 지역(국내/해외), 담당자, 전화, 휴대폰, 이메일, 주소, 태그, 메모, 은행, 계좌, SWIFT, 수취인</p>
+      <div class="dropzone" id="dropzone">
+        <b>엑셀 파일을 끌어다 놓거나 클릭</b><br>.xlsx · .xls · .csv
+      </div>
+      <input type="file" id="xlFile" accept=".xlsx,.xls,.csv" hidden>
+      <div class="btn-row">
+        <button class="btn" id="btnTemplate">엑셀 양식 다운로드</button>
+      </div>
+      <div id="xlPreviewWrap">
+        <p class="hint" id="xlSummary"></p>
+        <div class="scroll"><table id="xlPreview"></table></div>
+        <div class="btn-row">
+          <button class="btn gold" id="btnXlImport">이대로 등록</button>
+          <button class="btn" id="btnXlCancel">취소</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 백업 ============ -->
+    <section id="sec-backup">
+      <h2>백업 · 복원<span class="en">Backup &amp; Restore</span></h2>
+      <p class="sec-desc">브라우저 데이터가 지워질 경우를 대비해 주기적으로 JSON 백업을 내려받아 Google Drive에 보관하세요.</p>
+      <div class="btn-row" style="margin-top:4px">
+        <button class="btn primary" id="btnBackup">백업 파일 내려받기 (.json)</button>
+        <button class="btn" id="btnRestore">백업 파일 불러오기</button>
+        <input type="file" id="restoreFile" accept=".json" hidden>
+      </div>
+      <p class="hint">복원 시 현재 회사 설정·거래처가 백업 파일 내용으로 <b>덮어써집니다.</b></p>
+    </section>
+  </main>
+</div>
+
+<!-- ============ 거래처 편집 모달 ============ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="m-hd"><span id="mTitle">거래처 추가</span><button id="mClose">×</button></div>
+    <div class="m-body">
+      <div class="grid3">
+        <div class="field"><label>구분</label>
+          <select id="m_kind">
+            <option value="customer">고객 (화주)</option>
+            <option value="supplier">공급 (벤더)</option>
+            <option value="both">겸용</option>
+          </select>
+        </div>
+        <div class="field"><label>지역</label>
+          <select id="m_region">
+            <option value="domestic">국내</option>
+            <option value="overseas">해외</option>
+          </select>
+        </div>
+        <div class="field"><label>태그 (쉼표 구분)</label><input id="m_tags" placeholder="K-뷰티, FDA"></div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="field"><label>회사명 *</label><input id="m_nameKo" placeholder="그린차저코리아"></div>
+        <div class="field"><label>영문명</label><input id="m_nameEn" placeholder="GreenCharger Korea"></div>
+        <div class="field"><label>담당자</label><input id="m_attn"></div>
+        <div class="field"><label>이메일</label><input id="m_email"></div>
+        <div class="field"><label>전화</label><input id="m_tel"></div>
+        <div class="field"><label>휴대폰</label><input id="m_mobile"></div>
+        <div class="field" style="grid-column:1/-1"><label>주소</label><input id="m_address"></div>
+        <div class="field" style="grid-column:1/-1"><label>메모</label><input id="m_memo"></div>
+      </div>
+      <div class="sub-card" id="remitCard">
+        <h3>송금 정보 <span class="tag">해외 공급처용 · 선택</span></h3>
+        <div class="grid2">
+          <div class="field"><label>Bank</label><input id="m_r_bank"></div>
+          <div class="field"><label>Account</label><input id="m_r_account" class="mono"></div>
+          <div class="field"><label>SWIFT</label><input id="m_r_swift" class="mono"></div>
+          <div class="field"><label>Beneficiary</label><input id="m_r_beneficiary"></div>
+          <div class="field" style="grid-column:1/-1"><label>Bank Address</label><input id="m_r_bankAddr"></div>
+        </div>
+      </div>
+    </div>
+    <div class="m-ft">
+      <button class="btn danger" id="mDelete" style="display:none">삭제</button>
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn" id="mCancel">취소</button>
+        <button class="btn primary" id="mSave">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="jn_shared.js"></script>
+<script>
+(function(){
+'use strict';
+if(!window.JN){ document.body.innerHTML='<p style="padding:40px;text-align:center">jn_shared.js를 찾을 수 없습니다.<br>같은 폴더에 jn_shared.js를 함께 올려주세요.</p>'; return; }
+
+const $=id=>document.getElementById(id);
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+/* ================= 회사 설정 ================= */
+function applyBrand(color){ document.documentElement.style.setProperty('--brand',color); document.documentElement.style.setProperty('--brand-soft',color+'14'); }
+function renderLogo(logo){
+  const box=$('logoPrev'), hd=$('hdLogo');
+  if(logo){ box.innerHTML='<img src="'+logo+'">'; hd.innerHTML='<img src="'+logo+'">'; $('btnLogoDel').style.display=''; }
+  else{ box.innerHTML='<span>로고 없음</span>'; hd.innerHTML='<span>JN</span>'; $('btnLogoDel').style.display='none'; }
+}
+function loadCompany(){
+  const c=JN.company.get();
+  $('c_ko_name').value=c.ko.name; $('c_license').value=c.license;
+  $('c_ko_address').value=c.ko.address; $('c_ko_tel').value=c.ko.tel;
+  $('c_ko_email').value=c.ko.email; $('c_ko_bank').value=c.ko.bank;
+  $('c_en_name').value=c.en.name; $('c_en_tel').value=c.en.tel; $('c_en_address').value=c.en.address;
+  $('c_en_bankName').value=c.en.bankName; $('c_en_bankAccount').value=c.en.bankAccount;
+  $('c_en_swift').value=c.en.swift; $('c_en_beneficiary').value=c.en.beneficiary;
+  $('c_brandColor').value=c.brandColor||'#0e4f5e'; $('c_docPrefix').value=c.docPrefix||'JN';
+  applyBrand(c.brandColor||'#0e4f5e'); renderLogo(c.logo);
+  $('docPreview').textContent=JN.docNo.preview();
+}
+$('btnSaveCompany').onclick=()=>{
+  JN.company.save({
+    ko:{ name:$('c_ko_name').value.trim(), address:$('c_ko_address').value.trim(),
+         tel:$('c_ko_tel').value.trim(), email:$('c_ko_email').value.trim(), bank:$('c_ko_bank').value.trim() },
+    en:{ name:$('c_en_name').value.trim(), tel:$('c_en_tel').value.trim(), address:$('c_en_address').value.trim(),
+         bankName:$('c_en_bankName').value.trim(), bankAccount:$('c_en_bankAccount').value.trim(),
+         swift:$('c_en_swift').value.trim(), beneficiary:$('c_en_beneficiary').value.trim() },
+    license:$('c_license').value.trim(),
+    brandColor:$('c_brandColor').value,
+    docPrefix:($('c_docPrefix').value.trim()||'JN').toUpperCase()
+  });
+  applyBrand($('c_brandColor').value);
+  $('docPreview').textContent=JN.docNo.preview();
+  toast('회사 설정을 저장했습니다');
+};
+$('c_brandColor').addEventListener('input',e=>applyBrand(e.target.value));
+$('c_docPrefix').addEventListener('input',()=>{
+  const p=($('c_docPrefix').value.trim()||'JN').toUpperCase();
+  $('docPreview').textContent=JN.docNo.preview(p);
+});
+
+/* 로고 업로드 — 300px 이하로 리사이즈 후 저장 */
+$('btnLogo').onclick=()=>$('logoFile').click();
+$('logoFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=new Image();
+  img.onload=()=>{
+    const max=300, r=Math.min(1,max/Math.max(img.width,img.height));
+    const cv=document.createElement('canvas');
+    cv.width=Math.round(img.width*r); cv.height=Math.round(img.height*r);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    const data=cv.toDataURL('image/png');
+    JN.company.save({logo:data}); renderLogo(data); toast('로고를 저장했습니다');
+  };
+  img.src=URL.createObjectURL(f); e.target.value='';
+});
+$('btnLogoDel').onclick=()=>{ JN.company.save({logo:''}); renderLogo(''); toast('로고를 삭제했습니다'); };
+
+/* ================= 거래처 목록 ================= */
+const KIND_BADGE={customer:['고객','b-cust'],supplier:['공급','b-supp'],both:['겸용','b-both']};
+function renderClients(){
+  const q=$('q').value, opts={};
+  if($('fKind').value) opts.kind=$('fKind').value;
+  if($('fRegion').value) opts.region=$('fRegion').value;
+  let rows=JN.clients.search(q,{});
+  if(opts.kind) rows=rows.filter(c=>c.kind===opts.kind);
+  if(opts.region) rows=rows.filter(c=>c.region===opts.region);
+  const all=JN.clients.list();
+  $('clientCount').textContent=all.length; $('stClients').textContent=all.length;
+  $('clientRows').innerHTML=rows.map(c=>{
+    const [kl,kc]=KIND_BADGE[c.kind]||['',''];
+    return `<tr class="row" data-id="${c.id}">
+      <td><span class="badge ${kc}">${kl}</span>${c.region==='overseas'?'<span class="badge b-ovs">해외</span>':''}</td>
+      <td><div class="t-name">${esc(c.nameKo||c.nameEn)}</div><div class="t-sub">${esc(c.nameKo?c.nameEn:'')}</div></td>
+      <td><div>${esc(c.attn)}</div><div class="t-sub">${esc([c.tel,c.email].filter(Boolean).join(' · '))}</div></td>
+      <td><div class="t-sub">${esc((c.tags||[]).join(', '))}${c.memo?(c.tags&&c.tags.length?' · ':'')+esc(c.memo):''}</div></td>
+      <td style="text-align:right;white-space:nowrap"><button class="btn" style="padding:5px 12px;font-size:12px">수정</button></td>
+    </tr>`;
+  }).join('');
+  $('clientEmpty').style.display=all.length?'none':'';
+}
+['q','fKind','fRegion'].forEach(id=>$(id).addEventListener('input',renderClients));
+$('clientRows').addEventListener('click',e=>{
+  const tr=e.target.closest('tr.row'); if(!tr) return;
+  openModal(JN.clients.get(tr.dataset.id));
+});
+
+/* ================= 거래처 모달 ================= */
+let editingId=null;
+function openModal(c){
+  editingId=c?c.id:null;
+  $('mTitle').textContent=c?'거래처 수정':'거래처 추가';
+  $('mDelete').style.display=c?'':'none';
+  $('m_kind').value=c?c.kind:'customer'; $('m_region').value=c?c.region:'domestic';
+  $('m_tags').value=c?(c.tags||[]).join(', '):'';
+  $('m_nameKo').value=c?c.nameKo:''; $('m_nameEn').value=c?c.nameEn:'';
+  $('m_attn').value=c?c.attn:''; $('m_email').value=c?c.email:'';
+  $('m_tel').value=c?c.tel:''; $('m_mobile').value=c?c.mobile:'';
+  $('m_address').value=c?c.address:''; $('m_memo').value=c?c.memo:'';
+  const r=(c&&c.remit)||{};
+  $('m_r_bank').value=r.bank||''; $('m_r_account').value=r.account||'';
+  $('m_r_swift').value=r.swift||''; $('m_r_beneficiary').value=r.beneficiary||'';
+  $('m_r_bankAddr').value=r.bankAddr||'';
+  $('modalBg').classList.add('show'); $('m_nameKo').focus();
+}
+function closeModal(){ $('modalBg').classList.remove('show'); }
+$('btnAddClient').onclick=()=>openModal(null);
+$('mClose').onclick=closeModal; $('mCancel').onclick=closeModal;
+$('modalBg').addEventListener('click',e=>{ if(e.target===$('modalBg')) closeModal(); });
+$('mSave').onclick=()=>{
+  const nameKo=$('m_nameKo').value.trim();
+  if(!nameKo){ toast('회사명을 입력하세요'); $('m_nameKo').focus(); return; }
+  JN.clients.upsert({
+    id:editingId||undefined,
+    kind:$('m_kind').value, region:$('m_region').value,
+    tags:$('m_tags').value.split(',').map(s=>s.trim()).filter(Boolean),
+    nameKo, nameEn:$('m_nameEn').value.trim(),
+    attn:$('m_attn').value.trim(), email:$('m_email').value.trim(),
+    tel:$('m_tel').value.trim(), mobile:$('m_mobile').value.trim(),
+    address:$('m_address').value.trim(), memo:$('m_memo').value.trim(),
+    remit:{ bank:$('m_r_bank').value.trim(), account:$('m_r_account').value.trim(),
+            swift:$('m_r_swift').value.trim(), beneficiary:$('m_r_beneficiary').value.trim(),
+            bankAddr:$('m_r_bankAddr').value.trim() }
+  });
+  closeModal(); renderClients(); toast(editingId?'수정했습니다':'거래처를 추가했습니다');
+};
+$('mDelete').onclick=()=>{
+  if(!editingId) return;
+  const c=JN.clients.get(editingId);
+  if(confirm('"'+(c.nameKo||c.nameEn)+'" 거래처를 삭제할까요?')){
+    JN.clients.remove(editingId); closeModal(); renderClients(); toast('삭제했습니다');
+  }
+};
+
+/* ================= 엑셀 업로드 ================= */
+/* 헤더 이름 → 필드 매핑 (열 순서 자유) */
+const HEADER_MAP={
+  '회사명':'nameKo','거래처명':'nameKo','거래처':'nameKo','company':'nameKo','name':'nameKo',
+  '영문명':'nameEn','영문':'nameEn','english':'nameEn','name_en':'nameEn',
+  '구분':'kind','type':'kind',
+  '지역':'region','region':'region',
+  '담당자':'attn','담당':'attn','attn':'attn','contact':'attn',
+  '전화':'tel','전화번호':'tel','tel':'tel','phone':'tel',
+  '휴대폰':'mobile','핸드폰':'mobile','mobile':'mobile',
+  '이메일':'email','email':'email','e-mail':'email',
+  '주소':'address','address':'address',
+  '태그':'tags','tags':'tags',
+  '메모':'memo','비고':'memo','memo':'memo','remarks':'memo',
+  '은행':'r_bank','bank':'r_bank',
+  '계좌':'r_account','계좌번호':'r_account','account':'r_account',
+  'swift':'r_swift',
+  '수취인':'r_beneficiary','beneficiary':'r_beneficiary',
+  '은행주소':'r_bankAddr','bank address':'r_bankAddr'
+};
+const KIND_PARSE=v=>{
+  v=String(v||'').toLowerCase();
+  if(/공급|supplier|vendor|벤더/.test(v)) return 'supplier';
+  if(/겸용|both/.test(v)) return 'both';
+  return 'customer';
+};
+const REGION_PARSE=v=>/해외|overseas|foreign|export/.test(String(v||'').toLowerCase())?'overseas':'domestic';
+
+let xlParsed=[];
+function handleFile(f){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(raw.length<2){ toast('데이터 행이 없습니다'); return; }
+      const headers=raw[0].map(h=>String(h).trim().toLowerCase());
+      const cols=headers.map(h=>HEADER_MAP[h]||null);
+      if(!cols.includes('nameKo')){ toast('"회사명" 헤더를 찾을 수 없습니다'); return; }
+      xlParsed=[];
+      for(let i=1;i<raw.length;i++){
+        const row=raw[i]; if(row.every(v=>String(v).trim()==='')) continue;
+        const rec={remit:{}};
+        cols.forEach((field,ci)=>{
+          if(!field) return;
+          const v=String(row[ci]==null?'':row[ci]).trim();
+          if(field.startsWith('r_')) rec.remit[field.slice(2)]=v;
+          else if(field==='tags') rec.tags=v.split(',').map(s=>s.trim()).filter(Boolean);
+          else if(field==='kind') rec.kind=KIND_PARSE(v);
+          else if(field==='region') rec.region=REGION_PARSE(v);
+          else rec[field]=v;
+        });
+        rec._ok=!!rec.nameKo;
+        rec._dup=rec._ok&&JN.clients.list().some(c=>c.nameKo===rec.nameKo||(rec.email&&c.email===rec.email));
+        xlParsed.push(rec);
+      }
+      renderXlPreview();
+    }catch(err){ console.error(err); toast('파일을 읽지 못했습니다: '+err.message); }
+  };
+  reader.readAsArrayBuffer(f);
+}
+function renderXlPreview(){
+  const ok=xlParsed.filter(r=>r._ok&&!r._dup).length;
+  const dup=xlParsed.filter(r=>r._dup).length;
+  const bad=xlParsed.filter(r=>!r._ok).length;
+  $('xlSummary').innerHTML=`총 ${xlParsed.length}행 — <span class="xl-ok">등록 가능 ${ok}</span>`
+    +(dup?` · 중복 건너뜀 ${dup}`:'')+(bad?` · <span class="xl-bad">회사명 없음 ${bad}</span>`:'');
+  $('xlPreview').innerHTML=
+    '<thead><tr><th>상태</th><th>회사명</th><th>구분</th><th>지역</th><th>담당자</th><th>이메일</th><th>전화</th></tr></thead><tbody>'
+    +xlParsed.map(r=>`<tr>
+      <td>${!r._ok?'<span class="xl-bad">누락</span>':r._dup?'<span style="color:var(--muted)">중복</span>':'<span class="xl-ok">OK</span>'}</td>
+      <td>${esc(r.nameKo)}</td><td>${(KIND_BADGE[r.kind||'customer']||[''])[0]}</td>
+      <td>${r.region==='overseas'?'해외':'국내'}</td>
+      <td>${esc(r.attn||'')}</td><td>${esc(r.email||'')}</td><td>${esc(r.tel||'')}</td></tr>`).join('')
+    +'</tbody>';
+  $('xlPreviewWrap').style.display='';
+  $('xlPreviewWrap').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('btnXlImport').onclick=()=>{
+  let n=0;
+  xlParsed.forEach(r=>{
+    if(!r._ok||r._dup) return;
+    JN.clients.upsert({
+      kind:r.kind||'customer', region:r.region||'domestic',
+      nameKo:r.nameKo, nameEn:r.nameEn||'', attn:r.attn||'',
+      tel:r.tel||'', mobile:r.mobile||'', email:r.email||'',
+      address:r.address||'', tags:r.tags||[], memo:r.memo||'', remit:r.remit||{}
+    }); n++;
+  });
+  xlParsed=[]; $('xlPreviewWrap').style.display='none';
+  renderClients(); toast(n+'곳을 등록했습니다');
+};
+$('btnXlCancel').onclick=()=>{ xlParsed=[]; $('xlPreviewWrap').style.display='none'; };
+
+const dz=$('dropzone');
+dz.onclick=()=>$('xlFile').click();
+$('xlFile').addEventListener('change',e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); e.target.value=''; });
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+/* 양식 다운로드 */
+$('btnTemplate').onclick=()=>{
+  const rows=[
+    ['회사명','영문명','구분','지역','담당자','전화','휴대폰','이메일','주소','태그','메모','은행','계좌','SWIFT','수취인'],
+    ['그린차저코리아','GreenCharger Korea','고객','국내','한대리','051-555-6666','','han@greencharger.kr','부산 ...','K-뷰티, FDA','샘플 행 — 삭제 후 사용','','','','']
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=rows[0].map(()=>({wch:14}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'거래처');
+  XLSX.writeFile(wb,'JN_거래처_양식.xlsx');
+};
+
+/* ================= 백업 / 복원 ================= */
+$('btnBackup').onclick=()=>{
+  const blob=new Blob([JN.export()],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='jn_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href); toast('백업 파일을 내려받았습니다');
+};
+$('btnRestore').onclick=()=>$('restoreFile').click();
+$('restoreFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      if(!confirm('현재 데이터를 백업 파일 내용으로 덮어씁니다. 계속할까요?')) return;
+      const r=JN.import(ev.target.result);
+      loadCompany(); renderClients(); toast('복원 완료 — 거래처 '+r.clients+'곳');
+    }catch(err){ toast('복원 실패: '+err.message); }
+  };
+  reader.readAsText(f); e.target.value='';
+});
+
+/* ================= 상태 스트립 + 네비 ================= */
+async function refreshFx(){
+  const c=JN.settings.get().fxCache;
+  $('stFx').textContent=c&&c.rate?('₩'+Math.round(c.rate).toLocaleString()+'/USD'):'—';
+  const fresh=await JN.fx.get();
+  if(fresh&&fresh.rate) $('stFx').textContent='₩'+Math.round(fresh.rate).toLocaleString()+'/USD';
+}
+document.querySelectorAll('#sideNav a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    document.querySelectorAll('#sideNav a').forEach(x=>x.classList.remove('on'));
+    a.classList.add('on');
+  });
+});
+JN.onChange(()=>{ loadCompany(); renderClients(); });
+
+/* 초기화 */
+loadCompany(); renderClients(); refreshFx();
+})();
+</script>
+</body>
+</html>

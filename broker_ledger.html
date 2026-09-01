@@ -404,6 +404,33 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
 .spin{display:inline-block;width:9px;height:9px;border:1.5px solid var(--b2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── FILE DROP ZONE (Excel / PDF / Image) ── */
+.pl-drop{border:2px dashed rgba(124,58,237,.45);background:rgba(124,58,237,.04);border-radius:var(--rl);padding:18px 16px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:14px;position:relative}
+.pl-drop:hover,.pl-drop.over{border-color:var(--purple);background:rgba(124,58,237,.10);box-shadow:0 0 0 4px rgba(124,58,237,.10)}
+.pl-drop.busy{opacity:.6;pointer-events:none}
+.pl-drop-ico{font-size:26px;margin-bottom:4px}
+.pl-drop-t{font-size:12px;font-weight:700;color:var(--purple)}
+.pl-drop-s{font-size:10px;color:var(--t3);margin-top:3px;line-height:1.5}
+.pl-drop-types{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.pl-drop-types span{font-size:9px;font-weight:600;padding:2px 8px;border-radius:100px;border:1px solid var(--b1);background:#fff;color:var(--t2)}
+.pl-drop input[type=file]{display:none}
+.pl-file-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(124,58,237,.12);color:var(--purple)}
+.pl-thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pl-thumbs img{width:52px;height:66px;object-fit:cover;border-radius:4px;border:1px solid var(--b1);background:#fff;cursor:zoom-in;transition:transform .12s}
+.pl-thumbs img:hover{transform:scale(1.06);border-color:var(--purple)}
+.pl-li-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:6px}
+.pl-li-table th{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--t4);text-align:left;padding:4px 6px;border-bottom:1px solid var(--b1)}
+.pl-li-table td{padding:4px 6px;border-bottom:1px solid var(--b1);color:var(--t2);vertical-align:top}
+.pl-li-table td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+/* ── SOURCE LIGHTBOX (원본 대조) ── */
+#pl-src-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,20,30,.92);flex-direction:column}
+.pl-ov-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;color:#fff;font-size:12px;background:rgba(0,0,0,.35)}
+.pl-ov-btn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer}
+.pl-ov-btn:hover{background:rgba(255,255,255,.22)}
+.pl-ov-body{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.pl-ov-body img{max-width:96%;height:auto;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.5);cursor:zoom-in;background:#fff}
+.pl-ov-body img.zoom{max-width:none;width:170%;cursor:zoom-out}
+
 /* Two-col sidebar layout for pipeline scan page */
 .pl-layout{display:grid;grid-template-columns:220px 1fr;gap:16px}
 .pl-sidebar{display:flex;flex-direction:column;gap:12px}
@@ -1112,7 +1139,7 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
 <!-- PIPELINE SCAN & CLASSIFY -->
 <div id="page-pipeline-scan" class="page">
   <div class="ph">
-    <div><div class="ph-t">Scan & Classify</div><div class="ph-s">Gmail inbox → document classification</div></div>
+    <div><div class="ph-t">Scan & Classify</div><div class="ph-s">Drop files (Excel · PDF · scan · photo) or Gmail → classify → extract</div></div>
     <div class="ph-r">
       <button class="btn btn-sm" id="pl-select-all-btn" onclick="plSelectAll()">Select All</button>
       <button class="btn btn-sm" onclick="plSelectNone()">None</button>
@@ -1173,9 +1200,19 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
       </div>
     </div>
     <div class="pl-main">
+      <!-- File drop zone (Excel / PDF / scanned PDF / image) -->
+      <div class="pl-drop" id="pl-drop" onclick="gid('pl-file-input').click()"
+           ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')"
+           ondrop="event.preventDefault();this.classList.remove('over');plHandleFiles(event.dataTransfer.files)">
+        <input type="file" id="pl-file-input" multiple accept=".pdf,.xlsx,.xls,.csv,.txt,.png,.jpg,.jpeg,.webp,.gif,image/*,application/pdf" onchange="plHandleFiles(this.files);this.value=''"/>
+        <div class="pl-drop-ico">📁</div>
+        <div class="pl-drop-t" id="pl-drop-title">Drop shipping documents here — or tap to choose</div>
+        <div class="pl-drop-s" id="pl-drop-sub">B/L · Commercial Invoice · Packing List · Arrival Notice — 한글/영문 모두 가능<br>Text PDFs are read in-browser; scanned PDFs & photos go to Claude Vision</div>
+        <div class="pl-drop-types"><span>PDF</span><span>Scanned PDF</span><span>XLSX / CSV</span><span>JPG / PNG</span><span>📷 Phone photo</span></div>
+      </div>
       <!-- Steps -->
       <div class="pl-steps" id="pl-steps">
-        <div class="pl-step" id="pls-1"><div class="pl-sn">Step 1</div><div class="pl-sl">📨 Scan Gmail</div><div class="pl-ss" id="pls-1-s">Ready</div></div>
+        <div class="pl-step" id="pls-1"><div class="pl-sn">Step 1</div><div class="pl-sl">📁 Files / 📨 Gmail</div><div class="pl-ss" id="pls-1-s">Ready</div></div>
         <div class="pl-step" id="pls-2"><div class="pl-sn">Step 2</div><div class="pl-sl">🔍 Classify</div><div class="pl-ss" id="pls-2-s">Waiting</div></div>
         <div class="pl-step" id="pls-3"><div class="pl-sn">Step 3</div><div class="pl-sl">📄 Extract</div><div class="pl-ss" id="pls-3-s">Waiting</div></div>
         <div class="pl-step" id="pls-4"><div class="pl-sn">Step 4</div><div class="pl-sl">⚓ ABI Queue</div><div class="pl-ss" id="pls-4-s">Waiting</div></div>
@@ -1193,8 +1230,8 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
       </div>
       <div id="pl-email-list-wrap">
         <div style="text-align:center;padding:36px;color:var(--t3);font-size:12px">
-          <div style="font-size:28px;margin-bottom:8px">📨</div>
-          Enter your API key and click Run Scan
+          <div style="font-size:28px;margin-bottom:8px">📁</div>
+          Drop a PDF / Excel / photo above, or use a test email
         </div>
       </div>
       <!-- Log -->
@@ -3552,17 +3589,19 @@ function renderPlScan(){renderPlEmailList();}
 function renderPlEmailList(){
   const wrap=gid('pl-email-list-wrap');if(!wrap)return;
   const emails=db.plEmails||[];
-  if(!emails.length){wrap.innerHTML='<div style="text-align:center;padding:36px;color:var(--t3);font-size:12px"><div style="font-size:28px;margin-bottom:8px">📨</div>Enter your API key and click Run Scan</div>';return;}
+  if(!emails.length){wrap.innerHTML='<div style="text-align:center;padding:36px;color:var(--t3);font-size:12px"><div style="font-size:28px;margin-bottom:8px">📁</div>Drop a PDF / Excel / photo above, or use a test email</div>';return;}
   const clsCols={ARRIVAL_NOTICE:'bg-b',COMMERCIAL_INVOICE:'bg-g',BILL_OF_LADING:'bg-w',PACKING_LIST:'bg-b',ISF_DOCS:'bg-g',OTHER_CUSTOMS:'bg-x',UNRELATED:'bg-x'};
   wrap.innerHTML=`<div class="pl-email-list">${emails.map(e=>{
     const sel=plSelectedIds.has(e.id);
     return`<div class="pl-email-item ${e.extracted?'pl-done':sel?'pl-selected':''}" onclick="plToggleSel('${e.id}')">
       <div class="pl-check ${sel?'on':''}">${sel?'✓':''}</div>
       <div style="flex:1;min-width:0">
-        <div class="pl-efrom">${e.from_name||e.from}</div>
+        <div class="pl-efrom">${e._isFile?'<span class="pl-file-badge">FILE</span> ':''}${e.from_name||e.from}</div>
         <div class="pl-esubj">${e.subject}</div>
         <div class="pl-emeta"><span>${e.date}</span>
           ${e.has_attachment?`<span>📎 ${e.attachment_name||'attachment'}</span>`:''}
+          ${e._fileKind?`<span>${e._fileKind}${e._pages?' · '+e._pages+'p':''}${e._imageCount?' · '+e._imageCount+' img → Vision':''}</span>`:''}
+          ${e._isFile&&e._needsBlob&&!(plFileStore[e.id])?`<span class="badge bg-r">Re-drop file (images not kept after reload)</span>`:''}
           ${e.classLabel?`<span class="badge ${clsCols[e.classification]||'bg-x'}">${e.classLabel}</span>`:''}
           ${e.extracted?`<span class="badge bg-g">✓ Extracted</span>`:''}
         </div>
@@ -3598,7 +3637,7 @@ function renderPlExtract(filter){
     var wt=r.gross_weight_kg?r.gross_weight_kg+'kg':'—';
     var cls=r._classification==='ARRIVAL_NOTICE'?'bg-b':'bg-x';
     var lbl=(r._classification||'').replace(/_/g,' ');
-    var st=(r._flags&&r._flags.length)?'<span class="badge bg-w">⚠ '+r._flags.join(', ')+'</span>':'<span class="badge bg-g">Ready</span>';
+    var st=plCheckBadges(r)+((r._flags&&r._flags.length)?'<span class="badge bg-w">⚠ '+r._flags.join(', ')+'</span>':'<span class="badge bg-g">Ready</span>');
     out+='<tr data-rid="'+id+'" style="cursor:pointer">'
       +'<td class="mn">'+(r._email_date||'—')+'</td>'
       +'<td><span class="badge '+cls+'" style="font-size:8px">'+lbl+'</span></td>'
@@ -4197,6 +4236,7 @@ function renderPlQueueDrawer(rid){
       <div style="background:var(--gold-dim);border:1px solid rgba(176,125,16,.25);border-radius:var(--r);padding:11px 13px;font-size:11px;color:var(--gold)">
         <strong>⚠ Needs Attention:</strong> ${r._flags.join(' · ')}
       </div>`:''}
+      ${plRenderExtraFields(r)}
       <div style="height:1px;background:var(--b1);margin:14px 0"></div>
       <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px">ABI Entry Preview</div>
       <div style="background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;font-size:10px;font-family:var(--mono);color:var(--t2);line-height:2">
@@ -4327,7 +4367,7 @@ async function plCallClaude(prompt,sys,maxTok){
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:plGetModel(),max_tokens:maxTok||4000,
       system:sys||'You are a customs brokerage AI. Be precise. Return only what is asked.',
-      messages:[{role:'user',content:prompt}]})
+      messages:[{role:'user',content:prompt}]})  // prompt may be a string or an array of content blocks (images + text)
   });
   if(!resp.ok){const e=await resp.text();throw new Error('API '+resp.status+': '+e.slice(0,120));}
   const d=await resp.json();return d.content?.[0]?.text||'';
@@ -4444,29 +4484,35 @@ async function plExtractSelected(){
   plSetStep(3,'ps-active',`Extracting ${sel.length}...`);
   gid('pl-prog-section').style.display='block';plSetProg(55,'Starting extraction...');
   plLog(`Extracting ${sel.length} email(s)...`,'info');
-  db.plResults=[];
-  const fields=['entry_number','awb_number','shipper_name','consignee_name','hts_code','description_of_goods','dutiable_value_usd','gross_weight_kg','pieces','port_of_entry','eta_date','incoterms','vessel_name','voyage_number','container_number','container_type'];
+  // Results are APPENDED: only records from the same source items are replaced (previous drops survive)
+  db.plResults=(db.plResults||[]).filter(r=>!plSelectedIds.has(r._emailId));
+  const fields=PL_FIELDS;
   for(let i=0;i<sel.length;i++){
     const e=sel[i];
     plSetProg(55+Math.round((i+1)/sel.length*38),`Extracting ${i+1}/${sel.length}...`);
-    plLog(`  → ${e.attachment_name||'email body'}`,'info');
-    const ep=`You are a customs data extraction AI. Extract fields from this shipping document. Return ONLY a JSON object. Use null for missing. Numbers as numbers, not strings.\nFields: ${fields.join(', ')}\nDocument type: ${e.classification||'ARRIVAL_NOTICE'}\nFrom: ${e.from_name}\nSubject: ${e.subject}\nContent:\n${e.attachment_text||e.body_text||e.snippet||''}`;
+    plLog(`  → ${e.attachment_name||'email body'}${e._imageCount?' ('+e._imageCount+' image(s) → Vision)':''}`,'info');
+    // Files dropped before a reload lose their image data (kept in memory only)
+    if(e._isFile&&e._needsBlob&&!plFileStore[e.id]){plLog('  SKIP: image data not available — drop the file again','err');continue;}
+    const ep=plBuildExtractContent(e);
     try{
-      const eraw=await plCallClaude(ep,'Return only valid JSON objects. No markdown. No explanation.');
-      const cleaned=eraw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
-      const parsed=JSON.parse(cleaned);
-      const flags=[];if(!parsed.entry_number&&!parsed.awb_number)flags.push('No Entry/AWB#');if(!parsed.hts_code)flags.push('No HTS');
-      const result={...parsed,_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification||'ARRIVAL_NOTICE',_source:e.attachment_name||'Email body',_flags:flags,_queueStatus:flags.length>0?'flagged':'pending'};
-      db.plResults.push(result);const em=db.plEmails.find(x=>x.id===e.id);if(em)em.extracted=true;
-      const found=Object.keys(parsed).filter(k=>parsed[k]!=null).length;
-      plLog(`  OK: ${found} fields from ${e.from_name}`,'ok');
-      fields.forEach(f=>{if(parsed[f]!=null)plLog(`     ${f}: ${parsed[f]}`,'ok');});
+      const eraw=await plCallClaude(ep,'You are a licensed U.S. customs broker\'s extraction assistant. Read English and Korean. Return only one valid JSON object. No markdown, no explanation.',6000);
+      const parsed=plParseJsonObject(eraw);
+      const result=plMakeResult(parsed,e,i);
+      db.plResults.push(result);const em=db.plEmails.find(x=>x.id===e.id);if(em){em.extracted=true;if(result._classification){em.classification=result._classification;em.classLabel=PL_CLASS_LABELS[result._classification]||result._classification;}}
+      const found=Object.keys(parsed).filter(k=>parsed[k]!=null&&!k.startsWith('_')&&k!=='field_confidence').length;
+      plLog(`  OK: ${found} fields from ${e.from_name} → ${result._classification}`,'ok');
+      fields.forEach(f=>{if(parsed[f]!=null&&typeof parsed[f]!=='object')plLog(`     ${f}: ${parsed[f]}`,'ok');});
+      if(result._checks&&result._checks.total&&result._checks.total.ok===true)plLog('     ✓ 총액검산 일치','ok');
+      if(result._checks&&result._checks.qty&&result._checks.qty.ok===true)plLog('     ✓ 수량검산 일치','ok');
+      if(result._flags.length)plLog(`     ⚠ ${result._flags.join(' · ')}`,'warn');
     }catch(ex){
       plLog(`  FAIL: ${ex.message.slice(0,80)}`,'err');
-      db.plResults.push({_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification||'ARRIVAL_NOTICE',_source:e.attachment_name||'Email body',_flags:['Parse Error: '+ex.message.slice(0,40)],_queueStatus:'flagged'});
+      db.plResults.push({_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification||'UNKNOWN',_source:e.attachment_name||'Email body',_flags:['Parse Error: '+ex.message.slice(0,40)],_queueStatus:'flagged'});
     }
   }
-  db.plQueue=[...db.plResults.map(r=>({...r}))];db.plLastRun=new Date().toLocaleString();save();
+  // Rebuild queue but keep status of items that were already pushed/skipped
+  const prevQ=new Map((db.plQueue||[]).map(q=>[q._id,q._queueStatus]));
+  db.plQueue=[...db.plResults.map(r=>({...r,_queueStatus:prevQ.get(r._id)||r._queueStatus}))];db.plLastRun=new Date().toLocaleString();save();
   plSetStep(3,'ps-done',`${db.plResults.length} extracted`);plSetStep(4,'ps-done',`${db.plResults.filter(r=>r._queueStatus==='pending').length} queued`);
   plSetProg(100,'Extraction complete!');renderPlEmailList();renderPlDashboard();
   toast(`✓ ${db.plResults.length} record(s) extracted`);
@@ -4533,6 +4579,316 @@ LAST FREE DAY: May 4 2026`};
   plLog('Expected: MBL=COSU6182934710, HTS=6110.20.2079, Value=USD 38220, Consignee=Apex Imports LLC','info');
   if(!window.PL_API_KEY){const kf=gid('pl-api-key');if(kf){kf.placeholder='← TYPE YOUR sk-ant-... KEY HERE';kf.style.borderColor='var(--red)';kf.style.boxShadow='0 0 0 4px rgba(192,57,43,.18)';setTimeout(()=>kf.scrollIntoView({behavior:'smooth',block:'center'}),300);setTimeout(()=>{kf.style.borderColor='var(--gold)';kf.style.boxShadow='0 0 0 3px rgba(176,125,16,.2)';},1400);}}
   toast('Ocean test email loaded');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ── PIPELINE FILE DROP MODULE (Excel · PDF · scanned PDF · images) ──
+//   Text PDFs / Excel / CSV are parsed in-browser (pdf.js, SheetJS).
+//   Scanned PDFs and photos are rendered to JPEG and sent to Claude Vision.
+//   Image bytes live ONLY in memory (plFileStore) — never in localStorage.
+//   v2: arithmetic checks (총액·수량 검산) + source-view (원본 대조) drawer.
+// ═══════════════════════════════════════════════════════════════
+const PL_FIELDS=['entry_number','awb_number','bill_of_lading_number','invoice_number','shipper_name','consignee_name','seller_name','buyer_name','hts_code','description_of_goods','country_of_origin','currency','invoice_total','dutiable_value_usd','gross_weight_kg','net_weight_kg','pieces','cartons','port_of_loading','port_of_entry','eta_date','incoterms','vessel_name','voyage_number','container_number','container_type','fda_product','line_items'];
+const PL_CLASS_LABELS={ARRIVAL_NOTICE:'Arrival Notice',COMMERCIAL_INVOICE:'Comm. Invoice',BILL_OF_LADING:'Bill of Lading',PACKING_LIST:'Packing List',ISF_DOCS:'ISF Docs',OTHER_CUSTOMS:'Other Customs',UNRELATED:'Unrelated',UNKNOWN:'Unknown'};
+const PL_MAX_PAGES=6;          // scanned pages sent to Vision per file (cost / request-size guard)
+const PL_MAX_IMG_PX=1600;      // longest side for images sent to Vision
+const PL_MAX_TEXT=16000;       // chars of extracted text sent per document
+const PL_LIBS={
+  pdf:{src:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',worker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',ready:()=>!!window.pdfjsLib},
+  xlsx:{src:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',ready:()=>!!window.XLSX}
+};
+window.plFileStore={};         // id → {images:[{media_type,data}], thumbs:[dataURL], viewOnly?}
+
+function plLoadLib(name){
+  const L=PL_LIBS[name];
+  if(L.ready())return Promise.resolve();
+  if(L._p)return L._p;
+  L._p=new Promise((res,rej)=>{
+    const sc=document.createElement('script');sc.src=L.src;
+    sc.onload=()=>{if(name==='pdf'&&window.pdfjsLib)window.pdfjsLib.GlobalWorkerOptions.workerSrc=L.worker;res();};
+    sc.onerror=()=>{L._p=null;rej(new Error('Could not load '+name+' library (check network)'));};
+    document.head.appendChild(sc);
+  });
+  return L._p;
+}
+
+function plFileKind(file){
+  const n=(file.name||'').toLowerCase();const t=(file.type||'').toLowerCase();
+  if(t==='application/pdf'||n.endsWith('.pdf'))return 'pdf';
+  if(/\.(xlsx|xlsm|xls)$/.test(n)||t.includes('spreadsheet')||t.includes('ms-excel'))return 'xlsx';
+  if(n.endsWith('.csv')||t==='text/csv')return 'csv';
+  if(n.endsWith('.txt')||t==='text/plain')return 'txt';
+  if(t.startsWith('image/')||/\.(png|jpe?g|webp|gif|bmp)$/.test(n))return 'image';
+  if(/\.(heic|heif)$/.test(n))return 'heic';
+  return 'unknown';
+}
+
+// ── Drop / picker entry point ──
+async function plHandleFiles(fileList){
+  const files=Array.from(fileList||[]);if(!files.length)return;
+  const drop=gid('pl-drop');if(drop)drop.classList.add('busy');
+  const title=gid('pl-drop-title');
+  if(typeof switchModule==='function'&&currentModule!=='pipeline')switchModule('pipeline',document.getElementById('tab-pipeline'));
+  ['1','2','3','4'].forEach(n=>plSetStep(n,'','Waiting'));
+  plSetStep(1,'ps-active',`Reading ${files.length} file(s)...`);
+  gid('pl-prog-section').style.display='block';
+  plLog(`=== FILE DROP: ${files.length} file(s) ===`,'warn');
+  let added=0;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    plSetProg(Math.round((i/files.length)*45),`Reading ${f.name}...`);
+    if(title)title.textContent=`Reading ${i+1}/${files.length}: ${f.name}`;
+    try{
+      const item=await plParseFile(f);
+      if(!item){continue;}
+      // Replace an earlier drop of the same file name
+      db.plEmails=(db.plEmails||[]).filter(e=>!(e._isFile&&e.attachment_name===item.attachment_name));
+      db.plEmails.unshift(item);plSelectedIds.add(item.id);added++;
+      plLog(`  ✓ ${f.name} → ${item._fileKind}${item._pages?' · '+item._pages+' page(s)':''}${item._imageCount?' · '+item._imageCount+' image(s) → Vision':''}${item.attachment_text&&!item._imageCount?' · '+item.attachment_text.length+' chars text':''}`,'ok');
+    }catch(err){plLog(`  ✗ ${f.name}: ${err.message}`,'err');}
+  }
+  if(drop)drop.classList.remove('busy');
+  if(title)title.textContent='Drop shipping documents here — or tap to choose';
+  save();renderPlEmailList();
+  gid('pl-email-count').textContent=`(${(db.plEmails||[]).length})`;
+  plSetProg(50,added?`${added} file(s) ready — click ⚡ Extract`:'No readable files');
+  plSetStep(1,added?'ps-done':'ps-error',`${added} file(s) loaded`);plSetStep(2,'','Auto (during extract)');
+  const btn=gid('pl-extract-sel-btn');if(btn&&plSelectedIds.size){btn.style.display='inline-flex';btn.textContent=`⚡ Extract ${plSelectedIds.size}`;btn.style.background='var(--purple)';btn.style.borderColor='var(--purple)';btn.style.color='#fff';btn.style.fontWeight='700';}
+  if(added){toast(`${added} file(s) loaded — click ⚡ Extract`);if(!plGetKey())plLog('Enter your Anthropic API key in the sidebar before extracting','warn');}
+}
+
+// ── Per-file parser → pipeline item (same shape as an email item) ──
+async function plParseFile(file){
+  const kind=plFileKind(file);
+  const id='f'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  const base={id,_isFile:true,from:'file-drop',from_name:'📁 File drop',subject:file.name,date:today(),snippet:'',has_attachment:true,attachment_name:file.name,attachment_type:kind.toUpperCase(),classification:'',classLabel:'',body_text:'',attachment_text:'',_fileKind:kind.toUpperCase(),_fileSize:file.size};
+  if(kind==='heic')throw new Error('HEIC not supported in browser — on iPhone set Camera → Formats → Most Compatible, or share as JPEG');
+  if(kind==='unknown')throw new Error('Unsupported file type');
+  if(kind==='txt'||kind==='csv'){base.attachment_text=plClip(await file.text());return base;}
+  if(kind==='xlsx'){await plLoadLib('xlsx');base.attachment_text=plClip(plExcelToText(await file.arrayBuffer()));return base;}
+  if(kind==='image'){const img=await plImageToJpeg(file);plFileStore[id]={images:[img.block],thumbs:[img.thumb]};base._imageCount=1;base._needsBlob=true;base.attachment_text='[IMAGE — content sent to Claude Vision]';return base;}
+  if(kind==='pdf'){
+    await plLoadLib('pdf');
+    const buf=await file.arrayBuffer();
+    const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+    base._pages=pdf.numPages;
+    // 1) try text layer
+    let text='';
+    for(let p=1;p<=pdf.numPages;p++){const page=await pdf.getPage(p);const tc=await page.getTextContent();text+=`\n--- Page ${p} ---\n`+plTextItemsToLines(tc.items);}
+    const clean=text.replace(/--- Page \d+ ---/g,'').replace(/\s+/g,' ').trim();
+    if(clean.length>=40*pdf.numPages){
+      base.attachment_text=plClip(text);
+      // Keep page snapshots for the 원본 대조 drawer even on text PDFs (not sent to the API)
+      try{await plRenderPdfPages(pdf,id,1100,0.75,true);}catch(e){/* snapshots are optional */}
+      return base;
+    }
+    // 2) scanned → render pages to JPEG for Vision
+    await plRenderPdfPages(pdf,id,PL_MAX_IMG_PX,0.82,false);
+    base._imageCount=plFileStore[id].images.length;base._needsBlob=true;
+    base.attachment_text=clean?plClip(text):'[SCANNED PDF — pages sent to Claude Vision]';
+    if(pdf.numPages>PL_MAX_PAGES)plLog(`  note: only first ${PL_MAX_PAGES} of ${pdf.numPages} pages sent to Vision`,'warn');
+    return base;
+  }
+}
+
+async function plRenderPdfPages(pdf,id,maxPx,quality,viewOnly){
+  const n=Math.min(pdf.numPages,PL_MAX_PAGES);const images=[],thumbs=[];
+  for(let p=1;p<=n;p++){
+    const page=await pdf.getPage(p);const vp0=page.getViewport({scale:1});
+    const scale=Math.min(2,maxPx/Math.max(vp0.width,vp0.height));
+    const vp=page.getViewport({scale});const c=document.createElement('canvas');c.width=Math.round(vp.width);c.height=Math.round(vp.height);
+    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    images.push({media_type:'image/jpeg',data:c.toDataURL('image/jpeg',quality).split(',')[1]});
+    thumbs.push(plThumb(c));
+  }
+  plFileStore[id]={images,thumbs,viewOnly:!!viewOnly};
+}
+
+function plClip(t){t=(t||'').trim();return t.length>PL_MAX_TEXT?t.slice(0,PL_MAX_TEXT)+'\n...[truncated]':t;}
+function plTextItemsToLines(items){ // group pdf.js text items into lines by Y so tables survive
+  const rows={};items.forEach(it=>{if(!it.str)return;const y=Math.round(it.transform[5]);(rows[y]=rows[y]||[]).push({x:it.transform[4],s:it.str});});
+  return Object.keys(rows).map(Number).sort((a,b)=>b-a).map(y=>rows[y].sort((a,b)=>a.x-b.x).map(o=>o.s).join(' ').replace(/\s{2,}/g,' ')).join('\n');
+}
+function plExcelToText(buf){
+  const wb=window.XLSX.read(buf,{type:'array',cellDates:true});let out='';
+  wb.SheetNames.forEach(name=>{const ws=wb.Sheets[name];const csv=window.XLSX.utils.sheet_to_csv(ws,{blankrows:false});if(csv.trim())out+=`### Sheet: ${name}\n${csv}\n\n`;});
+  return out||'[empty workbook]';
+}
+function plThumb(canvasOrImg){const t=document.createElement('canvas');const w=canvasOrImg.width,h=canvasOrImg.height;const s=88/Math.max(w,h);t.width=Math.max(1,Math.round(w*s));t.height=Math.max(1,Math.round(h*s));t.getContext('2d').drawImage(canvasOrImg,0,0,t.width,t.height);return t.toDataURL('image/jpeg',0.6);}
+function plImageToJpeg(file){ // downscale + re-encode so phone photos (5–12 MB) fit the API comfortably
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file);const img=new Image();
+    img.onload=()=>{const s=Math.min(1,PL_MAX_IMG_PX/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+      res({block:{media_type:'image/jpeg',data:c.toDataURL('image/jpeg',0.85).split(',')[1]},thumb:plThumb(c)});};
+    img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Could not decode image'));};
+    img.src=url;
+  });
+}
+
+// ── Prompt / content builder (works for emails AND files) ──
+function plBuildExtractContent(e){
+  const store=e._isFile?plFileStore[e.id]:null;
+  const useImages=!!(store&&store.images.length&&!store.viewOnly);
+  const known=e.classification&&e.classification!=='UNKNOWN'&&e.classification!=='AUTO';
+  const text=`Extract U.S. customs-clearance data from the ${e._isFile?'attached document':'document below'}.
+Return ONLY one JSON object with these keys (use null when absent; numbers as numbers, not strings; dates as YYYY-MM-DD):
+${PL_FIELDS.join(', ')}
+Plus:
+- "document_type": one of ARRIVAL_NOTICE | COMMERCIAL_INVOICE | BILL_OF_LADING | PACKING_LIST | ISF_DOCS | OTHER_CUSTOMS | UNRELATED${known?` (this document is believed to be ${e.classification}; confirm or correct)`:''}
+- "field_confidence": object mapping field name → "high" | "low" for every non-null field ("low" = unclear scan, ambiguous, or inferred)
+- "line_items": array of {"description","hts_code","quantity","unit","unit_price","total","country_of_origin"} when the document lists multiple items, else null
+Rules: awb_number holds MAWB/HAWB for air, MBL/HBL for ocean if no separate bill_of_lading_number field applies. invoice_total and pieces must be the totals AS PRINTED on the document — never compute or correct them yourself; copy them even if they look wrong. dutiable_value_usd = total value in USD only (convert only if the rate is printed). Korean text (한글) is common — read it. Do not invent values.
+Source file: ${e.attachment_name||'email'} | From: ${e.from_name||''} | Subject: ${e.subject||''}`;
+  const textPart=useImages?text+`\n(The ${store.images.length} image(s) above are the document pages${e.attachment_text&&!e.attachment_text.startsWith('[')?'; partial text layer follows:\n'+e.attachment_text:'.'})`
+    :text+`\n\nContent:\n${e.attachment_text||e.body_text||e.snippet||''}`;
+  if(useImages){
+    return [...store.images.map(im=>({type:'image',source:{type:'base64',media_type:im.media_type,data:im.data}})),{type:'text',text:textPart}];
+  }
+  return textPart;
+}
+function plParseJsonObject(raw){
+  let c=(raw||'').replace(/```json/gi,'').replace(/```/g,'').trim();
+  if(!c.startsWith('{')){const m=c.match(/(\{[\s\S]*\})/);if(m)c=m[1];}
+  c=c.replace(/,\s*}/g,'}').replace(/,\s*\]/g,']');
+  return JSON.parse(c);
+}
+
+// ── 검산 (arithmetic checks) — plain JS math, independent of the AI ──
+// Compares the sum of line items against the totals AS PRINTED on the document.
+function plArithmeticChecks(parsed){
+  const li=Array.isArray(parsed.line_items)?parsed.line_items.filter(x=>x):[];
+  if(!li.length)return null;
+  const num=v=>{const n=typeof v==='string'?parseFloat(String(v).replace(/[,\s]/g,'')):v;return(typeof n==='number'&&isFinite(n))?n:null;};
+  const checks={};
+  // 1) 총액검산: Σ(line total) vs printed invoice_total
+  const totals=li.map(x=>num(x.total)).filter(v=>v!=null);
+  const printedTotal=num(parsed.invoice_total);
+  if(totals.length){
+    const sum=Math.round(totals.reduce((a,b)=>a+b,0)*100)/100;
+    checks.total={sum,printed:printedTotal,ok:(totals.length===li.length&&printedTotal!=null)?Math.abs(sum-printedTotal)<=0.02:null};
+  }
+  // 2) 수량검산: Σ(quantity) vs printed pieces
+  const qtys=li.map(x=>num(x.quantity)).filter(v=>v!=null);
+  const printedPcs=num(parsed.pieces);
+  if(qtys.length){
+    const sum=qtys.reduce((a,b)=>a+b,0);
+    checks.qty={sum,printed:printedPcs,ok:(qtys.length===li.length&&printedPcs!=null)?Math.abs(sum-printedPcs)<1e-6:null};
+  }
+  // 3) 라인검산: qty × unit_price vs line total (catches per-line misreads)
+  const badLines=[];
+  li.forEach((x,i)=>{const q=num(x.quantity),u=num(x.unit_price),t=num(x.total);
+    if(q!=null&&u!=null&&t!=null&&Math.abs(Math.round(q*u*100)/100-t)>0.02)badLines.push(i+1);});
+  if(badLines.length)checks.lines={bad:badLines};
+  return Object.keys(checks).length?checks:null;
+}
+
+function plMakeResult(parsed,e,i){
+  const cls=(parsed.document_type&&PL_CLASS_LABELS[parsed.document_type])?parsed.document_type:(e.classification||'UNKNOWN');
+  const conf=parsed.field_confidence||{};
+  const flags=[];
+  // Multi-line invoice: promote line 1 HTS/description so the entry preview isn't blank; broker reviews the rest in the drawer
+  if(Array.isArray(parsed.line_items)&&parsed.line_items.length){
+    const li0=parsed.line_items.find(x=>x&&x.hts_code)||parsed.line_items[0];
+    if(!parsed.hts_code&&li0.hts_code){parsed.hts_code=li0.hts_code;conf.hts_code='low';}
+    if(!parsed.description_of_goods&&li0.description)parsed.description_of_goods=li0.description+(parsed.line_items.length>1?` (+${parsed.line_items.length-1} more)`:'');
+    if(parsed.line_items.length>1)flags.push(`${parsed.line_items.length} line items — multi-HTS review`);
+  }
+  // ── 검산 (arithmetic checks) ──
+  const checks=plArithmeticChecks(parsed);
+  if(checks){
+    if(checks.total&&checks.total.ok===false)flags.push(`검산 불일치: 라인합 ${checks.total.sum.toLocaleString()} ≠ TOTAL ${checks.total.printed.toLocaleString()}`);
+    if(checks.qty&&checks.qty.ok===false)flags.push(`수량 불일치: 라인합 ${checks.qty.sum.toLocaleString()} ≠ ${checks.qty.printed.toLocaleString()} PCS`);
+    if(checks.lines)flags.push(`라인 ${checks.lines.bad.join(',')} 단가×수량≠금액`);
+  }
+  if(!parsed.entry_number&&!parsed.awb_number&&!parsed.bill_of_lading_number)flags.push('No Entry/AWB/BL#');
+  if(!parsed.hts_code&&!(parsed.line_items&&parsed.line_items.some(li=>li.hts_code)))flags.push('No HTS');
+  if(cls==='COMMERCIAL_INVOICE'&&!parsed.dutiable_value_usd&&!parsed.invoice_total)flags.push('No value');
+  if(parsed.currency&&parsed.currency!=='USD'&&parsed.dutiable_value_usd==null)flags.push('Value in '+parsed.currency+' — convert');
+  const low=Object.keys(conf).filter(k=>conf[k]==='low'&&parsed[k]!=null);
+  if(low.length)flags.push('Verify: '+low.slice(0,5).join(', ')+(low.length>5?' +'+(low.length-5):''));
+  if(e._imageCount)flags.push('From scan/photo — visual check');
+  const {document_type,field_confidence,...rest}=parsed;
+  return {...rest,_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:cls,_source:e.attachment_name||'Email body',_isFile:!!e._isFile,_fileKind:e._fileKind||'',_confidence:conf,_checks:checks,_flags:flags,_queueStatus:flags.length>0?'flagged':'pending'};
+}
+
+// Compact ✓/✗ badges for the Extracted Data table
+function plCheckBadges(r){
+  const c=r._checks;if(!c)return '';
+  const b=(ok,lbl)=>ok===true?`<span class="badge bg-g" style="font-size:8px">✓ ${lbl}</span> `:ok===false?`<span class="badge bg-r" style="font-size:8px">✗ ${lbl}</span> `:'';
+  return (c.total?b(c.total.ok,'총액'):'')+(c.qty?b(c.qty.ok,'수량'):'');
+}
+
+// ── Drawer: 검산 box + extra fields + line items + 원본 대조 ──
+function plRenderExtraFields(r){
+  let h='';
+  // 검산 결과 박스
+  const c=r._checks;
+  if(c){
+    const row=(lbl,x)=>{if(!x)return '';
+      const state=x.ok===true?['✓ 일치','var(--green)']:x.ok===false?['✗ 불일치','var(--red)']:['— 인쇄값 없음','var(--t3)'];
+      return `<div class="dfr"><span>${lbl}</span><span style="font-family:var(--mono)">${x.sum.toLocaleString()}${x.printed!=null?' vs '+x.printed.toLocaleString():''} <strong style="color:${state[1]}">${state[0]}</strong></span></div>`;};
+    h+='<div style="height:1px;background:var(--b1);margin:14px 0"></div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px">검산 / Arithmetic Check <span style="font-weight:400;text-transform:none;letter-spacing:0">(JS 계산 — AI 아님)</span></div><div class="drawer-fee-box">'
+      +row('총액: Σ라인 vs 인쇄 TOTAL',c.total)
+      +row('수량: Σ라인 vs 인쇄 PCS',c.qty)
+      +(c.lines?`<div class="dfr"><span>라인별 단가×수량</span><span style="color:var(--red);font-weight:700">✗ 라인 ${c.lines.bad.join(', ')} 확인</span></div>`:'<div class="dfr"><span>라인별 단가×수량</span><span style="color:var(--green);font-weight:700">✓ 전체 일치</span></div>')
+      +'</div>';
+  }
+  const extras=[['Invoice #','invoice_number'],['B/L #','bill_of_lading_number'],['Seller','seller_name'],['Buyer','buyer_name'],['Origin','country_of_origin'],['Currency','currency'],['Invoice Total','invoice_total'],['Net Wt (KG)','net_weight_kg'],['Cartons','cartons'],['Port of Loading','port_of_loading'],['FDA Product','fda_product']].filter(([,k])=>r[k]!=null&&r[k]!=='');
+  const li=Array.isArray(r.line_items)?r.line_items.filter(x=>x&&(x.description||x.hts_code)):[];
+  const conf=r._confidence||{};const lowMark=k=>conf[k]==='low'?' <span title="Low confidence — verify" style="color:var(--gold)">⚠</span>':'';
+  if(extras.length||li.length){
+    h+='<div style="height:1px;background:var(--b1);margin:14px 0"></div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px">Document Details / 서류 상세'+(r._fileKind?' <span class="pl-file-badge">'+r._fileKind+'</span>':'')+'</div>';
+    if(extras.length)h+='<div class="df-grid">'+extras.map(([l,k])=>`<div class="df"><div class="df-label">${l}</div><div class="df-val muted">${typeof r[k]==='number'?r[k].toLocaleString():r[k]}${lowMark(k)}</div></div>`).join('')+'</div>';
+    if(li.length){
+      const numf=v=>v!=null?Number(v).toLocaleString():'—';
+      h+=`<table class="pl-li-table"><thead><tr><th>#</th><th>Description</th><th>HTS</th><th>Qty</th><th>Unit $</th><th>Total</th><th>COO</th></tr></thead><tbody>`
+        +li.map((x,i)=>{const bad=c&&c.lines&&c.lines.bad.includes(i+1);
+          return `<tr${bad?' style="background:var(--red-dim)"':''}><td class="n">${i+1}</td><td>${x.description||'—'}</td><td class="n">${x.hts_code||'—'}</td><td class="n">${x.quantity!=null?x.quantity+(x.unit?' '+x.unit:''):'—'}</td><td class="n">${numf(x.unit_price)}</td><td class="n">${numf(x.total)}${bad?' ⚠':''}</td><td>${x.country_of_origin||'—'}</td></tr>`;}).join('')+'</tbody></table>';
+      const tsum=li.map(x=>x.total).filter(v=>v!=null).reduce((a,b)=>a+Number(b),0);
+      if(tsum)h+=`<div style="text-align:right;font-size:10px;font-family:var(--mono);color:var(--t2);padding:5px 6px">Σ ${tsum.toLocaleString()}${r.currency?' '+r.currency:''}</div>`;
+    }
+  }
+  h+=plRenderSourceView(r);
+  return h;
+}
+
+// ── 원본 대조 (source view): page thumbnails → lightbox, or raw text ──
+function plRenderSourceView(r){
+  const eid=r._emailId;const store=plFileStore[eid];
+  const email=(db.plEmails||[]).find(x=>x.id===eid);
+  const rawText=email&&email.attachment_text&&!email.attachment_text.startsWith('[')?email.attachment_text:(email&&email.body_text?email.body_text:'');
+  if(!store&&!rawText){
+    if(r._isFile)return '<div style="height:1px;background:var(--b1);margin:14px 0"></div><div style="font-size:10px;color:var(--t3);background:var(--s2);border:1px dashed var(--b1);border-radius:var(--r);padding:9px 12px">📄 원본 이미지는 새로고침 후 메모리에서 사라집니다 — 대조하려면 같은 파일을 다시 드롭하세요. 추출 결과는 그대로 유지됩니다.</div>';
+    return '';
+  }
+  let h='<div style="height:1px;background:var(--b1);margin:14px 0"></div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);margin-bottom:10px">원본 대조 / Source Document</div>';
+  if(store&&store.thumbs&&store.thumbs.length){
+    h+='<div class="pl-thumbs">'+store.thumbs.map((t,i)=>`<img src="${t}" title="Page ${i+1} — 클릭하면 크게" onclick="plShowSourceOverlay('${eid}',${i})"/>`).join('')+'</div>'
+      +'<div style="font-size:9px;color:var(--t3);margin-top:4px">클릭하면 원본이 크게 열립니다 — 표의 값과 하나씩 대조하세요</div>';
+  }
+  if(rawText){
+    h+=`<details style="margin-top:8px"><summary style="font-size:10px;color:var(--blue);cursor:pointer">📃 추출된 원본 텍스트 보기 (${rawText.length.toLocaleString()} chars)</summary><pre style="font-family:var(--mono);font-size:9px;line-height:1.6;color:var(--t2);background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;margin-top:6px">${rawText.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</pre></details>`;
+  }
+  return h;
+}
+
+// Fullscreen lightbox for source pages (click image to toggle fit ↔ 100%)
+function plShowSourceOverlay(eid,idx){
+  const store=plFileStore[eid];if(!store||!store.images[idx])return;
+  let ov=gid('pl-src-overlay');
+  if(!ov){ov=document.createElement('div');ov.id='pl-src-overlay';document.body.appendChild(ov);}
+  const n=store.images.length;
+  ov.innerHTML=`<div class="pl-ov-bar">
+      <span style="font-weight:700">📄 원본 — Page ${idx+1} / ${n}</span>
+      <span style="display:flex;gap:6px">
+        ${idx>0?`<button class="pl-ov-btn" onclick="plShowSourceOverlay('${eid}',${idx-1})">‹ 이전</button>`:''}
+        ${idx<n-1?`<button class="pl-ov-btn" onclick="plShowSourceOverlay('${eid}',${idx+1})">다음 ›</button>`:''}
+        <button class="pl-ov-btn" onclick="gid('pl-src-overlay').style.display='none'">✕ 닫기</button>
+      </span></div>
+    <div class="pl-ov-body" onclick="if(event.target===this)gid('pl-src-overlay').style.display='none'">
+      <img src="data:${store.images[idx].media_type};base64,${store.images[idx].data}" onclick="this.classList.toggle('zoom')" title="클릭: 확대/축소"/></div>`;
+  ov.style.display='flex';
 }
 
 // ── PIPELINE DASHBOARD RENDERERS ──

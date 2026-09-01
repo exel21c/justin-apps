@@ -1173,6 +1173,25 @@ header .btn-ghost:hover{background:rgba(255,255,255,.2);color:#fff}
               <option value="claude-haiku-4-5-20251001">Haiku 4.5 (faster)</option>
             </select>
           </div>
+          <div style="border-top:1px dashed var(--b1);padding-top:10px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--purple)">📨 Gmail Scanner (Apps Script)</div>
+            <div>
+              <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)">Web App URL</label>
+              <input id="gm-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px;margin-top:4px" oninput="gmSave()"/>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end">
+              <div>
+                <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)">Gmail Token</label>
+                <input type="password" id="gm-token" placeholder="gmail_scanner.gs의 TOKEN" style="font-size:11px;margin-top:4px" oninput="gmSave()"/>
+              </div>
+              <button class="btn btn-sm" onclick="gmPing()" style="height:30px">Test</button>
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)">Search Query</label>
+              <input id="gm-query" placeholder="has:attachment newer_than:7d" style="font-size:11px;margin-top:4px" oninput="gmSave()"/>
+            </div>
+            <div id="gm-status" style="font-size:9px;line-height:1.5"></div>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div>
               <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)">Max Emails</label>
@@ -3601,7 +3620,8 @@ function renderPlEmailList(){
         <div class="pl-emeta"><span>${e.date}</span>
           ${e.has_attachment?`<span>📎 ${e.attachment_name||'attachment'}</span>`:''}
           ${e._fileKind?`<span>${e._fileKind}${e._pages?' · '+e._pages+'p':''}${e._imageCount?' · '+e._imageCount+' img → Vision':''}</span>`:''}
-          ${e._isFile&&e._needsBlob&&!(plFileStore[e.id])?`<span class="badge bg-r">Re-drop file (images not kept after reload)</span>`:''}
+          ${e._needsBlob&&!(plFileStore[e.id])?`<span class="badge bg-r">Re-load needed (images not kept after reload)</span>`:''}
+          ${e._fromGmail?`<span class="badge bg-b" style="font-size:8px">GMAIL</span>`:''}
           ${e.classLabel?`<span class="badge ${clsCols[e.classification]||'bg-x'}">${e.classLabel}</span>`:''}
           ${e.extracted?`<span class="badge bg-g">✓ Extracted</span>`:''}
         </div>
@@ -4405,26 +4425,17 @@ async function plRunWorkflow(){
   ['1','2','3','4'].forEach((n,i)=>plSetStep(n,i===0?'ps-active':'',i===0?'Scanning...':'Waiting'));
   plSetProg(5,'Generating sample emails via Claude...');
   try{
-    const n=Math.min(parseInt((gid('pl-max')||{value:3}).value)||3,3);
-    const gmailPrompt=`Return a JSON array of exactly ${n} customs emails. Today: ${today()}.
-Include: 1 air arrival notice, 1 ocean B/L, 1 unrelated non-customs email.
-Format: [{"id":"e1","from":"a@b.com","from_name":"Freight Co","subject":"Arrival Notice","date":"${today()}","snippet":"Shipment arrived","has_attachment":true,"attachment_name":"arrival.pdf","attachment_type":"PDF","body_text":"AWB: 180-1234-5678 Shipper: Korea Co Seoul Korea Consignee: US Co Los Angeles CA HTS: 8471.30.0100 USD 15000 45KG 3pkgs Port: LAX ETA: ${today()} CIF","attachment_text":"AWB 180-1234-5678 Shipper Korea Co Consignee US Co HTS 8471.30.0100 Value USD 15000 Weight 45KG Pieces 3 Port LAX ETA ${today()} CIF"}]
-Keep body_text and attachment_text under 200 chars each. Return ONLY the [ array ].`;
-    let raw;
-    for(let attempt=1;attempt<=2;attempt++){
-      raw=await plCallClaude(gmailPrompt,'Return only valid JSON arrays. No markdown code fences. Start with [',8000);
-      if(raw.includes('[')&&raw.includes(']'))break;
-      plLog(`Attempt ${attempt}: retrying...`,'warn');
-    }
+    const maxN=parseInt((gid('pl-max')||{value:10}).value)||10;
     let emails;
-    try{
-      let cleaned=raw.replace(/```json/gi,'').replace(/```/g,'').trim();
-      if(!cleaned.startsWith('[')){const m=cleaned.match(/(\[[\s\S]*\])/);if(m)cleaned=m[1];}
-      cleaned=cleaned.replace(/,\s*}/g,'}').replace(/,\s*\]/g,']');
-      emails=JSON.parse(cleaned);
-      if(!Array.isArray(emails))throw new Error('Not an array');
-    }catch(e){plLog('JSON parse failed: '+e.message.slice(0,80),'err');plLog('Raw preview: '+raw.slice(0,120),'warn');throw new Error('Claude returned invalid JSON — use test email buttons instead');}
-    emails=emails.map((e,i)=>({id:e.id||'e'+i,from:e.from||'unknown@fw.com',from_name:e.from_name||'Freight Co',subject:e.subject||'Shipping Document',date:e.date||today(),snippet:e.snippet||'',has_attachment:e.has_attachment!==false,attachment_name:e.attachment_name||'document.pdf',attachment_type:e.attachment_type||'PDF',body_text:e.body_text||'',attachment_text:e.attachment_text||e.body_text||''}));
+    if(gmConfig.url&&gmConfig.token){
+      plSetProg(8,'Scanning your Gmail via Apps Script...');
+      plLog(`Gmail scan: query "${gmConfig.query||'has:attachment newer_than:7d'}" (max ${maxN})`,'info');
+      emails=await plGmailScan(maxN);
+      if(!emails.length)plLog('Gmail: no matching emails — adjust the Search Query in settings','warn');
+    }else{
+      plLog('DEMO MODE — Gmail Scanner URL not set (⚙ settings). Generating sample emails via Claude.','warn');
+      emails=await plDemoEmails(Math.min(maxN,3));
+    }
     db.plEmails=emails;plLog(`Found ${emails.length} emails`,'ok');
     plSetStep(1,'ps-done',`${emails.length} found`);plSetProg(30,'Classifying...');
     plSetStep(2,'ps-active','Classifying...');
@@ -4445,23 +4456,10 @@ Keep body_text and attachment_text under 200 chars each. Return ONLY the [ array
     renderPlEmailList();gid('pl-email-count').textContent=`(${emails.length})`;
     const selBtn=gid('pl-extract-sel-btn');if(selBtn){selBtn.style.display='inline-flex';selBtn.textContent=`Extract ${relevant.length}`;}
     plSetStep(3,'ps-active',`Extracting ${relevant.length}...`);
-    db.plResults=[];
-    const fields=['entry_number','awb_number','shipper_name','consignee_name','hts_code','description_of_goods','dutiable_value_usd','gross_weight_kg','pieces','port_of_entry','eta_date','incoterms','vessel_name','voyage_number','container_number','container_type'];
-    for(let i=0;i<relevant.length;i++){
-      const e=relevant[i];
-      plSetProg(52+Math.round((i+1)/relevant.length*40),`Extracting ${i+1}/${relevant.length}...`);
-      plLog(`  → ${e.attachment_name||'email body'}`,'info');
-      const ep=`Extract customs clearance fields from this document. Return ONLY valid JSON. Use null for missing. Numbers as numbers.\nFields: ${fields.join(', ')}\nDocument type: ${e.classification}\nFrom: ${e.from_name}\nSubject: ${e.subject}\nContent:\n${e.attachment_text||e.body_text||e.snippet||''}`;
-      try{
-        const eraw=await plCallClaude(ep,'Return only valid JSON objects. No markdown.');
-        const parsed=JSON.parse(eraw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim());
-        const flags=[];if(!parsed.entry_number&&!parsed.awb_number)flags.push('No Entry/AWB#');if(!parsed.hts_code)flags.push('No HTS');
-        const result={...parsed,_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification,_source:e.attachment_name||'Email body',_flags:flags,_queueStatus:flags.length>0?'flagged':'pending'};
-        db.plResults.push(result);const em=db.plEmails.find(x=>x.id===e.id);if(em)em.extracted=true;
-        plLog(`  OK: ${Object.keys(parsed).filter(k=>parsed[k]!=null).length} fields`,'ok');
-      }catch(ex){plLog(`  FAIL: ${ex.message.slice(0,60)}`,'err');db.plResults.push({_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification,_source:e.attachment_name||'Email body',_flags:['Parse Error'],_queueStatus:'flagged'});}
-    }
-    db.plQueue=[...db.plResults.map(r=>({...r}))];db.plLastRun=new Date().toLocaleString();save();
+    db.plResults=(db.plResults||[]).filter(r=>!relevant.some(e=>e.id===r._emailId));
+    await plExtractItems(relevant);
+    const prevQ1=new Map((db.plQueue||[]).map(q=>[q._id,q._queueStatus]));
+    db.plQueue=[...db.plResults.map(r=>({...r,_queueStatus:prevQ1.get(r._id)||r._queueStatus}))];db.plLastRun=new Date().toLocaleString();save();
     plSetStep(3,'ps-done',`${db.plResults.length} extracted`);plSetStep(4,'ps-done',`${db.plResults.filter(r=>r._queueStatus==='pending').length} queued`);
     plSetProg(100,'Complete!');renderPlEmailList();renderPlDashboard();
     toast(`✓ ${db.plResults.length} records extracted`);
@@ -4486,30 +4484,7 @@ async function plExtractSelected(){
   plLog(`Extracting ${sel.length} email(s)...`,'info');
   // Results are APPENDED: only records from the same source items are replaced (previous drops survive)
   db.plResults=(db.plResults||[]).filter(r=>!plSelectedIds.has(r._emailId));
-  const fields=PL_FIELDS;
-  for(let i=0;i<sel.length;i++){
-    const e=sel[i];
-    plSetProg(55+Math.round((i+1)/sel.length*38),`Extracting ${i+1}/${sel.length}...`);
-    plLog(`  → ${e.attachment_name||'email body'}${e._imageCount?' ('+e._imageCount+' image(s) → Vision)':''}`,'info');
-    // Files dropped before a reload lose their image data (kept in memory only)
-    if(e._isFile&&e._needsBlob&&!plFileStore[e.id]){plLog('  SKIP: image data not available — drop the file again','err');continue;}
-    const ep=plBuildExtractContent(e);
-    try{
-      const eraw=await plCallClaude(ep,'You are a licensed U.S. customs broker\'s extraction assistant. Read English and Korean. Return only one valid JSON object. No markdown, no explanation.',6000);
-      const parsed=plParseJsonObject(eraw);
-      const result=plMakeResult(parsed,e,i);
-      db.plResults.push(result);const em=db.plEmails.find(x=>x.id===e.id);if(em){em.extracted=true;if(result._classification){em.classification=result._classification;em.classLabel=PL_CLASS_LABELS[result._classification]||result._classification;}}
-      const found=Object.keys(parsed).filter(k=>parsed[k]!=null&&!k.startsWith('_')&&k!=='field_confidence').length;
-      plLog(`  OK: ${found} fields from ${e.from_name} → ${result._classification}`,'ok');
-      fields.forEach(f=>{if(parsed[f]!=null&&typeof parsed[f]!=='object')plLog(`     ${f}: ${parsed[f]}`,'ok');});
-      if(result._checks&&result._checks.total&&result._checks.total.ok===true)plLog('     ✓ 총액검산 일치','ok');
-      if(result._checks&&result._checks.qty&&result._checks.qty.ok===true)plLog('     ✓ 수량검산 일치','ok');
-      if(result._flags.length)plLog(`     ⚠ ${result._flags.join(' · ')}`,'warn');
-    }catch(ex){
-      plLog(`  FAIL: ${ex.message.slice(0,80)}`,'err');
-      db.plResults.push({_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification||'UNKNOWN',_source:e.attachment_name||'Email body',_flags:['Parse Error: '+ex.message.slice(0,40)],_queueStatus:'flagged'});
-    }
-  }
+  await plExtractItems(sel);
   // Rebuild queue but keep status of items that were already pushed/skipped
   const prevQ=new Map((db.plQueue||[]).map(q=>[q._id,q._queueStatus]));
   db.plQueue=[...db.plResults.map(r=>({...r,_queueStatus:prevQ.get(r._id)||r._queueStatus}))];db.plLastRun=new Date().toLocaleString();save();
@@ -4893,6 +4868,136 @@ function plShowSourceOverlay(eid,idx){
 
 // ── PIPELINE DASHBOARD RENDERERS ──
 function renderPlDashboardFull(){renderPlDashboard();}
+
+// ═══════════════════════════════════════════════════════════════
+// ── GMAIL SCANNER (Apps Script Web App) ──
+//   Run Scan now reads the user's real Gmail through their own
+//   Apps Script Web App (same pattern as the Sheets sync).
+//   No URL/token configured → falls back to the old DEMO mode.
+// ═══════════════════════════════════════════════════════════════
+let gmConfig={url:'',token:'',query:''};
+try{const _gmc=localStorage.getItem('ets_gm_config');if(_gmc)gmConfig={...gmConfig,...JSON.parse(_gmc)};}catch(e){}
+function gmSave(){
+  gmConfig.url=(gid('gm-url')||{value:''}).value.trim();
+  gmConfig.token=(gid('gm-token')||{value:''}).value.trim();
+  gmConfig.query=(gid('gm-query')||{value:''}).value.trim();
+  try{localStorage.setItem('ets_gm_config',JSON.stringify(gmConfig));}catch(e){}
+  gmUpdateStatus();
+}
+function gmFill(){
+  const set=(id,v)=>{const el=gid(id);if(el)el.value=v||'';};
+  set('gm-url',gmConfig.url);set('gm-token',gmConfig.token);set('gm-query',gmConfig.query);
+  gmUpdateStatus();
+}
+function gmUpdateStatus(){
+  const on=!!(gmConfig.url&&gmConfig.token);
+  const st=gid('gm-status');
+  if(st){st.textContent=on?'✓ Gmail Scanner 연결됨 — Run Scan이 실제 메일을 읽습니다':'미설정 — Run Scan은 데모(샘플 생성) 모드로 동작';st.style.color=on?'var(--green)':'var(--gold)';}
+  const b=gid('pl-run-btn2');if(b)b.textContent=on?'⚡ Run Scan (Gmail)':'⚡ Run Scan (Demo)';
+}
+async function gmPing(){
+  if(!gmConfig.url||!gmConfig.token){toast('URL과 Token을 먼저 입력하세요');return;}
+  try{
+    const resp=await fetch(gmConfig.url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:gmConfig.token,action:'ping'})});
+    const j=await resp.json();
+    if(j.ok){toast('✓ Gmail Scanner 연결 성공');plLog('Gmail Scanner ping OK'+(j.email?' — '+j.email:''),'ok');}
+    else{toast('✗ '+(j.error||'connection failed'));plLog('Gmail Scanner ping failed: '+(j.error||'?'),'err');}
+  }catch(err){toast('✗ 연결 실패 — URL/배포 설정 확인');plLog('Gmail ping error: '+err.message+' (Apps Script를 "Anyone" 액세스로 재배포했는지 확인)','err');}
+}
+
+// Fetch real emails (+ attachments) from the Apps Script and turn them into pipeline items
+async function plGmailScan(maxN){
+  const resp=await fetch(gmConfig.url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({token:gmConfig.token,action:'scan',query:gmConfig.query||'has:attachment newer_than:7d',max:maxN})});
+  const j=await resp.json();
+  if(!j.ok)throw new Error(j.error||'Gmail scan failed');
+  const out=[];
+  for(const em of (j.emails||[])){
+    const atts=(em.attachments||[]);
+    atts.filter(a=>a.skipped).forEach(a=>plLog(`  note: ${a.name} skipped (${a.skipped})`,'warn'));
+    const usable=atts.filter(a=>!a.skipped&&a.dataB64);
+    if(!usable.length){
+      out.push({id:em.id,from:em.from,from_name:em.from_name||em.from,subject:em.subject||'(no subject)',date:em.date||today(),snippet:em.snippet||'',has_attachment:false,attachment_name:'',attachment_type:'',body_text:(em.body_text||'').slice(0,PL_MAX_TEXT),attachment_text:'',_fromGmail:true});
+      continue;
+    }
+    for(let k=0;k<usable.length;k++){
+      try{out.push(await plGmailAttToItem(usable[k],em,k));}
+      catch(err){plLog(`  ✗ ${usable[k].name}: ${err.message}`,'err');}
+    }
+  }
+  return out;
+}
+
+// base64 attachment → File → reuse the drop-zone parser (pdf.js / SheetJS / Vision prep)
+async function plGmailAttToItem(att,em,k){
+  const bin=atob(att.dataB64);const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  const f=new File([bytes],att.name||('attachment_'+k),{type:att.mime||''});
+  const item=await plParseFile(f);
+  // Deterministic id (message id + attachment index) so a re-scan REPLACES old results instead of duplicating
+  const newId=em.id+'_a'+k;
+  if(plFileStore[item.id]){plFileStore[newId]=plFileStore[item.id];delete plFileStore[item.id];}
+  item.id=newId;
+  // Re-label as an email item (keeps the Vision images already prepared in plFileStore)
+  item._isFile=false;item._fromGmail=true;
+  item.from=em.from;item.from_name=em.from_name||em.from;
+  item.subject=em.subject||att.name;item.date=em.date||today();item.snippet=em.snippet||'';
+  item.body_text=(em.body_text||'').slice(0,4000);
+  return item;
+}
+
+// ── Shared extraction loop (used by Run Scan AND Extract Selected) ──
+// Caller prunes db.plResults for the ids being re-extracted before calling.
+async function plExtractItems(sel){
+  const fields=PL_FIELDS;
+  for(let i=0;i<sel.length;i++){
+    const e=sel[i];
+    plSetProg(55+Math.round((i+1)/sel.length*38),`Extracting ${i+1}/${sel.length}...`);
+    plLog(`  → ${e.attachment_name||'email body'}${e._imageCount?' ('+e._imageCount+' image(s) → Vision)':''}`,'info');
+    // Items whose page images were lost on reload (kept in memory only)
+    if(e._needsBlob&&!plFileStore[e.id]){plLog('  SKIP: image data not available — re-drop the file or re-run scan','err');continue;}
+    const ep=plBuildExtractContent(e);
+    try{
+      const eraw=await plCallClaude(ep,'You are a licensed U.S. customs broker\'s extraction assistant. Read English and Korean. Return only one valid JSON object. No markdown, no explanation.',6000);
+      const parsed=plParseJsonObject(eraw);
+      const result=plMakeResult(parsed,e,i);
+      db.plResults.push(result);const em=db.plEmails.find(x=>x.id===e.id);if(em){em.extracted=true;if(result._classification){em.classification=result._classification;em.classLabel=PL_CLASS_LABELS[result._classification]||result._classification;}}
+      const found=Object.keys(parsed).filter(k=>parsed[k]!=null&&!k.startsWith('_')&&k!=='field_confidence').length;
+      plLog(`  OK: ${found} fields from ${e.from_name} → ${result._classification}`,'ok');
+      fields.forEach(f=>{if(parsed[f]!=null&&typeof parsed[f]!=='object')plLog(`     ${f}: ${parsed[f]}`,'ok');});
+      if(result._checks&&result._checks.total&&result._checks.total.ok===true)plLog('     ✓ 총액검산 일치','ok');
+      if(result._checks&&result._checks.qty&&result._checks.qty.ok===true)plLog('     ✓ 수량검산 일치','ok');
+      if(result._flags.length)plLog(`     ⚠ ${result._flags.join(' · ')}`,'warn');
+    }catch(ex){
+      plLog(`  FAIL: ${ex.message.slice(0,80)}`,'err');
+      db.plResults.push({_id:'r'+Date.now()+i,_emailId:e.id,_email_subject:e.subject,_email_from:e.from_name,_email_date:e.date,_classification:e.classification||'UNKNOWN',_source:e.attachment_name||'Email body',_flags:['Parse Error: '+ex.message.slice(0,40)],_queueStatus:'flagged'});
+    }
+  }
+}
+
+// ── DEMO email generator (the old simulated scan, kept as fallback) ──
+async function plDemoEmails(n){
+  const gmailPrompt=`Return a JSON array of exactly ${n} customs emails. Today: ${today()}.
+Include: 1 air arrival notice, 1 ocean B/L, 1 unrelated non-customs email.
+Format: [{"id":"e1","from":"a@b.com","from_name":"Freight Co","subject":"Arrival Notice","date":"${today()}","snippet":"Shipment arrived","has_attachment":true,"attachment_name":"arrival.pdf","attachment_type":"PDF","body_text":"AWB: 180-1234-5678 Shipper: Korea Co Seoul Korea Consignee: US Co Los Angeles CA HTS: 8471.30.0100 USD 15000 45KG 3pkgs Port: LAX ETA: ${today()} CIF","attachment_text":"AWB 180-1234-5678 Shipper Korea Co Consignee US Co HTS 8471.30.0100 Value USD 15000 Weight 45KG Pieces 3 Port LAX ETA ${today()} CIF"}]
+Keep body_text and attachment_text under 200 chars each. Return ONLY the [ array ].`;
+  let raw;
+  for(let attempt=1;attempt<=2;attempt++){
+    raw=await plCallClaude(gmailPrompt,'Return only valid JSON arrays. No markdown code fences. Start with [',8000);
+    if(raw.includes('[')&&raw.includes(']'))break;
+    plLog(`Attempt ${attempt}: retrying...`,'warn');
+  }
+  let emails;
+  try{
+    let cleaned=raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+    if(!cleaned.startsWith('[')){const m=cleaned.match(/(\[[\s\S]*\])/);if(m)cleaned=m[1];}
+    cleaned=cleaned.replace(/,\s*}/g,'}').replace(/,\s*\]/g,']');
+    emails=JSON.parse(cleaned);
+    if(!Array.isArray(emails))throw new Error('Not an array');
+  }catch(e){plLog('JSON parse failed: '+e.message.slice(0,80),'err');plLog('Raw preview: '+raw.slice(0,120),'warn');throw new Error('Claude returned invalid JSON — use test email buttons instead');}
+  return emails.map((e,i)=>({id:e.id||'e'+i,from:e.from||'unknown@fw.com',from_name:e.from_name||'Freight Co',subject:e.subject||'Shipping Document',date:e.date||today(),snippet:e.snippet||'',has_attachment:e.has_attachment!==false,attachment_name:e.attachment_name||'document.pdf',attachment_type:e.attachment_type||'PDF',body_text:e.body_text||'',attachment_text:e.attachment_text||e.body_text||''}));
+}
+setTimeout(gmFill,0);
 
 // ── GS DIAGNOSTIC ──
 async function gsDiagnostic(){
